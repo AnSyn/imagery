@@ -1,0 +1,71 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+/build/dist
+/build/src-dist
+debug.log
+
+
+# dependencies
+/node_modules
+node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.settings*
+*.sublime-workspace
+*.sublime-project
+.metadata/
+
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage/*
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
+
+#log
+log.csv
+
+# System Files
+.DS_Store
+Thumbs.db
+
+#chrome debug
+/out/chrome/*
+
+yarn-error.log
+#package-lock.json
+yarn.lock
+/e2e/REPORTS
+*.patch
+
+# Confd dev file
+confd/dev
+confd/confd.exe
+confd/confd
+
+src/ng-ansyn.metadata.json
+
+# for base/fork conflict
+
+src/app/@ansyn/assets/SampleData
+src/app/drone
