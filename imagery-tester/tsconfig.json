@@ -15,6 +15,17 @@
     "lib": [
       "es2017",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@ansyn/imagery": [
+        "./imagery/public_api"
+      ],
+      "@ansyn/imagery-ol": [
+        "./imagery-ol/public_api"
+      ],
+      "@ansyn/ol": [
+        "./imagery-ol/public_api"
+      ]
+    }
   }
 }

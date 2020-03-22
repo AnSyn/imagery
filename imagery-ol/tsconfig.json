@@ -1,7 +1,8 @@
 {
-  "extends": "../../../../tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
+    "experimentalDecorators": true,
     "paths": {
       "@ansyn/imagery": [
         "../imagery/public_api"
