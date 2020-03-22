@@ -31,6 +31,7 @@ cache:
      - ./node_modules
 
 deploy:
+  github_token: $GITHUB_TOKEN
   provider: script
   script: "npm run deploy"
   skip_cleanup: true
