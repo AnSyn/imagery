@@ -1,0 +1,44 @@
+<div class="list">
+
+  <span>
+    <p>Annotations icon:</p>
+    <mat-button-toggle-group (change)="drawAnnotationWithIcon($event)">
+    <mat-button-toggle value="None">None</mat-button-toggle>
+    <mat-button-toggle value="logo"><img src="assets/logo.svg" class="center-icon"/></mat-button-toggle>
+    <mat-button-toggle value="forkme"><img src="assets/forkme.svg" class="center-icon gray"/></mat-button-toggle>
+  </mat-button-toggle-group>
+
+  </span>
+
+  <button
+    *ngFor="let mode of ANNOTATION_MODE_LIST"
+    mat-button
+    [disabled]="!annotations"
+    color="primary"
+    [class.mat-accent]="annotations?.mode === mode"
+    (click)="draw(mode)">
+    {{ mode }}
+  </button>
+
+  <button mat-icon-button (click)="clear()">
+    <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>
+  </button>
+
+  <button mat-button>
+    FILL
+    <mcc-color-picker [selectedColor]="'#ffffff'"
+                      (selected)="changeFill($event)"></mcc-color-picker>
+  </button>
+
+  <button mat-button>
+    STROKE
+    <mcc-color-picker [selectedColor]="'#ffffff'"
+                      (selected)="changeStroke($event)"></mcc-color-picker>
+  </button>
+
+  <button mat-button>
+    <input type="file" (change)="loadJSON($event.target.files)"/>
+  </button>
+
+
+</div>
