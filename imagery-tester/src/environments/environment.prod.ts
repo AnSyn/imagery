@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  githubLink: 'http://github.com/AnSyn'
+  githubLink: 'http://github.com/AnSyn/imagery'
 };
