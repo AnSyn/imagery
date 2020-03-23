@@ -9,13 +9,14 @@ import {
   OpenLayerBingSourceProvider,
   OpenLayersMap,
   AnnotationsContextMenuModule, OpenLayerOSMSourceProvider
-} from '@ansyn/ol';
+} from '@ansyn/imagery-ol';
 import {NavbarModule} from './navbar/navbar.module';
 import {AnnotationsControlComponent} from './annotations-control/annotations-control.component';
 import {MatButtonModule, MatIconModule, MatButtonToggleModule} from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MccColorPickerModule} from 'material-community-components';
 import {TranslateModule} from '@ngx-translate/core';
+import { CesiumMap, CesiumOsmSourceProvider } from '@ansyn/imagery-cesium';
 
 @NgModule({
   declarations: [
@@ -34,9 +35,9 @@ import {TranslateModule} from '@ngx-translate/core';
     }),
     TranslateModule.forRoot(),
     ImageryModule.provide({
-      maps: [OpenLayersMap],
+      maps: [OpenLayersMap, CesiumMap],
       plugins: [AnnotationsVisualizer],
-      mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider]
+      mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, CesiumOsmSourceProvider]
     }),
     AnnotationsContextMenuModule
   ],

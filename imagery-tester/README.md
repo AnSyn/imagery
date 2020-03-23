@@ -1,15 +1,15 @@
 # Imagery Implementation
-  This repo show you how to use `@ansyn/imagery` `@ansyn/ol` packages to
+  This repo show you how to use `@ansyn/imagery` `@ansyn/imagery-ol` packages to
   create a fast map web app of your own.
   
 ## Installation
   Inside your angular project run
   ``` bash
-    npm install @ansyn/imagery @ansyn/ol @angular/material @angular/cdk @types/geojson @ngx-translate/core@~10.0.2 
+    npm install @ansyn/imagery @ansyn/imagery-ol @angular/material @angular/cdk @types/geojson @ngx-translate/core@~10.0.2 
   ```
   or
   ```bash
-   yarn add @ansyn/imagery @ansyn/ol @angular/material @angular/cdk @types/geojson @ngx-translate/core@~10.0.2
+   yarn add @ansyn/imagery @ansyn/imagery-ol @angular/material @angular/cdk @types/geojson @ngx-translate/core@~10.0.2
   ```
   
   [see more information about the Imagery module](https://github.com/AnSyn/ansyn/wiki/Imagery-Package)
@@ -21,7 +21,7 @@ Open `app.module.ts` file and change it content to:
 import { NgModule } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {ImageryModule, MAP_PROVIDERS_CONFIG, MAP_SOURCE_PROVIDERS_CONFIG} from '@ansyn/imagery';
-import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap } from '@ansyn/ol';
+import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap } from '@ansyn/imagery-ol';
 import {AppComponent} from './app.component';
 
 @NgModule({
@@ -70,7 +70,7 @@ for more information about `providers` [click here](https://github.com/AnSyn/ans
 #### Step-2
 Create a sample setting file `IMAGERRY_SETTING.ts` inside your root file
 ```typescript
-import { OpenlayersMapName } from '@ansyn/ol';
+import { OpenlayersMapName } from '@ansyn/imagery-ol';
 import { IMapSettings } from '@ansyn/imagery';
 
 const IMAGERY_SETTINGS: IMapSettings = {
@@ -199,8 +199,8 @@ Open `app.module.ts` and change it content to:
 import { NgModule } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {ImageryModule, MAP_PROVIDERS_CONFIG, MAP_SOURCE_PROVIDERS_CONFIG} from '@ansyn/imagery';
--import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap } from '@ansyn/ol';
-+import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer } from '@ansyn/ol';
+-import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap } from '@ansyn/imagery-ol';
++import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer } from '@ansyn/imagery-ol';
 import {AppComponent} from './app.component';
 
 @NgModule({
@@ -254,7 +254,7 @@ export class AppModule {
 >```typescript
 >import {AfterViewInit, Component} from '@angular/core';
 >import {ImageryCommunicatorService, IMapSettings} from '@ansyn/imagery';
->import {AnnotationsVisualizer} from '@ansyn/ol';
+>import {AnnotationsVisualizer} from '@ansyn/imagery-ol';
 >import {filter, take, tap} from 'rxjs/operators';
 >import IMAGERY_SETTINGS from './IMAGERY_SETTINGS';
 >
@@ -302,7 +302,7 @@ open `app.module.ts` and change it content to:
 import { NgModule } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {ImageryModule, MAP_PROVIDERS_CONFIG, MAP_SOURCE_PROVIDERS_CONFIG} from '@ansyn/imagery';
-import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer } from '@ansyn/ol';
+import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer } from '@ansyn/imagery-ol';
 import {AppComponent} from './app.component';
 import {AnnotationsControlComponent} from './annotations-control/annotations-control.component';
 +import {MccColorPickerModule} from 'material-community-components';
@@ -403,7 +403,7 @@ Open `annotations-control.components.ts` and change it content to:
 import { Component, OnInit } from '@angular/core';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
 import { ImageryCommunicatorService } from '@ansyn/imagery';
-import { ANNOTATION_MODE_LIST, AnnotationsVisualizer } from '@ansyn/ol';
+import { ANNOTATION_MODE_LIST, AnnotationsVisualizer } from '@ansyn/imagery-ol';
 import { fromEvent } from 'rxjs';
 import { mergeMap, filter, take, tap } from 'rxjs/operators';
 
@@ -512,7 +512,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { ImageryModule, MAP_PROVIDERS_CONFIG, MAP_SOURCE_PROVIDERS_CONFIG } from '@ansyn/imagery';
-import { AnnotationsVisualizer, OL_CONFIG, OL_PLUGINS_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, AnnotationsContextMenuModule } from '@ansyn/ol';
+import { AnnotationsVisualizer, OL_CONFIG, OL_PLUGINS_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, AnnotationsContextMenuModule } from '@ansyn/imagery-ol';
 import { NavbarModule } from './navbar/navbar.module';
 import { AnnotationsControlComponent } from './annotations-control/annotations-control.component';
 import { MatButtonModule, MatIconModule } from '@angular/material';
@@ -629,7 +629,7 @@ in `annotation-control.component.ts` add the follow:
 ```diff
 import {Component, OnInit} from '@angular/core';
 import {ImageryCommunicatorService} from '@ansyn/imagery';
-import {ANNOTATION_MODE_LIST, AnnotationsVisualizer} from '@ansyn/ol';
+import {ANNOTATION_MODE_LIST, AnnotationsVisualizer} from '@ansyn/imagery-ol';
 import {fromEvent} from 'rxjs';
 import {filter, mergeMap, take, tap} from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
@@ -710,8 +710,8 @@ Open `app.module.ts` and change it content to:
 import { NgModule } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {ImageryModule, MAP_PROVIDERS_CONFIG, MAP_SOURCE_PROVIDERS_CONFIG} from '@ansyn/imagery';
--import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer } from '@ansyn/ol';
-+import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer, AnnotationsContextMenuModule } from '@ansyn/ol';
+-import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer } from '@ansyn/imagery-ol';
++import { OL_CONFIG, OpenLayerBingSourceProvider, OpenLayersMap, OL_PLUGINS_CONFIG, AnnotationsVisualizer, AnnotationsContextMenuModule } from '@ansyn/imagery-ol';
 import {AppComponent} from './app.component';
 import {AnnotationsControlComponent} from './annotations-control/annotations-control.component';
 import {MccColorPickerModule} from 'material-community-components';

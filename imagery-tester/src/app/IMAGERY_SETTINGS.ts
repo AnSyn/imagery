@@ -1,11 +1,12 @@
-import { OpenlayersMapName } from '@ansyn/ol';
+import { OpenlayersMapName } from '@ansyn/imagery-ol';
 import { IMapSettings } from '@ansyn/imagery';
+import { CesiumMapName } from '@ansyn/imagery-cesium';
 
 const IMAGERY_SETTINGS: IMapSettings = {
   id: 'id',
   worldView: {
-    mapType: OpenlayersMapName,
-    sourceType: 'OSM'
+    mapType: OpenlayersMapName, // CesiumMapName,
+    sourceType: 'OSM', // 'CESIUM_OSM'
   },
   flags: {},
   data: {

@@ -21,7 +21,12 @@
             "tsConfig": "imagery-tester/src/tsconfig.app.json",
             "assets": [
               "imagery-tester/src/favicon.ico",
-              "imagery-tester/src/assets"
+              "imagery-tester/src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/cesium/Build/Cesium",
+                "output": "/assets/Cesium"
+              }
             ],
             "styles": [
               "imagery-tester/src/styles.css"
@@ -31,7 +36,9 @@
                 "style"
               ]
             },
-            "scripts": []
+            "scripts": [
+              "node_modules/cesium/Build/Cesium/Cesium.js"
+            ]
           },
           "configurations": {
             "production": {

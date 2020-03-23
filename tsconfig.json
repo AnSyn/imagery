@@ -22,9 +22,6 @@
       ],
       "@ansyn/imagery-ol": [
         "./imagery-ol/public_api"
-      ],
-      "@ansyn/ol": [
-        "./imagery-ol/public_api"
       ]
     }
   }

@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ImageryCommunicatorService, IVisualizerEntity} from '@ansyn/imagery';
-import {ANNOTATION_MODE_LIST, AnnotationsVisualizer, IDrawEndEvent} from '@ansyn/ol';
+import {ANNOTATION_MODE_LIST, AnnotationsVisualizer, IDrawEndEvent} from '@ansyn/imagery-ol';
 import {fromEvent} from 'rxjs';
 import {filter, mergeMap, take, tap} from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';

@@ -1,6 +1,7 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 @import "~ol/ol.css";
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+@import "~cesium/Build/Cesium/Widgets/widgets.css";
 
 body {
   margin: 0;
