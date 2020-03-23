@@ -96,6 +96,86 @@
           }
         }
       }
+    },
+    "@ansyn/imagery-ol": {
+      "root": "imagery-ol",
+      "sourceRoot": "imagery-ol",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "imagery-ol/tsconfig.lib.json",
+            "project": "imagery-ol/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "imagery-ol/ng-package.json"
+            }
+          }
+        }
+      }
+    },
+    "@ansyn/imagery-cesium": {
+      "root": "imagery-cesium",
+      "sourceRoot": "imagery-cesium",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "imagery-cesium/tsconfig.lib.json",
+            "project": "imagery-cesium/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "imagery-cesium/ng-package.json"
+            }
+          }
+        }
+      }
+    },
+    "@ansyn/imagery-video": {
+      "root": "imagery-video",
+      "sourceRoot": "imagery-video",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "imagery-video/tsconfig.lib.json",
+            "project": "imagery-video/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "imagery-video/ng-package.json"
+            }
+          }
+        }
+      }
+    },
+    "@ansyn/imagery": {
+      "root": "imagery",
+      "sourceRoot": "imagery",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "imagery/tsconfig.lib.json",
+            "project": "imagery/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "imagery/ng-package.json"
+            }
+          }
+        }
+      }
     }
   },
   "defaultProject": "imagery-tester"

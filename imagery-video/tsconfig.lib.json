@@ -1,15 +1,12 @@
 {
-  "extends": "../../../../tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "paths": {
       "@ansyn/imagery": [
         "dist/ansyn/imagery"
-      ],
-      "@ansyn/map-facade": [
-        "dist/ansyn/map-facade"
       ]
     },
-    "outDir": "../../../out-tsc/lib",
+    "outDir": "../out-tsc/lib",
     "target": "es2015",
     "module": "es2015",
     "moduleResolution": "node",

@@ -5,7 +5,10 @@
     "experimentalDecorators": true,
     "paths": {
       "@ansyn/imagery": [
-        "../imagery/public_api"
+        "imagery/public_api"
+      ],
+      "less": [
+        "../less"
       ]
     },
     "target": "es5",
