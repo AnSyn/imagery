@@ -3,6 +3,11 @@ export { CesiumGeoServerSourceProvider } from './mapSourceProviders/cesium-GEO-S
 export { CesiumOpenAerialSourceProvider } from './mapSourceProviders/cesium-open-aerial-source-provider';
 export { CesiumProjectionService } from './projection/cesium-projection.service';
 export { CesiumPlanetSourceProvider } from './mapSourceProviders/cesium-PLANET-source-provider';
+export { CesiumGeeSourceProviderSourceType, CesiumGEESourceProvider
+} from './mapSourceProviders/cesium-GEE-source-provider';
+export { CesiumGee2DSourceProviderSourceType, CesiumGEE2dSourceProvider
+} from './mapSourceProviders/cesium-GEE-2d-source-provider';
+
 export {
 	CesiumOSMSourceProviderSourceType, CesiumOsmSourceProvider
 }from './mapSourceProviders/cesium-OSM-source-provider';

@@ -17,10 +17,12 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MccColorPickerModule} from 'material-community-components';
 import {TranslateModule} from '@ngx-translate/core';
 import {
-  CesiumBINGSourceProvider,
-  CesiumGeoServerSourceProvider,
   CesiumMap,
-  CesiumOsmSourceProvider
+  CesiumOsmSourceProvider,
+  CesiumGeoServerSourceProvider,
+  CesiumGEE2dSourceProvider,
+  CesiumGEESourceProvider,
+  CesiumBINGSourceProvider
 } from '@ansyn/imagery-cesium';
 import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-map.component';
 
@@ -44,7 +46,7 @@ import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-m
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
       plugins: [AnnotationsVisualizer],
-      mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider]
+      mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider, CesiumGEE2dSourceProvider, CesiumGEESourceProvider]
     }),
     AnnotationsContextMenuModule
   ],
@@ -126,6 +128,14 @@ import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-m
                 layers: ["Hydrography:bores"],
                 url: "https://nationalmap.gov.au/proxy/http://geoserver.nationalmap.nicta.com.au/geotopo_250k/ows"
               }
+            },{
+              key: "CESIUM_GEE",
+              displayName: "Google Earth Server",
+              thumbnail: "data:image/png;base64,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",
+              sourceType: "CESIUM_GEE",
+              config: {
+                url: "http://www.earthenterprise.org/3d"
+              }
             }
           ]
         }
@@ -139,6 +149,7 @@ import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-m
         },
         CESIUM_BING: {},
         CESIUM_OSM: {},
+        CESIUM_GEE:{},
         TileWMS: {},
         MARCO_WMTS: {
           imageUrl: "wmts?format=png&request=GetTile&layer={imagePath}&style=band&tileMatrixSet=Pixel&service=WMTS&version=1.0.0",
