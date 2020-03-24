@@ -16,12 +16,19 @@ import {MatButtonModule, MatIconModule, MatButtonToggleModule} from '@angular/ma
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MccColorPickerModule} from 'material-community-components';
 import {TranslateModule} from '@ngx-translate/core';
-import { CesiumMap, CesiumOsmSourceProvider } from '@ansyn/imagery-cesium';
+import {
+  CesiumBINGSourceProvider,
+  CesiumGeoServerSourceProvider,
+  CesiumMap,
+  CesiumOsmSourceProvider
+} from '@ansyn/imagery-cesium';
+import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-map.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AnnotationsControlComponent
+    AnnotationsControlComponent,
+    ImageryChangeMapComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +44,7 @@ import { CesiumMap, CesiumOsmSourceProvider } from '@ansyn/imagery-cesium';
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
       plugins: [AnnotationsVisualizer],
-      mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, CesiumOsmSourceProvider]
+      mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider]
     }),
     AnnotationsContextMenuModule
   ],
