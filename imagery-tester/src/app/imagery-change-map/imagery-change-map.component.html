@@ -1,13 +1,26 @@
 <div class="popup scrolled">
-	<div *ngFor="let source of mapSources"
+	<div *ngFor="let type of mapTypes"
 		 class="map"
-	[class.active]="currentSourceType === source.key">
+	[class.active]="currentMapType === type">
 		<button
-			(click)="changeMap(source.key)"
-			[attr.tooltip-value]="source.displayName"
+			(click)="changeMapType(type)"
+			[attr.tooltip-value]="type"
 			tooltip-class="wrap">
-			<p>{{source.displayName}}</p>
-			<img src="{{source.thumbnail}}" />
+			<p>{{type}}</p>
 		</button>
 	</div>
+</div>
+
+<div class="popup scrolled">
+  <div *ngFor="let source of mapSources"
+       class="map"
+       [class.active]="currentSourceType === source.key">
+    <button
+      (click)="changeMap(source.key)"
+      [attr.tooltip-value]="source.displayName"
+      tooltip-class="wrap">
+      <p>{{source.displayName}}</p>
+      <img src="{{source.thumbnail}}" />
+    </button>
+  </div>
 </div>

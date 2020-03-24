@@ -16,6 +16,8 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
   show: boolean;
   currentSourceType: string;
   mapSources: IMapSource[];
+  currentMapType: string;
+  mapTypes: string[];
   communicator: CommunicatorEntity;
 
   constructor(protected element: ElementRef,
@@ -25,6 +27,11 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
       this.communicator = communicatorService.provide(data.id);
       this.currentSourceType = this.communicator.mapSettings.worldView.sourceType;
       this.mapSources = this.mapProvidersConfig[this.communicator.ActiveMap.mapType].sources;
+      this.mapTypes = [];
+      for (let i in this.mapProvidersConfig) {
+        this.mapTypes.push(i);
+      }
+      this.currentMapType = this.communicator.ActiveMap.mapType;
     });
   }
 
@@ -40,5 +47,15 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
         this.currentSourceType = type;
       });
     }
+  }
+
+  changeMapType(type: string) {
+    this.communicator.getPosition().subscribe((position) => {
+      this.communicator.setActiveMap(type, position).then(() => {
+        this.currentMapType = type;
+        this.currentSourceType = this.communicator.mapSettings.worldView.sourceType;
+        this.mapSources = this.mapProvidersConfig[this.communicator.ActiveMap.mapType].sources;
+      })
+    })
   }
 }
