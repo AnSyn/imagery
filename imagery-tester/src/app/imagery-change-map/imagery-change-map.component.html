@@ -1,0 +1,13 @@
+<div class="popup scrolled">
+	<div *ngFor="let source of mapSources"
+		 class="map"
+	[class.active]="currentSourceType === source.key">
+		<button
+			(click)="changeMap(source.key)"
+			[attr.tooltip-value]="source.displayName"
+			tooltip-class="wrap">
+			<p>{{source.displayName}}</p>
+			<img src="{{source.thumbnail}}" />
+		</button>
+	</div>
+</div>
