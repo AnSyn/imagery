@@ -30,6 +30,9 @@ export class AnnotationsControlComponent implements OnInit {
   onInitMap() {
     const communicator = this.communicators.provide(IMAGERY_SETTINGS.id);
     this.annotations = communicator.getPlugin(AnnotationsVisualizer);
+    communicator.mapInstanceChanged.subscribe(() => {
+      this.annotations = communicator.getPlugin(AnnotationsVisualizer);
+    });
   }
 
   ngOnInit() {
