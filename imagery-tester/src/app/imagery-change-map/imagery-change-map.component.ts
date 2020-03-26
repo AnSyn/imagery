@@ -5,6 +5,7 @@ import {
   IMapSource,
   MAP_PROVIDERS_CONFIG
 } from '@ansyn/imagery';
+import { MeasureRulerVisualizer } from '@ansyn/imagery-ol';
 
 @Component({
   selector: 'imagery-change-map',
@@ -57,5 +58,38 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
         this.mapSources = this.mapProvidersConfig[this.communicator.ActiveMap.mapType].sources;
       })
     })
+  }
+
+  toggleRuler() {
+    const plugin = this.communicator.getPlugin(MeasureRulerVisualizer);
+    const newState = !plugin.isRulerEnabled;
+    if (newState) {
+      plugin.startDeleteSingleEntity(false);
+    }
+    plugin.enableRuler(newState);
+  }
+
+  clearRulerEntities() {
+    const plugin = this.communicator.getPlugin(MeasureRulerVisualizer);
+    plugin.clearRulerEntities();
+  }
+
+  deleteEntity() {
+    const plugin = this.communicator.getPlugin(MeasureRulerVisualizer);
+    const newState = !plugin.isRulerRemoveEntitiesEnabled;
+    if (newState) {
+      plugin.enableRuler(false);
+    }
+    plugin.startDeleteSingleEntity(newState);
+  }
+
+  get isRulerEnabled() {
+    const plugin = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
+    return plugin && plugin.isRulerEnabled;
+  }
+
+  get isRulerRemoveEntitiesEnabled() {
+    const plugin = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
+    return plugin && plugin.isRulerRemoveEntitiesEnabled;
   }
 }
