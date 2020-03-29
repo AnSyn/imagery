@@ -1,5 +1,5 @@
 <div class="popup" style="display: flex; flex-direction: column; width: 250px;">
-  <button [disabled]="measureRulerPlugin" [ngClass]="isRulerEnabled ? 'active' : ''" (click)="toggleRuler()">Activate Distance Ruler Measurments</button>
-  <button [disabled]="measureRulerPlugin" [ngClass]="isRulerRemoveEntitiesEnabled ? 'active' : ''" (click)="deleteEntity()">Activate Distance Ruler Measurments Removal</button>
-  <button [disabled]="measureRulerPlugin" (click)="clearRulerEntities()">Clear Ruler Entities</button>
+  <button [disabled]="!isMeasureRulerExists" [ngClass]="isRulerEnabled ? 'active' : ''" (click)="toggleRuler()">Activate Distance Ruler Measurments</button>
+  <button [disabled]="!isMeasureRulerExists" [ngClass]="isRulerRemoveEntitiesEnabled ? 'active' : ''" (click)="deleteEntity()">Activate Distance Ruler Measurments Removal</button>
+  <button [disabled]="!isMeasureRulerExists" (click)="clearRulerEntities()">Clear Ruler Entities</button>
 </div>

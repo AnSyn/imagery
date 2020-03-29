@@ -14,11 +14,16 @@ export class MeasureRulerComponent implements OnInit, OnDestroy {
   mapId: string;
   show: boolean;
   communicator: CommunicatorEntity;
+  measureRulerVisualizerPlugin: MeasureRulerVisualizer;
 
   constructor(protected element: ElementRef,
               communicatorService: ImageryCommunicatorService) {
     communicatorService.instanceCreated.subscribe((data) => {
       this.communicator = communicatorService.provide(data.id);
+      this.measureRulerVisualizerPlugin = this.communicator.getPlugin(MeasureRulerVisualizer);
+      this.communicator.mapInstanceChanged.subscribe(() => {
+        this.measureRulerVisualizerPlugin = this.communicator.getPlugin(MeasureRulerVisualizer);
+      });
     });
   }
 
@@ -29,39 +34,38 @@ export class MeasureRulerComponent implements OnInit, OnDestroy {
   }
 
   toggleRuler() {
-    const plugin = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
-    if (plugin) {
-      const newState = !plugin.isRulerEnabled;
+    if (this.measureRulerVisualizerPlugin) {
+      const newState = !this.measureRulerVisualizerPlugin.isRulerEnabled;
       if (newState) {
-        plugin.startDeleteSingleEntity(false);
+        this.measureRulerVisualizerPlugin.startDeleteSingleEntity(false);
       }
-      plugin.enableRuler(newState);
+      this.measureRulerVisualizerPlugin.enableRuler(newState);
     }
   }
 
   clearRulerEntities() {
-    const plugin: MeasureRulerVisualizer = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
-    plugin && plugin.clearRulerEntities();
+    this.measureRulerVisualizerPlugin && this.measureRulerVisualizerPlugin.clearRulerEntities();
   }
 
   deleteEntity() {
-    const plugin: MeasureRulerVisualizer = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
-    if (plugin) {
-      const newState = !plugin.isRulerRemoveEntitiesEnabled;
+    if (this.measureRulerVisualizerPlugin) {
+      const newState = !this.measureRulerVisualizerPlugin.isRulerRemoveEntitiesEnabled;
       if (newState) {
-        plugin.enableRuler(false);
+        this.measureRulerVisualizerPlugin.enableRuler(false);
       }
-      plugin.startDeleteSingleEntity(newState);
+      this.measureRulerVisualizerPlugin.startDeleteSingleEntity(newState);
     }
   }
 
   get isRulerEnabled() {
-    const plugin: MeasureRulerVisualizer = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
-    return plugin && plugin.isRulerEnabled;
+    return this.measureRulerVisualizerPlugin && this.measureRulerVisualizerPlugin.isRulerEnabled;
   }
 
   get isRulerRemoveEntitiesEnabled() {
-    const plugin: MeasureRulerVisualizer = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
-    return plugin && plugin.isRulerRemoveEntitiesEnabled;
+    return this.measureRulerVisualizerPlugin && this.measureRulerVisualizerPlugin.isRulerRemoveEntitiesEnabled;
+  }
+
+  get isMeasureRulerExists(): boolean {
+    return Boolean(this.measureRulerVisualizerPlugin);
   }
 }
