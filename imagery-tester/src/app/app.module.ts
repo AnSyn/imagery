@@ -28,6 +28,7 @@ import {
 } from '@ansyn/imagery-cesium';
 import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-map.component';
 import { MeasureRulerComponent } from './measure-ruler/measure-ruler.component';
+import { TestOLVisualizer } from './plugins/ol/test-ol-visualizer';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,7 @@ import { MeasureRulerComponent } from './measure-ruler/measure-ruler.component';
     TranslateModule.forRoot(),
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
-      plugins: [AnnotationsVisualizer, MeasureRulerVisualizer],
+      plugins: [AnnotationsVisualizer, MeasureRulerVisualizer, TestOLVisualizer],
       mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider, CesiumGEE2dSourceProvider, CesiumGEESourceProvider]
     }),
     AnnotationsContextMenuModule
