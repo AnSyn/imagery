@@ -27,12 +27,14 @@ import {
   CesiumBINGSourceProvider
 } from '@ansyn/imagery-cesium';
 import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-map.component';
+import { MeasureRulerComponent } from './measure-ruler/measure-ruler.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AnnotationsControlComponent,
-    ImageryChangeMapComponent
+    ImageryChangeMapComponent,
+    MeasureRulerComponent
   ],
   imports: [
     BrowserModule,

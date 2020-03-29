@@ -18,7 +18,7 @@
             "index": "imagery-tester/src/index.html",
             "main": "imagery-tester/src/main.ts",
             "polyfills": "imagery-tester/src/polyfills.ts",
-            "tsConfig": "imagery-tester/src/tsconfig.app.json",
+            "tsConfig": "imagery-tester/src/tsconfig.json",
             "assets": [
               "imagery-tester/src/favicon.ico",
               "imagery-tester/src/assets",

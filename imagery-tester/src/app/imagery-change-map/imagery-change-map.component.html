@@ -24,9 +24,4 @@
     </button>
   </div>
 </div>
-
-<div style="display: flex; flex-direction: column; width: 250px;">
-  <button [ngClass]="isRulerEnabled ? 'active' : ''" (click)="toggleRuler()">Activate Distance Ruler Measurments</button>
-  <button [ngClass]="isRulerRemoveEntitiesEnabled ? 'active' : ''" (click)="deleteEntity()">Activate Distance Ruler Measurments Removal</button>
-  <button (click)="clearRulerEntities()">Clear Ruler Entities</button>
-</div>
+<measure-ruler></measure-ruler>
