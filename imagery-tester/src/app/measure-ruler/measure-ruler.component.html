@@ -3,7 +3,7 @@
   <button [disabled]="!isMeasureRulerExists" [ngClass]="isRulerRemoveEntitiesEnabled ? 'active' : ''" (click)="deleteEntity()">Activate Distance Ruler Measurments Removal</button>
   <button [disabled]="!isMeasureRulerExists" (click)="clearRulerEntities()">Clear Ruler Entities</button>
 
-  <button [disabled]="!isTestOLVisualizerExists" (click)="drawTestOLPoint()">Test OL Visualizer Point with radius 0 m</button>
+  <button [disabled]="!isTestOLVisualizerExists" (click)="drawTestOLPoint(0)">Test OL Visualizer Point with radius 0 m</button>
   <button [disabled]="!isTestOLVisualizerExists" (click)="drawTestOLPoint(500)">Test OL Visualizer Polygon with radius 500 m</button>
   <button [disabled]="!isTestOLVisualizerExists" (click)="createTestOLPoint()">Create New Test Point From Map</button>
 </div>
