@@ -24,8 +24,8 @@ before_script:
 
 script:
   - npm run lint
+  - npm run test:single-run"
   - npm run build:libs
-  - echo "skipping tests"
 
 cache:
   directories:

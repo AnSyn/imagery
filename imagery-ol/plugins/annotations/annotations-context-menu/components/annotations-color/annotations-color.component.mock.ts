@@ -1,4 +1,4 @@
-import { MockComponent } from '../../../../../../ansyn/modules/core/test/mock-component';
+import { MockComponent } from '../../../../../../test/mock-component';
 
 export const mockAnnotationsColorComponent = MockComponent({
 	selector: 'ansyn-annotations-color',

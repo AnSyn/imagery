@@ -4,7 +4,7 @@ import { AnnotationsContextMenuButtonsComponent } from './annotations-context-me
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
-import { MockComponent } from '../../../../../../ansyn/modules/core/test/mock-component';
+import { MockComponent } from '../../../../../../test/mock-component';
 import { mockStayInImageryService } from '../../../../../../imagery/stay-in-imagery-service/stay-in-imagery.service.mock';
 import { mockAnnotationsColorComponent } from '../annotations-color/annotations-color.component.mock';
 
