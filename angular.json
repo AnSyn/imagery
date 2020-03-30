@@ -84,13 +84,31 @@
             "polyfills": "imagery-tester/src/polyfills.ts",
             "tsConfig": "imagery-tester/src/tsconfig.spec.json",
             "karmaConfig": "imagery-tester/src/karma.conf.js",
+            "scripts": [
+              "node_modules/cesium/Build/Cesium/Cesium.js"
+            ],
             "styles": [
               "imagery-tester/src/styles.css"
             ],
-            "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/app/@ansyn",
+                "style"
+              ]
+            },
             "assets": [
-              "imagery-tester/src/favicon.ico",
-              "imagery-tester/src/assets"
+              {
+                "glob": "**/*",
+                "input": "imagery-tester/src/assets",
+                "output": "/assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cesium/Build/Cesium",
+                "output": "/assets/Cesium"
+              },
+              "imagery-tester/src/assets",
+              "imagery-tester/src/favicon.ico"
             ]
           }
         },

@@ -10,12 +10,12 @@ const MAPID = 'mapId';
 describe('MeasureRulerComponent', () => {
 	let component: MeasureRulerComponent;
 	let fixture: ComponentFixture<MeasureRulerComponent>;
-	let imageryCommunicatorService: ImageryCommunicatorService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [MeasureRulerComponent],
 			providers: [
+        ImageryCommunicatorService,
 				{
 					provide: MAP_PROVIDERS_CONFIG,
 					useValue: {}
@@ -29,7 +29,6 @@ describe('MeasureRulerComponent', () => {
 		fixture = TestBed.createComponent(MeasureRulerComponent);
 		component = fixture.componentInstance;
 		component.mapId = MAPID;
-		component.currentSourceType = `other${SOURCETYPE}`;
 		fixture.detectChanges();
 	});
 

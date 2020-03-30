@@ -4,18 +4,20 @@ import { ImageryChangeMapComponent } from './imagery-change-map.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { ImageryCommunicatorService, MAP_PROVIDERS_CONFIG } from '@ansyn/imagery';
+import { MockComponent } from '../../../../test/mock-component';
 
 const SOURCETYPE = 'sourceType';
 const MAPID = 'mapId';
 describe('ImageryChangeMapComponent', () => {
 	let component: ImageryChangeMapComponent;
 	let fixture: ComponentFixture<ImageryChangeMapComponent>;
-	let imageryCommunicatorService: ImageryCommunicatorService;
+  const mockMeasureRuler = MockComponent({ selector: 'measure-ruler', inputs: [] });
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ImageryChangeMapComponent],
+			declarations: [ImageryChangeMapComponent, mockMeasureRuler],
 			providers: [
+        ImageryCommunicatorService,
 				{
 					provide: MAP_PROVIDERS_CONFIG,
 					useValue: {}
