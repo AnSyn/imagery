@@ -588,19 +588,23 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 
 		if (!oldFeature || featureId !== oldFeature.getId()) { // start editing
 			this.clearAnnotationEditMode();
-			const originalFeature: olFeature = this.source.getFeatureById(featureId);
+			let originalFeature: olFeature = this.source.getFeatureById(featureId);
 			this.updateFeature(originalFeature.getId(), { labelTranslateOn: true });
-			const labelFeature = this.createLabelFeature(originalFeature);
+			this.addOrUpdateEntities([this.getEntityById(featureId)]).pipe(take(1)).subscribe(() => {
+				originalFeature = this.source.getFeatureById(featureId);
+				const labelFeature = this.createLabelFeature(originalFeature);
 
-			this.addInteraction(VisualizerInteractions.labelTranslateHandler, this.moveLabelInteraction(originalFeature, labelFeature));
-			event = {
-				originalFeature,
-				labelFeature
-			};
-			this.source.addFeature(labelFeature);
+				this.addInteraction(VisualizerInteractions.labelTranslateHandler, this.moveLabelInteraction(originalFeature, labelFeature));
+				event = {
+					originalFeature,
+					labelFeature
+				};
+				this.source.addFeature(labelFeature);
+			})
 		} else {
 			this.updateFeature(featureId, { labelTranslateOn: false });
 			this.source.removeFeature(this.labelTranslate.labelFeature);
+			this.addOrUpdateEntities([this.getEntityById(featureId)]).pipe(take(1)).subscribe();
 		}
 		this.events.onLabelTranslateStart.next(event);
 	}
