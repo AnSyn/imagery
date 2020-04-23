@@ -4,20 +4,12 @@ import {
   OpenLayersMap,
   OpenLayersProjectionService
 } from '@ansyn/imagery-ol';
-import Icon from 'ol/style/Icon';
-import Style from 'ol/style/Style';
 // import Feature from 'ol/Feature';
-import Stroke from 'ol/style/Stroke';
-import Fill from 'ol/style/Fill';
-import olPoint from 'ol/geom/Point';
 import { fromLonLat, transformExtent } from 'ol/proj';
-import olPolygon, { fromCircle } from 'ol/geom/Polygon';
+import { fromCircle } from 'ol/geom/Polygon';
 import * as turf from '@turf/turf';
 import { take } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import OLGeoJSON from 'ol/format/GeoJSON';
-import { getPointByGeometry, ImageryVisualizer, IVisualizerEntity, MarkerSize } from '@ansyn/imagery';
-import { FeatureCollection } from 'geojson';
+import { ImageryVisualizer, IVisualizerEntity, IVisualizerStateStyle, MarkerSize } from '@ansyn/imagery';
 
 export enum NumberOfEntities {
   Entities_10 = '10',
@@ -86,13 +78,20 @@ export class TestOLPerformanceVisualizer extends EntitiesVisualizer {
       const point = dataPoints[i];
 
       const feature = turf.point([point.lng, point.lat]);
-      const style = {
+      const style: Partial<IVisualizerStateStyle> = {
+        opacity: 1,
         initial: {
           stroke: point.color,
-          fill: point.color
-        },
+          fill: point.color,
+          'fill-opacity': 0.4,
+          'marker-color': point.color,
+          'marker-size': MarkerSize.medium,
+          'stroke-dasharray': 0,
+          'stroke-opacity': 1,
+          'stroke-width': 1
+        }
       };
-      entities.push({ id: i.toString(), featureJson: feature, style, label: {text: i.toString(), geometry: null} })
+      entities.push({ id: i.toString(), featureJson: feature, style, label: { text: i.toString(), geometry: null } })
     }
     this.setEntities(entities).pipe(take(1)).subscribe((result) => {
       console.log(result);

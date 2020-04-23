@@ -12,10 +12,11 @@ describe('ImageryChangeMapComponent', () => {
 	let component: ImageryChangeMapComponent;
 	let fixture: ComponentFixture<ImageryChangeMapComponent>;
   const mockMeasureRuler = MockComponent({ selector: 'measure-ruler', inputs: [] });
+  const mockImageryPerformance = MockComponent({ selector: 'imagery-performance', inputs: [] });
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ImageryChangeMapComponent, mockMeasureRuler],
+			declarations: [ImageryChangeMapComponent, mockMeasureRuler, mockImageryPerformance],
 			providers: [
         ImageryCommunicatorService,
 				{
