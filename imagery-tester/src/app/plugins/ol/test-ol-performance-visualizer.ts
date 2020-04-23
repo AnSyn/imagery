@@ -41,6 +41,7 @@ export class TestOLPerformanceVisualizer extends EntitiesVisualizer {
         'marker-color': `#ffffff`
       }
     });
+    this.useCachedStyleForUpdatedEntities = true;
   }
 
   setTestEntities(numberOfEntities: NumberOfEntities) {
@@ -94,7 +95,6 @@ export class TestOLPerformanceVisualizer extends EntitiesVisualizer {
       entities.push({ id: i.toString(), featureJson: feature, style, label: { text: i.toString(), geometry: null } })
     }
     this.setEntities(entities).pipe(take(1)).subscribe((result) => {
-      console.log(result);
     });
   }
 

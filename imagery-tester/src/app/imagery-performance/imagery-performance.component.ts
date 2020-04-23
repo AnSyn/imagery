@@ -12,6 +12,8 @@ export class ImageryPerformanceComponent implements OnInit, OnDestroy {
   show: boolean;
   communicator: CommunicatorEntity;
   testOLPerformanceVisualizer: TestOLPerformanceVisualizer;
+  timerId;
+  number;
 
   constructor(protected element: ElementRef,
               communicatorService: ImageryCommunicatorService) {
@@ -28,7 +30,31 @@ export class ImageryPerformanceComponent implements OnInit, OnDestroy {
     return Boolean(this.testOLPerformanceVisualizer);
   }
 
+  get hasNumberOfEntities(): boolean {
+    return Boolean(this.number);
+  }
+
+  toggleUpdateTimeCycle() {
+    if (this.timerId) {
+      window.clearInterval(this.timerId);
+      this.timerId = null;
+    } else {
+      this.timerId = window.setInterval(() => {
+        this.setTestEntities(this.number);
+      }, 1000);
+    }
+  }
+
+  purgeCache() {
+    this.testOLPerformanceVisualizer.purgeCache();
+  }
+
   drawTestOLPoint(number: number) {
+      this.setTestEntities(number);
+  }
+
+  setTestEntities(number) {
+    this.number = number;
     if (number === 10) {
       this.testOLPerformanceVisualizer.setTestEntities(NumberOfEntities.Entities_10);
     } else if (number === 100) {
@@ -46,5 +72,9 @@ export class ImageryPerformanceComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.timerId) {
+      window.clearInterval(this.timerId);
+      this.timerId = null;
+    }
   }
 }
