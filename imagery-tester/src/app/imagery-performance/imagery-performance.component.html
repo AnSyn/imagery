@@ -1,0 +1,6 @@
+<div class="popup" style="display: flex; flex-direction: column; width: 250px;">
+  <button [disabled]="!isTestOLPerformanceVisualizerExists" (click)="drawTestOLPoint(10)">Test 10 Entities</button>
+  <button [disabled]="!isTestOLPerformanceVisualizerExists" (click)="drawTestOLPoint(100)">Test 100 Entities</button>
+  <button [disabled]="!isTestOLPerformanceVisualizerExists" (click)="drawTestOLPoint(1000)">Test 1000 Entities</button>
+  <button [disabled]="!isTestOLPerformanceVisualizerExists" (click)="drawTestOLPoint(10000)">Test 10000 Entities</button>
+</div>

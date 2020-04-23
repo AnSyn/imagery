@@ -1,0 +1,25 @@
+@import "less/common";
+@import "less/z-index-globals";
+
+:host {
+	position: relative;
+	color: white;
+  padding: 0 10px;
+
+	.popup {
+		display: flex;
+		flex-flow: row wrap;
+		align-items: flex-start;
+		width: 250px;
+		overflow-y: auto;
+	}
+}
+
+button {
+  color: #000000;
+  &.active {
+    color: #37ff0c;
+  }
+}
+
+
