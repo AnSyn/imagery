@@ -34,6 +34,7 @@ export { OpenLayerESRI4326SourceProvider } from './mapSourceProviders/open-layer
 export { OpenLayerOpenAerialSourceProvider } from './mapSourceProviders/open-layers-open-aerial-source-provider';
 export { OpenLayersStaticImageSourceProvider } from './mapSourceProviders/open-layers-static-image-source-provider';
 export { OpenLayerMarcoSourceProvider } from './mapSourceProviders/marco/open-layers-MARCO-source-provider';
+export { OpenLayerGEESourceProvider } from './mapSourceProviders/open-layers-GEE-source-provider';
 
 export {
 	AnnotationInteraction,
