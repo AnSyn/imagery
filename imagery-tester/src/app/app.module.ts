@@ -30,13 +30,16 @@ import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-m
 import { MeasureRulerComponent } from './measure-ruler/measure-ruler.component';
 import { TestOLVisualizer } from './plugins/ol/test-ol-visualizer';
 import { MouseMarkerPlugin } from './plugins/cesium/mouse-marker-plugin';
+import { TestOLPerformanceVisualizer } from './plugins/ol/test-ol-performance-visualizer';
+import { ImageryPerformanceComponent } from './imagery-performance/imagery-performance.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AnnotationsControlComponent,
     ImageryChangeMapComponent,
-    MeasureRulerComponent
+    MeasureRulerComponent,
+    ImageryPerformanceComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +54,7 @@ import { MouseMarkerPlugin } from './plugins/cesium/mouse-marker-plugin';
     TranslateModule.forRoot(),
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
-      plugins: [AnnotationsVisualizer, MeasureRulerVisualizer, TestOLVisualizer, MouseMarkerPlugin],
+      plugins: [AnnotationsVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
       mapSourceProviders: [OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider, CesiumGEE2dSourceProvider, CesiumGEESourceProvider]
     }),
     AnnotationsContextMenuModule
