@@ -32,9 +32,9 @@ import { map } from 'rxjs/operators';
 import { featureCollection } from '@turf/turf';
 
 export interface IFeatureIdentifier {
-	feature: Feature,
-	originalEntity: IVisualizerEntity,
-	cachedFeatureStyle: any
+	feature: Feature;
+	originalEntity: IVisualizerEntity;
+	cachedFeatureStyle: any;
 }
 
 export abstract class EntitiesVisualizer extends BaseImageryVisualizer {

@@ -11,11 +11,12 @@ import {
 import { OpenLayersMapSourceProvider } from './open-layers.map-source-provider';
 import { OpenLayersMap } from '../maps/open-layers-map/openlayers-map/openlayers-map';
 import { OpenLayersDisabledMap } from '../maps/openlayers-disabled-map/openlayers-disabled-map';
-import { HttpClient } from "@angular/common/http";
-import { Inject } from "@angular/core";
+import { HttpClient } from '@angular/common/http';
+import { Inject } from '@angular/core';
 
+​
 export const OpenLayerGEESourceProviderSourceType = 'GEE';
-
+​
 @ImageryMapSource({
 	sourceType: OpenLayerGEESourceProviderSourceType,
 	supported: [OpenLayersMap, OpenLayersDisabledMap]
@@ -31,36 +32,31 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 
 	create(metaData: IMapSettings): Promise<any> {
 		let layerPromise;
-		const config = {...this.config, ...metaData.data.config};
-
-		const getLayersDataPromise = this.getLayersData(config.serverUrl)
+		const config = { ...this.config, ...metaData.data.config };
+​
+		return this.getLayersData(config.serverUrl)
 			.then((data) => {
-				//const query = '/query?request=ImageryMaps&channel=' + config.channel + '&version=2&x={x}&y={y}&z={z}';
-				data.layers.forEach(layer => {
+				const geeDefs = JSON.parse(data.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
 					const source = new TileImage({
-						url: config.serverUrl + `/query?request=` + layer.requestType + `&channel=` + layer.id + `&version=` + layer.version + `&x={x}&y={y}&z={z}`,
+						url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
 						crossOrigin: 'anonymous'
 					});
-
+​
 					const geeLayer = new TileLayer(<any>{
 						source: source,
 						visible: true,
 						preload: Infinity
 					});
-
+​
 					return Promise.resolve(geeLayer);
-				});
-
 			})
 			.catch((excpetion) => {
+				console.warn(excpetion);
 			});
-
-
-		return getLayersDataPromise;
 	}
 
 	getLayersData(serverURL: string): Promise<any> {
-		const fileUrl = serverURL + `/query?request=Json`;
-		return this.httpClient.get(fileUrl).toPromise();
+		const fileUrl = serverURL + `/query?request=Json&is2d=t`;
+		return this.httpClient.get(fileUrl, { responseType: 'text' }).toPromise();
 	}
 }
