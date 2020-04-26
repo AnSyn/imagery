@@ -78,11 +78,13 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 
 	setCachedEntityOLStyleById(featureId: string, olStyle) {
 		const entity = this.idToEntity.get(featureId);
-		this.idToEntity.set(featureId, {
-			feature: entity.feature,
-			originalEntity: entity.originalEntity,
-			cachedFeatureStyle: olStyle
-		});
+		if (entity) { // if it's a feature from interaction (draws new) it doesn't exist's in the dictionary so we ignore it
+			this.idToEntity.set(featureId, {
+				feature: entity.feature,
+				originalEntity: entity.originalEntity,
+				cachedFeatureStyle: olStyle
+			});
+		}
 	}
 
 	getJsonFeatureById(featureId: string): Feature {
