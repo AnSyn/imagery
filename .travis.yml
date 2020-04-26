@@ -1,5 +1,5 @@
-sudo: required # is required to use docker service in travis
-
+os: linux
+dist: trusty
 addons:
   chrome: stable
 
@@ -21,6 +21,7 @@ install:
 # Init GUI
 before_script:
   - "export DISPLAY=:99.0"
+  #- apt-get install graphicsmagick # for e2e screenshots
 
 script:
   - npm run lint
@@ -29,7 +30,7 @@ script:
 
 cache:
   directories:
-     - ./node_modules
+    - ./node_modules
 
 deploy:
   github_token: $GITHUB_TOKEN

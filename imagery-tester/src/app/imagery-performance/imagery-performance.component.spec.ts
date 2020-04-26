@@ -1,22 +1,19 @@
 import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
 
-import { ImageryChangeMapComponent } from './imagery-change-map.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { ImageryCommunicatorService, MAP_PROVIDERS_CONFIG } from '@ansyn/imagery';
-import { MockComponent } from '../../../../test/mock-component';
+import { ImageryPerformanceComponent } from './imagery-performance.component';
 
 const SOURCETYPE = 'sourceType';
 const MAPID = 'mapId';
-describe('ImageryChangeMapComponent', () => {
-	let component: ImageryChangeMapComponent;
-	let fixture: ComponentFixture<ImageryChangeMapComponent>;
-  const mockMeasureRuler = MockComponent({ selector: 'measure-ruler', inputs: [] });
-  const mockImageryPerformance = MockComponent({ selector: 'imagery-performance', inputs: [] });
+describe('MeasureRulerComponent', () => {
+	let component: ImageryPerformanceComponent;
+	let fixture: ComponentFixture<ImageryPerformanceComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ImageryChangeMapComponent, mockMeasureRuler, mockImageryPerformance],
+			declarations: [ImageryPerformanceComponent],
 			providers: [
         ImageryCommunicatorService,
 				{
@@ -29,10 +26,9 @@ describe('ImageryChangeMapComponent', () => {
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(ImageryChangeMapComponent);
+		fixture = TestBed.createComponent(ImageryPerformanceComponent);
 		component = fixture.componentInstance;
 		component.mapId = MAPID;
-		component.currentSourceType = `other${SOURCETYPE}`;
 		fixture.detectChanges();
 	});
 
