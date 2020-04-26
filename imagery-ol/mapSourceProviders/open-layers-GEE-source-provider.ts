@@ -2,7 +2,6 @@ import TileLayer from 'ol/layer/Tile';
 import TileImage from 'ol/source/TileImage';
 import {
 	CacheService,
-	EPSG_3857,
 	ImageryCommunicatorService,
 	ImageryMapSource,
 	IMapSettings, IMapSourceProvidersConfig,
@@ -13,7 +12,6 @@ import { OpenLayersMap } from '../maps/open-layers-map/openlayers-map/openlayers
 import { OpenLayersDisabledMap } from '../maps/openlayers-disabled-map/openlayers-disabled-map';
 import { HttpClient } from '@angular/common/http';
 import { Inject } from '@angular/core';
-
 ​
 export const OpenLayerGEESourceProviderSourceType = 'GEE';
 ​
@@ -37,21 +35,20 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 		return this.getLayersData(config.serverUrl)
 			.then((data) => {
 				const geeDefs = JSON.parse(data.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
-					const source = new TileImage({
-						url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
-						crossOrigin: 'anonymous'
-					});
+				const source = new TileImage({
+					url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
+					crossOrigin: 'anonymous'
+				});
 ​
-					const geeLayer = new TileLayer(<any>{
-						source: source,
-						visible: true,
-						preload: Infinity
-					});
-​
-					return Promise.resolve(geeLayer);
+				const geeLayer = new TileLayer(<any>{
+					source: source,
+					visible: true,
+					preload: Infinity
+				});
+				return Promise.resolve(geeLayer);
 			})
 			.catch((excpetion) => {
-				console.warn(excpetion);
+				console.error(excpetion);
 			});
 	}
 
