@@ -362,18 +362,6 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 	}
 
 	setEntities(logicalEntities: IVisualizerEntity[]): Observable<boolean> {
-		// const removedEntities = [];
-		// this.idToEntity.forEach(((value, key: string) => {
-		// 	const item = logicalEntities.find((entity) => entity.id === key);
-		// 	if (!item) {
-		// 		removedEntities.push(key);
-		// 	}
-		// }));
-		//
-		// removedEntities.forEach((id) => {
-		// 	this.removeEntity(id);
-		// });
-
 		return this.addOrUpdateEntities(logicalEntities, true);
 	}
 
