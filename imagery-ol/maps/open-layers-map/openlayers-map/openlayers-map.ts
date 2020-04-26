@@ -70,10 +70,6 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 		this.http
 	);
 
-	// map.getViewport().addEventListener('contextmenu', function (evt) {
-	// evt.preventDefault();
-	// console.log(map.getEventCoordinate(evt));
-
 	constructor(protected http: HttpClient,
 				public projectionService: OpenLayersProjectionService,
 				@Inject(OL_CONFIG) public olConfig: IOlConfig) {
@@ -177,9 +173,6 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 		this._mapObject.on('movestart', this._moveStartListener);
 		this._mapObject.on('pointerdown', this._pointerDownListener);
 		this._mapObject.on('pointermove', this._pointerMoveListener);
-		this.targetElement.addEventListener('contextmenu', function (evt) {
-
-		});
 
 		this.subscribers.push(
 			this.getMoveEndPositionObservable.pipe(
