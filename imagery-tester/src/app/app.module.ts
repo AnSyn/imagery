@@ -34,6 +34,7 @@ import { TestOLVisualizer } from './plugins/ol/test-ol-visualizer';
 import { MouseMarkerPlugin } from './plugins/cesium/mouse-marker-plugin';
 import { TestOLPerformanceVisualizer } from './plugins/ol/test-ol-performance-visualizer';
 import { ImageryPerformanceComponent } from './imagery-performance/imagery-performance.component';
+import { MapEventsComponent } from './map-events/map-events.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { ImageryPerformanceComponent } from './imagery-performance/imagery-perfo
     AnnotationsControlComponent,
     ImageryChangeMapComponent,
     MeasureRulerComponent,
-    ImageryPerformanceComponent
+    ImageryPerformanceComponent,
+    MapEventsComponent
   ],
   imports: [
     BrowserModule,

@@ -137,6 +137,16 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 		}
 	}
 
+	public purgeCacheById(featureId: string) {
+		if (this.idToEntity.has(featureId)) {
+			const entitiy = this.idToEntity.get(featureId);
+			if ((<any>entitiy.feature).styleCache) {
+				delete (<any>entitiy.feature).styleCache;
+			}
+			this.idToEntity.set(featureId, {cachedFeatureStyle: null,originalEntity: entitiy.originalEntity, feature: entitiy.feature });
+		}
+	}
+
 	public purgeCache(feature?: Feature) {
 		if (feature) {
 			delete (<any>feature).styleCache;
@@ -485,4 +495,35 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 		return result;
 	}
 
+	featureAtPixel = (pixel) => {
+		if (!Boolean(pixel) || !Boolean(pixel.length)) {
+			return undefined;
+		}
+		const featuresArray = [];
+		this.iMap.mapObject.forEachFeatureAtPixel(pixel, feature => {
+			featuresArray.push(feature);
+		}, { hitTolerance: 2, layerFilter: (layer) => this.vector === layer });
+		return this.findFeatureWithMinimumArea(featuresArray);
+	};
+
+	entityAtPixel(pixel) : IVisualizerEntity {
+		const feature = this.featureAtPixel(pixel);
+		if (!feature) {
+			return undefined;
+		}
+		const entity = this.getEntity(feature);
+		return entity;
+	}
+
+	findFeatureWithMinimumArea(featuresArray: any[]) {
+		return featuresArray.reduce((prevResult, currFeature) => {
+			const currGeometry = currFeature.getGeometry();
+			const currArea = currGeometry.getArea ? currGeometry.getArea() : 0;
+			if (currArea < prevResult.area) {
+				return { feature: currFeature, area: currArea };
+			} else {
+				return prevResult;
+			}
+		}, { feature: null, area: Infinity }).feature;
+	}
 }

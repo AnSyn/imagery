@@ -1,9 +1,13 @@
 export { IMapSource } from './model/map-providers-config';
 export { IStroke, IIcon } from './model/visualizers/visualizer-style';
-
 export { ICanvasExportData } from './model/base-imagery-map';
 export {
-	ImageryMapExtent, ImageryMapExtentPolygon, ImageryMapProjectedState, ImageryMapPosition, IMousePointerMove
+	ImageryMapExtent,
+	ImageryMapExtentPolygon,
+	ImageryMapProjectedState,
+	ImageryMapPosition,
+	IMousePointerMove,
+	IMouseClick
 }from './model/case-map-position.model';
 
 export { MAP_SOURCE_PROVIDERS_CONFIG, IMapSourceProvidersConfig } from './model/base-map-source-provider';
