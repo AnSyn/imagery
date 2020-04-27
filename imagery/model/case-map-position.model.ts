@@ -22,7 +22,7 @@ export interface IMousePointerMove {
 }
 
 export interface IMouseClick {
-	worldLocation?: Point;
+	worldLocation: Point;
 	screenPixel: [number, number];
 	originalEvent: MouseEvent;
 }

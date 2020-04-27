@@ -22,7 +22,7 @@ export class MapEventsComponent implements OnInit, OnDestroy {
       this.communicator = communicatorService.provide(data.id);
       this.testOLPerformanceVisualizer = this.communicator.getPlugin(TestOLPerformanceVisualizer);
       this.communicator.mapInstanceChanged.subscribe(() => {
-        this.unsubscribe();
+        this.unsubscribeAll();
         this.testOLPerformanceVisualizer = this.communicator.getPlugin(TestOLPerformanceVisualizer);
       });
     });
@@ -55,6 +55,7 @@ export class MapEventsComponent implements OnInit, OnDestroy {
       this.singleclickSubscription = this.communicator.ActiveMap.mouseSingleClick.subscribe(this.onSingleClick.bind(this));
     } else {
       this.unsubscribeEvent(this.singleclickSubscription);
+      this.singleclickSubscription = null;
     }
   }
 
@@ -63,6 +64,7 @@ export class MapEventsComponent implements OnInit, OnDestroy {
       this.rightClickSubscription = this.communicator.ActiveMap.mouseRightClick.subscribe(this.onRightClick.bind(this));
     } else {
       this.unsubscribeEvent(this.rightClickSubscription);
+      this.rightClickSubscription = null;
     }
   }
 
@@ -71,6 +73,7 @@ export class MapEventsComponent implements OnInit, OnDestroy {
       this.doubleClickSubscription = this.communicator.ActiveMap.mouseDoubleClick.subscribe(this.onDoubleClick.bind(this));
     } else {
       this.unsubscribeEvent(this.doubleClickSubscription);
+      this.doubleClickSubscription = null;
     }
   }
 
@@ -78,19 +81,23 @@ export class MapEventsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.unsubscribe();
+    this.unsubscribeAll();
   }
 
-  unsubscribe() {
+  unsubscribeAll() {
     this.unsubscribeEvent(this.rightClickSubscription);
+    this.rightClickSubscription = null;
+
     this.unsubscribeEvent(this.doubleClickSubscription);
+    this.doubleClickSubscription = null;
+
     this.unsubscribeEvent(this.singleclickSubscription);
+    this.singleclickSubscription = null;
   }
 
   unsubscribeEvent(subscription) {
     if (subscription) {
       subscription.unsubscribe();
-      subscription = null;
     }
   }
 }

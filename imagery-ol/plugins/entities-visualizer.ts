@@ -508,6 +508,9 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 
 	entityAtPixel(pixel) : IVisualizerEntity {
 		const feature = this.featureAtPixel(pixel);
+		if (!feature) {
+			return undefined;
+		}
 		const entity = this.getEntity(feature);
 		return entity;
 	}
