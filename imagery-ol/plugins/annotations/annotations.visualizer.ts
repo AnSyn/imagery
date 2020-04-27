@@ -179,18 +179,6 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 		this.geoJsonFormat = new OLGeoJSON();
 	}
 
-	findFeatureWithMinimumArea(featuresArray: any[]) {
-		return featuresArray.reduce((prevResult, currFeature) => {
-			const currGeometry = currFeature.getGeometry();
-			const currArea = currGeometry.getArea ? currGeometry.getArea() : 0;
-			if (currArea < prevResult.area) {
-				return { feature: currFeature, area: currArea };
-			} else {
-				return prevResult;
-			}
-		}, { feature: null, area: Infinity }).feature;
-	}
-
 	annotationsLayerToEntities(annotationsLayer: FeatureCollection<any>): IVisualizerEntity[] {
 		return annotationsLayer.features.map((feature: Feature<any>): IVisualizerEntity => {
 			const featureJson = { ...feature };
@@ -287,14 +275,6 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 		this.dragBox.on('boxdrag', this.mapBoxdrag);
 		map.addInteraction(this.dragBox);
 	}
-
-	featureAtPixel = (pixel) => {
-		const featuresArray = [];
-		this.iMap.mapObject.forEachFeatureAtPixel(pixel, feature => {
-			featuresArray.push(feature);
-		}, { hitTolerance: 2, layerFilter: (layer) => this.vector === layer });
-		return this.findFeatureWithMinimumArea(featuresArray);
-	};
 
 	onDrawEndEvent({ feature }) {
 		const { mode } = this;
