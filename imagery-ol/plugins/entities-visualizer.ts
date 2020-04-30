@@ -309,6 +309,22 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			console.warn('Got empty id\'s for some map features/annotations');
 		}
 
+		// save old cached styles
+		const cachedOldEntitiesStyles: Map<string, any> = new Map<string, any>();
+		if (this.useCachedStyleForUpdatedEntities) {
+			this.idToEntity.forEach((val, key) => {
+				cachedOldEntitiesStyles.set(key, val.cachedFeatureStyle);
+			});
+		}
+
+		if (!forceClearAllExistingEntites) {
+			filteredLogicalEntities.forEach((entity: IVisualizerEntity) => {
+				this.removeEntity(entity.id, true);
+			});
+		} else {
+			this.clearEntities();
+		}
+
 		if (filteredLogicalEntities.length <= 0) {
 			return of(true);
 		}
@@ -322,24 +338,8 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			}
 		});
 
-		// save old cached styles
-		const cachedOldEntitiesStyles: Map<string, any> = new Map<string, any>();
-		if (this.useCachedStyleForUpdatedEntities) {
-			this.idToEntity.forEach((val, key) => {
-				cachedOldEntitiesStyles.set(key, val.cachedFeatureStyle);
-			});
-		}
-
 		const featuresCollectionToAdd: any = featureCollection(features);
 		const labelCollectionToAdd: any = featureCollection(labels);
-		if (!forceClearAllExistingEntites) {
-			filteredLogicalEntities.forEach((entity: IVisualizerEntity) => {
-				this.removeEntity(entity.id, true);
-			});
-		} else {
-			this.clearEntities();
-		}
-
 		const featuresProject = (<OpenLayersMap>this.iMap).projectionService.projectCollectionAccuratelyToImage<Feature>(featuresCollectionToAdd, this.iMap.mapObject);
 		const labelsProject = (<OpenLayersMap>this.iMap).projectionService.projectCollectionAccuratelyToImage<Feature>(labelCollectionToAdd, this.iMap.mapObject);
 		return forkJoin(featuresProject, labelsProject)

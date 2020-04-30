@@ -5,4 +5,5 @@
   <button [disabled]="!isTestOLPerformanceVisualizerExists" (click)="drawTestOLPoint(10000)">Test 10000 Entities</button>
   <button [disabled]="!isTestOLPerformanceVisualizerExists || !hasNumberOfEntities" (click)="toggleUpdateTimeCycle()">(Toggle) Test Entities update every 1 sec</button>
   <button [disabled]="!isTestOLPerformanceVisualizerExists" (click)="purgeCache()">purge style Cache</button>
+  <button [disabled]="!isTestOLPerformanceVisualizerExists" (click)="clearEntities()">clear Entities</button>
 </div>
