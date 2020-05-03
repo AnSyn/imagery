@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Inject } from '@angular/core';
+import { EventEmitter, Inject } from '@angular/core';
 import {
 	areCoordinatesNumeric,
 	BaseImageryMap,
@@ -11,7 +11,8 @@ import {
 	ImageryMapExtent,
 	ImageryMapExtentPolygon,
 	ImageryMapPosition,
-	IMapProgress
+	IMapProgress,
+	IMouseClick
 } from '@ansyn/imagery';
 import * as turf from '@turf/turf';
 import { feature } from '@turf/turf';
@@ -173,6 +174,9 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 		this._mapObject.on('movestart', this._moveStartListener);
 		this._mapObject.on('pointerdown', this._pointerDownListener);
 		this._mapObject.on('pointermove', this._pointerMoveListener);
+		this._mapObject.on('dblclick', this._dblClickListener);
+		this._mapObject.on('singleclick', this._singleClickListener);
+		this.targetElement.addEventListener('contextmenu', this._rightClickListener);
 
 		this.subscribers.push(
 			this.getMoveEndPositionObservable.pipe(
@@ -562,6 +566,9 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 			this._mapObject.un('movestart', this._moveStartListener);
 			this._mapObject.un('pointerdown', this._pointerDownListener);
 			this._mapObject.un('pointermove', this._pointerMoveListener);
+			this._mapObject.un('dblclick', this._dblClickListener);
+			this._mapObject.un('singleclick', this._singleClickListener);
+			this.targetElement.removeEventListener('contextmenu', this._rightClickListener);
 			this._mapObject.setTarget(null);
 		}
 
@@ -593,6 +600,46 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 			}))
 			.subscribe();
 	};
+
+	private _rightClickListener: (args) => void = (event: MouseEvent) => {
+		let coordinates = this.getCoordinateFromScreenPixel({ x: event.offsetX, y: event.offsetY });
+		if (!areCoordinatesNumeric(coordinates)) {
+			console.warn('no coordinate for pixel');
+			return;
+		}
+		this.rasiseEvent(event, this.mouseRightClick, coordinates);
+	};
+
+
+	private _dblClickListener: (event) => void = (event) => {
+		this.rasiseEvent(event, this.mouseDoubleClick);
+	};
+
+	private _singleClickListener: (event) => void = (event) => {
+		this.rasiseEvent(event, this.mouseSingleClick);
+	};
+
+	rasiseEvent(event: any, eventEmitter: EventEmitter<IMouseClick>, coordinates ?: any) {
+		const point = <GeoPoint>turf.geometry('Point', event.coordinate || coordinates);
+		return this.projectionService.projectAccurately(point, this.mapObject).pipe(
+			take(1),
+			tap((projectedPoint) => {
+				if (areCoordinatesNumeric(projectedPoint.coordinates)) {
+					eventEmitter.emit({
+						worldLocation: projectedPoint,
+						screenPixel: event.pixel || [event.offsetX, event.offsetY],
+						originalEvent: event
+					});
+				} else {
+					eventEmitter.emit({
+						worldLocation: undefined,
+						screenPixel: event.pixel || [event.offsetX, event.offsetY],
+						originalEvent: event
+					});
+				}
+			}))
+			.subscribe();
+	}
 
 	private _moveStartListener: () => void = () => {
 		this.getMoveStartPositionObservable.next(null);

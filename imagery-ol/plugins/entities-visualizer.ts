@@ -78,11 +78,13 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 
 	setCachedEntityOLStyleById(featureId: string, olStyle) {
 		const entity = this.idToEntity.get(featureId);
-		this.idToEntity.set(featureId, {
-			feature: entity.feature,
-			originalEntity: entity.originalEntity,
-			cachedFeatureStyle: olStyle
-		});
+		if (entity) { // if it's a feature from interaction (draws new) it doesn't exist's in the dictionary so we ignore it
+			this.idToEntity.set(featureId, {
+				feature: entity.feature,
+				originalEntity: entity.originalEntity,
+				cachedFeatureStyle: olStyle
+			});
+		}
 	}
 
 	getJsonFeatureById(featureId: string): Feature {
@@ -132,6 +134,16 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			this.iMap.removeLayer(this.vector);
 		} else {
 			this.iMap.addLayer((this.vector));
+		}
+	}
+
+	public purgeCacheById(featureId: string) {
+		if (this.idToEntity.has(featureId)) {
+			const entitiy = this.idToEntity.get(featureId);
+			if ((<any>entitiy.feature).styleCache) {
+				delete (<any>entitiy.feature).styleCache;
+			}
+			this.idToEntity.set(featureId, {cachedFeatureStyle: null,originalEntity: entitiy.originalEntity, feature: entitiy.feature });
 		}
 	}
 
@@ -297,6 +309,22 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			console.warn('Got empty id\'s for some map features/annotations');
 		}
 
+		// save old cached styles
+		const cachedOldEntitiesStyles: Map<string, any> = new Map<string, any>();
+		if (this.useCachedStyleForUpdatedEntities) {
+			this.idToEntity.forEach((val, key) => {
+				cachedOldEntitiesStyles.set(key, val.cachedFeatureStyle);
+			});
+		}
+
+		if (!forceClearAllExistingEntites) {
+			filteredLogicalEntities.forEach((entity: IVisualizerEntity) => {
+				this.removeEntity(entity.id, true);
+			});
+		} else {
+			this.clearEntities();
+		}
+
 		if (filteredLogicalEntities.length <= 0) {
 			return of(true);
 		}
@@ -310,24 +338,8 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			}
 		});
 
-		// save old cached styles
-		const cachedOldEntitiesStyles: Map<string, any> = new Map<string, any>();
-		if (this.useCachedStyleForUpdatedEntities) {
-			this.idToEntity.forEach((val, key) => {
-				cachedOldEntitiesStyles.set(key, val.cachedFeatureStyle);
-			});
-		}
-
 		const featuresCollectionToAdd: any = featureCollection(features);
 		const labelCollectionToAdd: any = featureCollection(labels);
-		if (!forceClearAllExistingEntites) {
-			filteredLogicalEntities.forEach((entity: IVisualizerEntity) => {
-				this.removeEntity(entity.id, true);
-			});
-		} else {
-			this.clearEntities();
-		}
-
 		const featuresProject = (<OpenLayersMap>this.iMap).projectionService.projectCollectionAccuratelyToImage<Feature>(featuresCollectionToAdd, this.iMap.mapObject);
 		const labelsProject = (<OpenLayersMap>this.iMap).projectionService.projectCollectionAccuratelyToImage<Feature>(labelCollectionToAdd, this.iMap.mapObject);
 		return forkJoin(featuresProject, labelsProject)
@@ -483,4 +495,35 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 		return result;
 	}
 
+	featureAtPixel = (pixel) => {
+		if (!Boolean(pixel) || !Boolean(pixel.length)) {
+			return undefined;
+		}
+		const featuresArray = [];
+		this.iMap.mapObject.forEachFeatureAtPixel(pixel, feature => {
+			featuresArray.push(feature);
+		}, { hitTolerance: 2, layerFilter: (layer) => this.vector === layer });
+		return this.findFeatureWithMinimumArea(featuresArray);
+	};
+
+	entityAtPixel(pixel) : IVisualizerEntity {
+		const feature = this.featureAtPixel(pixel);
+		if (!feature) {
+			return undefined;
+		}
+		const entity = this.getEntity(feature);
+		return entity;
+	}
+
+	findFeatureWithMinimumArea(featuresArray: any[]) {
+		return featuresArray.reduce((prevResult, currFeature) => {
+			const currGeometry = currFeature.getGeometry();
+			const currArea = currGeometry.getArea ? currGeometry.getArea() : 0;
+			if (currArea < prevResult.area) {
+				return { feature: currFeature, area: currArea };
+			} else {
+				return prevResult;
+			}
+		}, { feature: null, area: Infinity }).feature;
+	}
 }

@@ -49,6 +49,10 @@ export class ImageryPerformanceComponent implements OnInit, OnDestroy {
     this.testOLPerformanceVisualizer.purgeCache();
   }
 
+  clearEntities() {
+    this.testOLPerformanceVisualizer.setEntities([]).subscribe();
+  }
+
   drawTestOLPoint(number: number) {
       this.setTestEntities(number);
   }
