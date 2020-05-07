@@ -13,10 +13,10 @@ import {
 	MultiPoint,
 	MultiPolygon,
 	Point,
-	Polygon
+	Polygon, Position
 } from 'geojson';
 import {
-	Color,
+	Color, CustomDataSource,
 	Entity
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium'
@@ -24,52 +24,66 @@ import { merge } from 'lodash';
 
 declare const Cesium: any;
 
-export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
-	protected dataSourceGuid;
+export interface IEntityIdentifier {
+	originalEntity: IVisualizerEntity;
+	entities: Entity[];
+}
 
-	public dataSources: Set<string> = new Set<string>();
+export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
+	protected dataSource: CustomDataSource;
+	public idToEntity: Map<string, IEntityIdentifier> = new Map<string, { originalEntity: null, entities: null }>();
 
 	onInit() {
-		this.dataSourceGuid = Cesium.createGuid()
+		this.getOrCreateDataSource(Cesium.createGuid()).then(newDataSource => {
+			this.dataSource = newDataSource;
+		});
 	}
 
 	addOrUpdateEntities(logicalEntities: IVisualizerEntity[]): Observable<boolean> {
 		logicalEntities.forEach((entity: IVisualizerEntity) => {
 			const featureJson: Feature<any> = entity.featureJson;
 
+			const newEntities: Entity[] = [];
+
 			switch (featureJson.geometry.type) {
 				case 'Point': {
-					this.getOrCreateDataSource(featureJson.geometry.type).then(dataSource => {
-						if (entity.icon) {
-							dataSource.entities.add(this.getBillboard(entity.id, featureJson.geometry, entity.icon));
-						} else {
-							dataSource.entities.add(this.getPoint(entity.id, featureJson.geometry, entity.style));
-						}
-					});
+					if (entity.icon) {
+						newEntities.push(this.getBillboard(entity.id, featureJson.geometry, entity.icon));
+					} else {
+						newEntities.push(this.getPoint(entity.id, (<Point>featureJson.geometry).coordinates, entity.style));
+					}
 					break;
 				}
 				case 'LineString': {
-					this.getOrCreateDataSource(featureJson.geometry.type).then(dataSource => {
-						dataSource.entities.add(this.getPolyline(entity.id, featureJson.geometry, entity.style));
-					});
+					newEntities.push(this.getLineString(entity.id, (<LineString>featureJson.geometry).coordinates, entity.style));
 					break;
 				}
 				case 'Polygon': {
-					this.getOrCreateDataSource(featureJson.geometry.type).then(dataSource => {
-						dataSource.entities.add(this.getPolygon(entity.id, featureJson.geometry, entity.style));
-					});
+					newEntities.push(this.getPolygon(entity.id, (<Polygon>featureJson.geometry).coordinates, entity.style));
 					break;
 				}
 				case 'MultiPoint': {
-					// TODO Complete Code
+					// Adding each point
+					let i = 0;
+					(<MultiPoint>featureJson.geometry).coordinates.forEach((ptCoords) => {
+						newEntities.push(this.getPoint(`${entity.id}_${i++}`, ptCoords, entity.style));
+					})
 					break;
 				}
 				case 'MultiLineString': {
-					// TODO Complete Code
+					// Adding each line
+					let i = 0;
+					(<MultiLineString>featureJson.geometry).coordinates.forEach((lineCoords) => {
+						newEntities.push(this.getLineString(`${entity.id}_${i++}`, lineCoords, entity.style));
+					})
 					break;
 				}
 				case 'MultiPolygon': {
-					// TODO Complete Code
+					// Adding each poly
+					let i = 0;
+					(<MultiPolygon>featureJson.geometry).coordinates.forEach((polyCoords) => {
+						newEntities.push(this.getPolygon(`${entity.id}_${i++}`, polyCoords, entity.style));
+					})
 					break;
 				}
 				default: {
@@ -77,38 +91,33 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 				}
 
 			}
+
+			// Add new entities to dataSource == Map
+			newEntities.forEach(entity => this.dataSource.entities.add(entity));
+
+			// Save for future use
+			this.idToEntity.set(entity.id, {originalEntity: entity, entities: newEntities});
 		});
 		return of(true);
 	}
 
 	clearEntities() {
-		this.dataSources.forEach((dataSourceName) => {
-			const dataSources = this.iMap.mapObject.dataSources.getByName(dataSourceName);
-			if (dataSources.length === 1) {
-				dataSources[0].removeAll();
-			}
-		});
+		this.dataSource.entities.removeAll();
+		this.idToEntity.clear();
 	}
 
 	getEntities(): IVisualizerEntity[] {
-		this.dataSources.forEach((dataSourceName) => {
-			const dataSources = this.iMap.mapObject.dataSources.getByName(dataSourceName);
-			if (dataSources.length === 1) {
-				// TODO get all entities
-
-			}
-
+		const entities: IVisualizerEntity[] = [];
+		this.idToEntity.forEach((entity) => {
+			entities.push(entity.originalEntity);
 		});
-		return null;
+
+		return entities;
 	}
 
 	removeEntity(logicalEntityId: string) {
-		this.dataSources.forEach((dataSourceName) => {
-			const dataSources = this.iMap.mapObject.dataSources.getByName(dataSourceName);
-			if (dataSources.length === 1) {
-				dataSources[0].removeById(logicalEntityId);
-			}
-		});
+		this.dataSource.entities.removeById(logicalEntityId);
+		this.idToEntity.delete(logicalEntityId);
 	}
 
 	setEntities(logicalEntities: IVisualizerEntity[]): Observable<boolean> {
@@ -117,12 +126,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	}
 
 	setVisibility(isVisible: boolean): void {
-		this.dataSources.forEach((dataSourceName) => {
-			const dataSources = this.iMap.mapObject.dataSources.getByName(dataSourceName);
-			if (dataSources.length === 1) {
-				dataSources[0].show = isVisible;
-			}
-		});
+		this.dataSource.show = isVisible;
 	}
 
 	addInteraction(type: VisualizerInteractionTypes, interactionInstance: any): void {
@@ -140,20 +144,20 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		};
 	}
 
-	private getPoint(id: string, geometry: Point, stylesState?: Partial<IVisualizerStateStyle>): any {
+	private getPoint(id: string, coordinates: Position, stylesState?: Partial<IVisualizerStateStyle>): any {
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
 		const ptColor = this.getColor(s["marker-color"]);
 		return {
 			id: id,
-			position: geoToCesium.coordinatesToCartesian(geometry.coordinates),
+			position: geoToCesium.coordinatesToCartesian(coordinates),
 			point: {
 				color: ptColor
 			}
 		}
 	}
 
-	private getPolyline(id: string, geometry: LineString, stylesState?: Partial<IVisualizerStateStyle>): any {
+	private getLineString(id: string, coordinates: Position[], stylesState?: Partial<IVisualizerStateStyle>): any {
 
 		// TODO: Support all polyline styles
 		const styles = merge({}, stylesState);
@@ -165,14 +169,14 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		return {
 			id: id,
 			polyline: {
-				positions: geoToCesium.multiLineToCartesian(geometry.coordinates),
+				positions: geoToCesium.multiLineToCartesian(coordinates),
 				width: lineWidth,
 				material: lineColor
 			}
 		};
 	}
 
-	private getPolygon(id: string, geometry: Polygon, stylesState?: Partial<IVisualizerStateStyle>): any {
+	private getPolygon(id: string, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): any {
 
 		// TODO: Support all polygon styles
 		const styles = merge({}, stylesState);
@@ -183,12 +187,12 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 		const lineWidth = s['stroke-width'];
 
-		const poly = new Cesium.PolygonHierarchy(geoToCesium.polygonCoordinatesToCartesian(geometry.coordinates[0]));
+		const poly = new Cesium.PolygonHierarchy(geoToCesium.polygonCoordinatesToCartesian(coordinates[0]));
 
 
 		// Adding holes
-		for (let i = 1; i < geometry.coordinates.length; i++) {
-			poly.holes.push(geoToCesium.polygonCoordinatesToCartesian(geometry.coordinates[i]));
+		for (let i = 1; i < coordinates.length; i++) {
+			poly.holes.push(geoToCesium.polygonCoordinatesToCartesian(coordinates[i]));
 		}
 
 		return {
@@ -217,13 +221,11 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		}
 	}
 
-	private getOrCreateDataSource(id) {
-		const dataSourceName = `${this.dataSourceGuid}_${id}`;
+	private getOrCreateDataSource(dataSourceGuid): Promise<Cesium.CustomDataSource> {
 		return new Promise<Cesium.CustomDataSource>((resolve) => {
-			const ds = this.iMap.mapObject.dataSources.getByName(dataSourceName);
+			const ds = this.iMap.mapObject.dataSources.getByName(dataSourceGuid);
 			if (ds.length === 0) {
-				this.dataSources.add(dataSourceName);
-				return this.iMap.mapObject.dataSources.add(new Cesium.CustomDataSource(dataSourceName)).then(value => resolve(value));
+				return this.iMap.mapObject.dataSources.add(new Cesium.CustomDataSource(dataSourceGuid)).then(value => resolve(value));
 			} else {
 				return resolve(ds[0]);
 			}
