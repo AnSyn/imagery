@@ -12,7 +12,8 @@ import {
   OpenLayerOSMSourceProvider,
   OpenLayerTileWMSSourceProvider,
   OpenLayerGEESourceProvider,
-  MeasureRulerVisualizer
+  MeasureRulerVisualizer,
+  GridLinesVisualizer
 } from '@ansyn/imagery-ol';
 import { NavbarModule } from './navbar/navbar.module';
 import { AnnotationsControlComponent } from './annotations-control/annotations-control.component';
@@ -58,7 +59,7 @@ import { MapEventsComponent } from './map-events/map-events.component';
     TranslateModule.forRoot(),
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
-      plugins: [AnnotationsVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
+      plugins: [AnnotationsVisualizer, GridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
       mapSourceProviders: [OpenLayerGEESourceProvider, OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, OpenLayerTileWMSSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider, CesiumGEE2dSourceProvider, CesiumGEESourceProvider]
     }),
     AnnotationsContextMenuModule

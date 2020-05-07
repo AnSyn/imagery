@@ -1,3 +1,5 @@
+export { GridLinesVisualizer } from './plugins/grid-lines/grid-lines.visualizer';
+
 export { MeasureRulerVisualizer, ILabelHandler } from './plugins/measure-ruler/measure-ruler.visualizer';
 
 export { OpenLayerESRI_4326SourceProviderSourceType } from './mapSourceProviders/open-layers-ESRI-4326-source-provider';
