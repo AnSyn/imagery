@@ -5,7 +5,7 @@ import {
   IMapSource,
   MAP_PROVIDERS_CONFIG
 } from '@ansyn/imagery';
-import { MeasureRulerVisualizer } from '@ansyn/imagery-ol';
+import { GridLinesVisualizer, MeasureRulerVisualizer } from '@ansyn/imagery-ol';
 
 @Component({
   selector: 'imagery-change-map',
@@ -91,5 +91,19 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
   get isRulerRemoveEntitiesEnabled() {
     const plugin = this.communicator && this.communicator.getPlugin(MeasureRulerVisualizer);
     return plugin && plugin.isRulerRemoveEntitiesEnabled;
+  }
+
+  showGrid() {
+    const plugin = this.communicator && this.communicator.getPlugin(GridLinesVisualizer);
+    if (plugin && plugin.isEnabled) {
+      plugin.isEnabled = false;
+    } else {
+      plugin.isEnabled = true;
+    }
+  }
+
+  get isGridOLVisualizerExists() {
+    const plugin = this.communicator && this.communicator.getPlugin(GridLinesVisualizer);
+    return Boolean(plugin);
   }
 }
