@@ -1,5 +1,5 @@
 import TileLayer from 'ol/layer/Tile';
-import TileImage from 'ol/source/TileImage';
+import XYZ from 'ol/source/XYZ';
 import {
 	CacheService,
 	ImageryCommunicatorService,
@@ -29,15 +29,15 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 	}
 
 	create(metaData: IMapSettings): Promise<any> {
-		let layerPromise;
 		const config = { ...this.config, ...metaData.data.config };
 ​
 		return this.getLayersData(config.serverUrl)
 			.then((data) => {
 				const geeDefs = JSON.parse(data.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
-				const source = new TileImage({
+				const source = new XYZ({
 					url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
-					crossOrigin: 'anonymous'
+					crossOrigin: 'anonymous',
+					minZoom: 1
 				});
 ​
 				const geeLayer = new TileLayer(<any>{
