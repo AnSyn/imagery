@@ -24,7 +24,7 @@ export class GridLinesVisualizer extends BaseImageryPlugin {
 
 	// override this method to format the angle
 	formatAngle(angle) {
-		return angle.toFixed(2) + String.fromCharCode(176);
+		return angle.toFixed(3) + String.fromCharCode(176);
 	}
 
 	onInit() {
