@@ -5,7 +5,7 @@ export {
 	ImageryMapExtent,
 	ImageryMapExtentPolygon,
 	ImageryMapProjectedState,
-	ImageryMapPosition,
+	IImageryMapPosition,
 	IMousePointerMove,
 	IMouseClick
 }from './model/case-map-position.model';

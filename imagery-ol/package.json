@@ -2,8 +2,8 @@
 	"name": "@ansyn/imagery-ol",
 	"version": "1.6.33",
 	"peerDependencies": {
-		"@angular/core": "^7.2.2",
-		"@angular/common": "^7.2.2",
+		"@angular/core": "~8.2.14",
+		"@angular/common": "~8.2.14",
 		"@ansyn/imagery": "1.6.33",
 		"rxjs": "^6.4.0",
 		"@ngx-translate/core": "^11.0.1"
