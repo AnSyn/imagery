@@ -33,6 +33,7 @@ import { Inject } from '@angular/core';
 import { EntitiesVisualizer } from '../entities-visualizer';
 import { OpenLayersProjectionService } from '../../projection/open-layers-projection.service';
 import { OpenLayersMap } from '../../maps/open-layers-map/openlayers-map/openlayers-map';
+import { getAngleDegreeBetweenCoordinates } from '@ansyn/imagery';
 
 export interface ILabelHandler {
 	select: Select;
@@ -394,8 +395,11 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 					coordinates: lineString.getCoordinates()
 				});
 				const segmentLengthText = this.measureApproximateLength(lineString, projection);
+
 				const singlePointLengthTextStyle = this.getSinglePointLengthTextStyle();
-				singlePointLengthTextStyle.setText(segmentLengthText);
+				// find bearing
+				const angle = getAngleDegreeBetweenCoordinates(start, end);
+				singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle.toFixed(2) + String.fromCharCode(176));
 				styles.push(new Style({
 					geometry: new Point(<[number, number]>centroid.coordinates),
 					text: singlePointLengthTextStyle
@@ -444,6 +448,9 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				});
 				const segmentLengthText = this.formatLength([featureGeoJson.coordinates[i], featureGeoJson.coordinates[i + 1]]);
 				const singlePointLengthTextStyle = this.getSinglePointLengthTextStyle();
+
+				const angle = getAngleDegreeBetweenCoordinates(<[]>featureGeoJson.coordinates[i], <[]>featureGeoJson.coordinates[i + 1]);
+				singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle.toFixed(2) + String.fromCharCode(176));
 				singlePointLengthTextStyle.setText(segmentLengthText);
 				const labelFeature = new Feature({
 					geometry: new Point(<[number, number]>centroid.coordinates),

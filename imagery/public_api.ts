@@ -80,5 +80,5 @@ export { IMAGERY_CONFIG } from './model/configuration.token';
 export { ImageryLayerProperties, IMAGERY_MAIN_LAYER_NAME, IMAGERY_BASE_MAP_LAYER } from './model/imagery-layer.model';
 
 export { IMapSettings, IMapSettingsData, IWorldViewMapState } from './model/map-settings';
-export { toDegrees, toRadians, getAngleDegreeBetweenPoints } from './utils/math';
+export { toDegrees, toRadians, getAngleDegreeBetweenPoints, getAngleDegreeBetweenCoordinates } from './utils/math';
 export { ExtentCalculator } from './utils/extent-calculator';
