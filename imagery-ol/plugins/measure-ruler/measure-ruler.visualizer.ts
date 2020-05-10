@@ -24,7 +24,8 @@ import {
 	MarkerSize,
 	VisualizerInteractions,
 	VisualizerStates,
-	VisualizersConfig
+	VisualizersConfig,
+	toDegrees
 } from '@ansyn/imagery';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import { Observable, Subject } from 'rxjs';
@@ -48,6 +49,7 @@ export interface ILabelHandler {
 export class MeasureRulerVisualizer extends EntitiesVisualizer {
 	labelToMeasures: Map<string, { features: Feature[], handler: ILabelHandler }> = new Map();
 	isTotalMeasureActive: boolean;
+	isAzimuthAngleActive: boolean;
 	geoJsonFormat: GeoJSON;
 	interactionSource: VectorSource;
 	hoveredMeasureId: string;
@@ -106,6 +108,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 			}
 		});
 		this.isTotalMeasureActive = config.MeasureDistanceVisualizer.extra.isTotalMeasureActive;
+		this.isAzimuthAngleActive = (config && config.MeasureDistanceVisualizer && config.MeasureDistanceVisualizer.extra && config.MeasureDistanceVisualizer.extra.isAzimuthAngleActive) || true;
 		this.geoJsonFormat = new GeoJSON();
 	}
 
@@ -397,9 +400,15 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				const segmentLengthText = this.measureApproximateLength(lineString, projection);
 
 				const singlePointLengthTextStyle = this.getSinglePointLengthTextStyle();
-				// find bearing
-				const angle = getAngleDegreeBetweenCoordinates(start, end);
-				singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle.toFixed(2) + String.fromCharCode(176));
+
+				if (this.isAzimuthAngleActive) {
+					// find azimuth
+					const angle = this.getAzimuth(start, end);
+					singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle + String.fromCharCode(176));
+				} else {
+					singlePointLengthTextStyle.setText(segmentLengthText);
+				}
+
 				styles.push(new Style({
 					geometry: new Point(<[number, number]>centroid.coordinates),
 					text: singlePointLengthTextStyle
@@ -410,7 +419,14 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 		if (this.isTotalMeasureActive || length === 2) {
 			// all line string
 			const allLengthText = this.measureApproximateLength(geometry, projection);
-			this.allLengthTextStyle.setText(allLengthText);
+			if (this.isAzimuthAngleActive && length === 2) {
+				// find azimuth
+				const coords = geometry.getCoordinates();
+				const angle = this.getAzimuth(coords[0], coords[1]);
+				this.allLengthTextStyle.setText(String.fromCharCode(931) + ' ' + allLengthText + ' ' + angle + String.fromCharCode(176));
+			} else {
+				this.allLengthTextStyle.setText(String.fromCharCode(931) + ' ' + allLengthText);
+			}
 			let allLinePoint = new Point(geometry.getCoordinates()[0]);
 
 			if (calculateCenterOfMass) {
@@ -449,9 +465,13 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				const segmentLengthText = this.formatLength([featureGeoJson.coordinates[i], featureGeoJson.coordinates[i + 1]]);
 				const singlePointLengthTextStyle = this.getSinglePointLengthTextStyle();
 
-				const angle = getAngleDegreeBetweenCoordinates(<[]>featureGeoJson.coordinates[i], <[]>featureGeoJson.coordinates[i + 1]);
-				singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle.toFixed(2) + String.fromCharCode(176));
-				singlePointLengthTextStyle.setText(segmentLengthText);
+				if (this.isAzimuthAngleActive) {
+					// find azimuth
+					const angle = this.getAzimuth(featureGeoJson.coordinates[i + 1], featureGeoJson.coordinates[i]);
+					singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle + String.fromCharCode(176));
+				} else {
+					singlePointLengthTextStyle.setText(segmentLengthText);
+				}
 				const labelFeature = new Feature({
 					geometry: new Point(<[number, number]>centroid.coordinates),
 				});
@@ -466,7 +486,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 			// all line string
 			const allLengthText = this.formatLength(featureGeoJson.coordinates);
 			const lengthText = this.allLengthTextStyle.clone();
-			lengthText.setText(allLengthText);
+			lengthText.setText(String.fromCharCode(931) + ' ' + allLengthText);
 			let allLinePoint = new Point(geometry.getCoordinates()[0]);
 			const featureId = <string>feature.getId();
 			const entityMap = this.idToEntity.get(featureId);
@@ -485,6 +505,13 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 		}
 		features.forEach(feature => feature.setId(UUID.UUID()));
 		return features;
+	}
+
+	getAzimuth(source, dest) {
+		const rad = Math.atan2((dest[0] - source[0]), (dest[1] - source[1]));
+		let deg = toDegrees(rad);
+		deg = (deg + 360) % 360;
+		return deg.toFixed(2);
 	}
 
 	clearLabelInteractions() {
