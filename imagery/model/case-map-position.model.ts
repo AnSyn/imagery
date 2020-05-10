@@ -29,7 +29,7 @@ export interface IMouseClick {
 
 export type ImageryMapExtentPolygon = Polygon;
 
-export interface ImageryMapPosition {
+export interface IImageryMapPosition {
 	projectedState?: ImageryMapProjectedState;
 	extentPolygon?: ImageryMapExtentPolygon;
 	customResolution?: number;
