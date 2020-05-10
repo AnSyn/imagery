@@ -16,8 +16,9 @@ import {
 	Polygon, Position
 } from 'geojson';
 import {
-	Color, CustomDataSource,
-	Entity, LabelGraphics
+	Color,
+	CustomDataSource,
+	Entity,
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium'
 import { merge } from 'lodash';
@@ -92,8 +93,12 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 			}
 			// Setting the label
-			if (featureJson.properties.label && featureJson.properties.label.text && newEntities.length > 0) {
-					//newEntities[0].label = new LabelGraphics({text: featureJson.properties.label.text});
+			if (entity.label && entity.label.text && newEntities.length > 0) {
+				newEntities[0].label = new Cesium.LabelGraphics({
+						text: entity.label.text,
+						font: new Cesium.ConstantProperty( entity.labelSize ? entity.labelSize : undefined),
+					}
+				);
 			}
 
 			// Add new entities to dataSource == Map

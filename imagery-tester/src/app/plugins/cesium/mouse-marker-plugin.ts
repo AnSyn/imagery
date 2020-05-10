@@ -46,10 +46,18 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
     super.dispose();
   }
 
+  private first : boolean = false;
+
   private tryDraw(position: IMousePointerMove) {
     if (!this._isEnabled) {
       return;
     }
+    if (this.first) {
+      return;
+    }
+
+    if (!this.first)
+      this.first = true;
 
     const entity: IVisualizerEntity = {
       id: 'visEntity',
@@ -84,7 +92,13 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
             ]
           ]
         },
-        properties:{}
+        properties:{
+          label: {
+            text: "BLa"
+          },
+          labelSize : 28
+
+        }
       },
       style:{
         initial:{
@@ -153,16 +167,25 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
 
     const pointEntity : IVisualizerEntity = {
       id: 'Point',
+      label: {
+        text: "BLa"
+      },
+      labelSize : 28,
       featureJson: {
         type: "Feature",
         geometry: {
           type : "Point",
           coordinates: [
-            -6.018961997487438,
-            31.26325432597315
+            32.018961997487438,
+            34.26325432597315
           ]
         },
-        properties:{}
+        properties:{
+          label: {
+            text: "BLa"
+          },
+          labelSize : 28
+        }
       },
       style:{
         initial:{
@@ -171,6 +194,32 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
       }
     };
 
+    const multiLineString : IVisualizerEntity = {
+      id: 'multiLineString',
+      featureJson: {
+        type: "Feature",
+        geometry: {
+          'type': 'MultiLineString',
+          'coordinates': [
+            [[-34, 32], [-34, 32]],
+            [[34, -32], [34, 32]],
+            [[-32, -34], [32, -34]],
+            [[-32, 34], [32, 34]]
+          ]
+        },
+        properties:{}
+      },
+      style:{
+        initial:{
+          stroke:"#27b2cfe6",
+          "stroke-width":1,
+          "stroke-dasharray":0,
+        }
+      }
+    };
+
+
+    //this.setEntities([polygon, polyline, pointEntity,multiLineString]);
     this.setEntities([pointEntity]);
   }
 }

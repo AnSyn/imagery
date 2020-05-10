@@ -23,7 +23,7 @@ import { BaseImageryPluginProvider } from '../imagery/providers/imagery.provider
 import { AutoSubscription, AutoSubscriptions } from 'auto-subscriptions';
 import { ImageryMapSources } from '../providers/map-source-providers';
 import { get as _get } from 'lodash';
-import { ImageryMapExtent, ImageryMapPosition } from '../model/case-map-position.model';
+import { ImageryMapExtent, IImageryMapPosition } from '../model/case-map-position.model';
 import { bboxFromGeoJson, getPolygonByPointAndRadius } from '../utils/geo';
 import {
 	IMapProviderConfig,
@@ -111,7 +111,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 		return false;
 	}
 
-	public setActiveMap(mapType: string, position: ImageryMapPosition, sourceType?, layer?: any): Promise<any> {
+	public setActiveMap(mapType: string, position: IImageryMapPosition, sourceType?, layer?: any): Promise<any> {
 		if (this._mapComponentRef) {
 			this.destroyCurrentComponent();
 		}
@@ -152,7 +152,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 		});
 	}
 
-	loadInitialMapSource(position?: ImageryMapPosition): Promise<any> {
+	loadInitialMapSource(position?: IImageryMapPosition): Promise<any> {
 		return new Promise(resolve => {
 			if (!this._activeMap) {
 				resolve();
@@ -202,7 +202,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 		return of(true);
 	}
 
-	public setPosition(position: ImageryMapPosition): Observable<boolean> {
+	public setPosition(position: IImageryMapPosition): Observable<boolean> {
 		if (!this.ActiveMap) {
 			return throwError(new Error('missing active map'));
 		}
@@ -210,7 +210,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 		return this.ActiveMap.setPosition(position);
 	}
 
-	public getPosition(): Observable<ImageryMapPosition> {
+	public getPosition(): Observable<IImageryMapPosition> {
 		if (!this.ActiveMap) {
 			return throwError(new Error('missing active map'));
 		}
@@ -218,7 +218,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 	}
 
 	setPositionByRect(rect: Polygon): Observable<boolean> {
-		const position: ImageryMapPosition = {
+		const position: IImageryMapPosition = {
 			extentPolygon: rect
 		};
 		return this.setPosition(position);
@@ -226,7 +226,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 
 	setPositionByRadius(center: Point, radiusInMeters: number): Observable<boolean> {
 		const polygon: Feature<Polygon> = getPolygonByPointAndRadius(center.coordinates, radiusInMeters / 1000);
-		const position: ImageryMapPosition = {
+		const position: IImageryMapPosition = {
 			extentPolygon: polygon.geometry
 		};
 		return this.setPosition(position);
@@ -250,7 +250,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 		return <any>this.plugins.find((_plugin) => _plugin instanceof plugin);
 	}
 
-	public resetView(layer: any, position: ImageryMapPosition, extent?: ImageryMapExtent, useDoubleBuffer: boolean = false): Observable<boolean> {
+	public resetView(layer: any, position: IImageryMapPosition, extent?: ImageryMapExtent, useDoubleBuffer: boolean = false): Observable<boolean> {
 		this.setVirtualNorth(0);
 		if (this.ActiveMap) {
 			return this.ActiveMap.resetView(layer, position, extent, useDoubleBuffer).pipe(
