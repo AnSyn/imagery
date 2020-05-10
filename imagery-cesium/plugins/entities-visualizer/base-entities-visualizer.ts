@@ -17,7 +17,7 @@ import {
 } from 'geojson';
 import {
 	Color, CustomDataSource,
-	Entity
+	Entity, LabelGraphics
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium'
 import { merge } from 'lodash';
@@ -48,7 +48,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			switch (featureJson.geometry.type) {
 				case 'Point': {
 					if (entity.icon) {
-						newEntities.push(this.getBillboard(entity.id, featureJson.geometry, entity.icon));
+						newEntities.push(this.getBillboard(entity.id,  (<Point>featureJson.geometry).coordinates, entity.icon));
 					} else {
 						newEntities.push(this.getPoint(entity.id, (<Point>featureJson.geometry).coordinates, entity.style));
 					}
@@ -90,6 +90,10 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 					console.warn(`"${featureJson.geometry.type}" Geometry not support`)
 				}
 
+			}
+			// Setting the label
+			if (featureJson.properties.label && featureJson.properties.label.text && newEntities.length > 0) {
+					//newEntities[0].label = new LabelGraphics({text: featureJson.properties.label.text});
 			}
 
 			// Add new entities to dataSource == Map
@@ -134,10 +138,10 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	removeInteraction(type: VisualizerInteractionTypes, interactionInstance: any): void {
 	}
 
-	private getBillboard(id: string, geometry: Point, imgUrl: string): any {
+	private getBillboard(id: string, coordinates: Position, imgUrl: string): any {
 		return {
 			id: id,
-			position: geoToCesium.coordinatesToCartesian(geometry.coordinates),
+			position: geoToCesium.coordinatesToCartesian(coordinates),
 			billboard: {
 				image: new Cesium.ConstantProperty(imgUrl)
 			}
