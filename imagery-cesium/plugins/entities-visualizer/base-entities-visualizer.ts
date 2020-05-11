@@ -19,6 +19,7 @@ import {
 	Color,
 	CustomDataSource,
 	Entity,
+	BillboardGraphics, PointGraphics, PolygonGraphics, PolylineGraphics,
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium'
 import { merge } from 'lodash';
@@ -41,33 +42,50 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	}
 
 	addOrUpdateEntities(logicalEntities: IVisualizerEntity[]): Observable<boolean> {
-		logicalEntities.forEach((entity: IVisualizerEntity) => {
-			const featureJson: Feature<any> = entity.featureJson;
+		logicalEntities.forEach((visEntity: IVisualizerEntity) => {
+			const featureJson: Feature<any> = visEntity.featureJson;
 
 			const newEntities: Entity[] = [];
 
+			let style: Partial<IVisualizerStateStyle> = visEntity.style;
+
+			if (this.idToEntity.has(visEntity.id)) {
+				style = merge(this.idToEntity.get(visEntity.id).originalEntity.style, visEntity.style);
+			}
+
 			switch (featureJson.geometry.type) {
 				case 'Point': {
-					if (entity.icon) {
-						newEntities.push(this.getBillboard(entity.id,  (<Point>featureJson.geometry).coordinates, entity.icon));
+					const entity: Entity = this.dataSource.entities.getOrCreateEntity(visEntity.id);
+					newEntities.push(entity);
+
+					if (visEntity.icon) {
+						this.updateBillboard(entity, (<Point>featureJson.geometry).coordinates, visEntity.icon)
 					} else {
-						newEntities.push(this.getPoint(entity.id, (<Point>featureJson.geometry).coordinates, entity.style));
+						this.updatePoint(entity, (<Point>featureJson.geometry).coordinates, style);
 					}
 					break;
 				}
 				case 'LineString': {
-					newEntities.push(this.getLineString(entity.id, (<LineString>featureJson.geometry).coordinates, entity.style));
+					const entity: Entity = this.dataSource.entities.getOrCreateEntity(visEntity.id);
+					newEntities.push(entity);
+
+					this.updateLineString(entity, (<LineString>featureJson.geometry).coordinates, style);
 					break;
 				}
 				case 'Polygon': {
-					newEntities.push(this.getPolygon(entity.id, (<Polygon>featureJson.geometry).coordinates, entity.style));
+					const entity: Entity = this.dataSource.entities.getOrCreateEntity(visEntity.id);
+					newEntities.push(entity);
+
+					this.updatePolygon(entity, (<Polygon>featureJson.geometry).coordinates, visEntity.style);
 					break;
 				}
 				case 'MultiPoint': {
 					// Adding each point
 					let i = 0;
 					(<MultiPoint>featureJson.geometry).coordinates.forEach((ptCoords) => {
-						newEntities.push(this.getPoint(`${entity.id}_${i++}`, ptCoords, entity.style));
+						const entity: Entity = this.dataSource.entities.getOrCreateEntity(`${visEntity.id}_${i++}`);
+						newEntities.push(entity);
+						this.updatePoint(entity, ptCoords, style);
 					})
 					break;
 				}
@@ -75,7 +93,9 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 					// Adding each line
 					let i = 0;
 					(<MultiLineString>featureJson.geometry).coordinates.forEach((lineCoords) => {
-						newEntities.push(this.getLineString(`${entity.id}_${i++}`, lineCoords, entity.style));
+						const entity: Entity = this.dataSource.entities.getOrCreateEntity(`${visEntity.id}_${i++}`);
+						newEntities.push(entity);
+						this.updateLineString(entity, lineCoords, style);
 					})
 					break;
 				}
@@ -83,7 +103,9 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 					// Adding each poly
 					let i = 0;
 					(<MultiPolygon>featureJson.geometry).coordinates.forEach((polyCoords) => {
-						newEntities.push(this.getPolygon(`${entity.id}_${i++}`, polyCoords, entity.style));
+						const entity: Entity = this.dataSource.entities.getOrCreateEntity(`${visEntity.id}_${i++}`);
+						newEntities.push(entity);
+						this.updatePolygon(entity, polyCoords, style);
 					})
 					break;
 				}
@@ -93,19 +115,16 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 			}
 			// Setting the label
-			if (entity.label && entity.label.text && newEntities.length > 0) {
+			if (visEntity.label && visEntity.label.text && newEntities.length > 0) {
 				newEntities[0].label = new Cesium.LabelGraphics({
-						text: entity.label.text,
-						font: new Cesium.ConstantProperty( entity.labelSize ? entity.labelSize : undefined),
+						text: visEntity.label.text,
+						font: new Cesium.ConstantProperty( visEntity.labelSize ? visEntity.labelSize : undefined),
 					}
 				);
 			}
 
-			// Add new entities to dataSource == Map
-			newEntities.forEach(entity => this.dataSource.entities.add(entity));
-
-			// Save for future use
-			this.idToEntity.set(entity.id, {originalEntity: entity, entities: newEntities});
+			// update idToEntity for future use
+			this.idToEntity.set(visEntity.id, {originalEntity: visEntity, entities: newEntities});
 		});
 		return of(true);
 	}
@@ -143,30 +162,25 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	removeInteraction(type: VisualizerInteractionTypes, interactionInstance: any): void {
 	}
 
-	private getBillboard(id: string, coordinates: Position, imgUrl: string): any {
-		return {
-			id: id,
-			position: geoToCesium.coordinatesToCartesian(coordinates),
-			billboard: {
-				image: new Cesium.ConstantProperty(imgUrl)
-			}
-		};
+	private updateBillboard(entity: Entity, coordinates: Position, imgUrl: string): void {
+		entity.position = geoToCesium.coordinatesToCartesian(coordinates);
+		entity.billboard = new BillboardGraphics({
+			image: new Cesium.ConstantProperty(imgUrl)
+		});
 	}
 
-	private getPoint(id: string, coordinates: Position, stylesState?: Partial<IVisualizerStateStyle>): any {
+	private updatePoint(entity: Entity, coordinates: Position, stylesState?: Partial<IVisualizerStateStyle>): void {
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
 		const ptColor = this.getColor(s["marker-color"]);
-		return {
-			id: id,
-			position: geoToCesium.coordinatesToCartesian(coordinates),
-			point: {
-				color: ptColor
-			}
-		}
+
+		entity.position = geoToCesium.coordinatesToCartesian(coordinates);
+		entity.point = new PointGraphics({
+			color: ptColor
+		});
 	}
 
-	private getLineString(id: string, coordinates: Position[], stylesState?: Partial<IVisualizerStateStyle>): any {
+	private updateLineString(entity: Entity, coordinates: Position[], stylesState?: Partial<IVisualizerStateStyle>): void {
 
 		// TODO: Support all polyline styles
 		const styles = merge({}, stylesState);
@@ -175,18 +189,14 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		const lineColor = this.getColor(s["stroke"]);
 		const lineWidth = s['stroke-width'];
 
-		return {
-			id: id,
-			polyline: {
-				positions: geoToCesium.multiLineToCartesian(coordinates),
-				width: lineWidth,
-				material: lineColor
-			}
-		};
+		entity.polyline = new PolylineGraphics({
+			positions: geoToCesium.multiLineToCartesian(coordinates),
+			width: lineWidth,
+			material: lineColor
+		});
 	}
 
-	private getPolygon(id: string, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): any {
-
+	private updatePolygon(entity: Entity, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): void {
 		// TODO: Support all polygon styles
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
@@ -204,16 +214,13 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			poly.holes.push(geoToCesium.polygonCoordinatesToCartesian(coordinates[i]));
 		}
 
-		return {
-			id: id,
-			polygon: {
-				hierarchy: poly,
-				material: fillColor,
-				outline: new Cesium.ConstantProperty(true),
-				outlineColor: lineColor,
-				outlineWidth: lineWidth,
-			}
-		};
+		entity.polygon = new PolygonGraphics({
+			hierarchy: poly,
+			material: fillColor,
+			outline: new Cesium.ConstantProperty(true),
+			outlineColor: lineColor,
+			outlineWidth: lineWidth
+		});
 	}
 
 	private getColor(color: string = "RED"): Color {
