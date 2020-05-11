@@ -467,7 +467,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 
 				if (this.isAzimuthAngleActive) {
 					// find azimuth
-					const angle = this.getAzimuth(featureGeoJson.coordinates[i + 1], featureGeoJson.coordinates[i]);
+					const angle = this.getAzimuth(featureGeoJson.coordinates[i], featureGeoJson.coordinates[i + 1]);
 					singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle + String.fromCharCode(176));
 				} else {
 					singlePointLengthTextStyle.setText(segmentLengthText);
