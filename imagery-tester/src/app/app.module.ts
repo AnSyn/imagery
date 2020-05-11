@@ -17,7 +17,6 @@ import {
 } from '@ansyn/imagery-ol';
 import { NavbarModule } from './navbar/navbar.module';
 import { AnnotationsControlComponent } from './annotations-control/annotations-control.component';
-import { MatButtonModule, MatIconModule, MatButtonToggleModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MccColorPickerModule } from 'material-community-components';
 import { TranslateModule } from '@ngx-translate/core';
@@ -36,6 +35,9 @@ import { MouseMarkerPlugin } from './plugins/cesium/mouse-marker-plugin';
 import { TestOLPerformanceVisualizer } from './plugins/ol/test-ol-performance-visualizer';
 import { ImageryPerformanceComponent } from './imagery-performance/imagery-performance.component';
 import { MapEventsComponent } from './map-events/map-events.component';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [

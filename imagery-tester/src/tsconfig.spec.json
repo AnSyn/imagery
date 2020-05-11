@@ -22,5 +22,8 @@
     "node_modules",
     "node_modules/**/*.spec.ts",
     "node_modules/**/*.d.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "enableIvy": false
+  }
 }

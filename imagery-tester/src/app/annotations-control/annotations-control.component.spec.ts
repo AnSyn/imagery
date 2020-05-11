@@ -3,8 +3,10 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnnotationsControlComponent } from './annotations-control.component';
 import { ImageryCommunicatorService } from '@ansyn/imagery';
 import { NavbarModule } from '../navbar/navbar.module';
-import { MatButtonModule, MatButtonToggleModule, MatIconModule } from '@angular/material';
 import { MccColorPickerModule } from 'material-community-components';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 describe('AnnotationsControlComponent', () => {
   let component: AnnotationsControlComponent;

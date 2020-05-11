@@ -1,10 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatInputModule, MatSelectModule } from '@angular/material';
 
 import { AnnotationLabelComponent } from './annotation-label.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 describe('AnnotationLabelComponent', () => {
 	let component: AnnotationLabelComponent;
