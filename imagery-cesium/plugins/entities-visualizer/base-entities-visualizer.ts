@@ -48,9 +48,11 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			const newEntities: Entity[] = [];
 
 			let style: Partial<IVisualizerStateStyle> = visEntity.style;
+			let oldEntities: Entity[] = [];
 
 			if (this.idToEntity.has(visEntity.id)) {
 				style = merge(this.idToEntity.get(visEntity.id).originalEntity.style, visEntity.style);
+				oldEntities = this.idToEntity.get(visEntity.id).entities;
 			}
 
 			switch (featureJson.geometry.type) {
@@ -80,6 +82,11 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 					break;
 				}
 				case 'MultiPoint': {
+					// If number of new entities in less then the old one, remove all old entities
+					if ((<MultiPoint>featureJson.geometry).coordinates.length < oldEntities.length) {
+						oldEntities.forEach(entity => this.dataSource.entities.remove(entity));
+					}
+
 					// Adding each point
 					let i = 0;
 					(<MultiPoint>featureJson.geometry).coordinates.forEach((ptCoords) => {
@@ -92,6 +99,12 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 				case 'MultiLineString': {
 					// Adding each line
 					let i = 0;
+
+					// If number of new entities in less then the old one, remove all old entities
+					if ((<MultiLineString>featureJson.geometry).coordinates.length < oldEntities.length) {
+						oldEntities.forEach(entity => this.dataSource.entities.remove(entity));
+					}
+
 					(<MultiLineString>featureJson.geometry).coordinates.forEach((lineCoords) => {
 						const entity: Entity = this.dataSource.entities.getOrCreateEntity(`${visEntity.id}_${i++}`);
 						newEntities.push(entity);
@@ -100,6 +113,11 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 					break;
 				}
 				case 'MultiPolygon': {
+					// If number of new entities in less then the old one, remove all old entities
+					if ((<MultiPolygon>featureJson.geometry).coordinates.length < oldEntities.length) {
+						oldEntities.forEach(entity => this.dataSource.entities.remove(entity));
+					}
+
 					// Adding each poly
 					let i = 0;
 					(<MultiPolygon>featureJson.geometry).coordinates.forEach((polyCoords) => {
