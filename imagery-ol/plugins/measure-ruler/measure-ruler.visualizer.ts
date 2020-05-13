@@ -57,6 +57,9 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 
 	protected allLengthTextStyle = new Text({
 		font: '16px Calibri,sans-serif',
+		backgroundFill: new Fill({
+			color: this.colorWithAlpha("#000000", 0.5),
+		}),
 		fill: new Fill({
 			color: '#fff'
 		}),
@@ -212,6 +215,9 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 			font: '14px Calibri,sans-serif',
 			fill: new Fill({
 				color: '#FFFFFF'
+			}),
+			backgroundFill: new Fill({
+				color: this.colorWithAlpha("#000000", 0.5),
 			}),
 			stroke: new Stroke({
 				color: '#000',
@@ -404,7 +410,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				if (this.isAzimuthAngleActive) {
 					// find azimuth
 					const angle = this.getAzimuth(start, end);
-					singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle + String.fromCharCode(176));
+					singlePointLengthTextStyle.setText(angle + String.fromCharCode(176) + '\n' + segmentLengthText);
 				} else {
 					singlePointLengthTextStyle.setText(segmentLengthText);
 				}
@@ -423,7 +429,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				// find azimuth
 				const coords = geometry.getCoordinates();
 				const angle = this.getAzimuth(coords[0], coords[1]);
-				this.allLengthTextStyle.setText(String.fromCharCode(931) + ' ' + allLengthText + ' ' + angle + String.fromCharCode(176));
+				this.allLengthTextStyle.setText(angle + String.fromCharCode(176) + '\n' + String.fromCharCode(931) + ' ' + allLengthText);
 			} else {
 				this.allLengthTextStyle.setText(String.fromCharCode(931) + ' ' + allLengthText);
 			}
@@ -468,7 +474,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				if (this.isAzimuthAngleActive) {
 					// find azimuth
 					const angle = this.getAzimuth(featureGeoJson.coordinates[i], featureGeoJson.coordinates[i + 1]);
-					singlePointLengthTextStyle.setText(segmentLengthText + ' ' + angle + String.fromCharCode(176));
+					singlePointLengthTextStyle.setText(angle + String.fromCharCode(176) + '\n' + segmentLengthText);
 				} else {
 					singlePointLengthTextStyle.setText(segmentLengthText);
 				}
