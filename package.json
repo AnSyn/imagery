@@ -21,6 +21,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-builders/custom-webpack": "^8.4.1",
     "@angular/animations": "~8.2.14",
     "@angular/cdk": "^8.2.3",
     "@angular/common": "~8.2.14",
@@ -33,16 +34,16 @@
     "@angular/platform-browser-dynamic": "~8.2.14",
     "@angular/router": "~8.2.14",
     "@ngx-translate/core": "^11.0.1",
+    "@turf/turf": "^5.1.6",
+    "angular2-uuid": "^1.1.1",
+    "auto-subscriptions": "^2.0.5",
+    "cesium": "^1.69.0",
     "core-js": "^2.5.4",
     "material-community-components": "^3.4.0",
-    "rxjs": "~6.4.0",
-    "zone.js": "~0.9.1",
-    "auto-subscriptions": "^2.0.5",
-    "@turf/turf": "^5.1.6",
-    "ol": "^5.3.0",
-    "cesium": "^1.69.0",
     "ngx-color-picker": "^7.5.0",
-    "angular2-uuid": "^1.1.1"
+    "ol": "^5.3.0",
+    "rxjs": "~6.4.0",
+    "zone.js": "~0.9.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.803.4",
