@@ -5,7 +5,7 @@ import {
 	IVisualizerStyle,
 	IVisualizerStateStyle
 } from '@ansyn/imagery';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import {
 	Feature,
 	LineString,
@@ -34,14 +34,22 @@ export interface IEntityIdentifier {
 export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	protected dataSource: CustomDataSource;
 	public idToEntity: Map<string, IEntityIdentifier> = new Map<string, { originalEntity: null, entities: null }>();
+	isReady$: Subject<boolean> = new Subject();
+	isReady: boolean = false;
 
 	onInit() {
 		this.getOrCreateDataSource(Cesium.createGuid()).then(newDataSource => {
 			this.dataSource = newDataSource;
+			this.isReady = true;
+			this.isReady$.next(this.isReady);
 		});
 	}
 
 	addOrUpdateEntities(logicalEntities: IVisualizerEntity[]): Observable<boolean> {
+		if (!logicalEntities || !Array.isArray(logicalEntities)) {
+			return of(true);
+		}
+
 		logicalEntities.forEach((visEntity: IVisualizerEntity) => {
 			const featureJson: Feature<any> = visEntity.featureJson;
 
@@ -167,6 +175,10 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	}
 
 	setEntities(logicalEntities: IVisualizerEntity[]): Observable<boolean> {
+		if (!logicalEntities || !Array.isArray(logicalEntities)) {
+			return of(true);
+		}
+
 		this.clearEntities();
 		return this.addOrUpdateEntities(logicalEntities);
 	}

@@ -17,7 +17,9 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
       this._isEnabled = value;
 
       if (!this.isEnabled) {
-        this.removeEntity('visEntity');
+        if (this.idToEntity.has('visEntity')){
+          this.removeEntity('visEntity');
+        }
       }
     }
   }
