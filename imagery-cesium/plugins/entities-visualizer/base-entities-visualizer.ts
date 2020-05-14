@@ -1,5 +1,6 @@
 import {
 	BaseImageryVisualizer,
+	MarkerSize,
 	IVisualizerEntity,
 	VisualizerInteractionTypes,
 	IVisualizerStyle,
@@ -144,7 +145,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			if (visEntity.label && visEntity.label.text && newEntities.length > 0) {
 				newEntities[0].label = new Cesium.LabelGraphics({
 						text: visEntity.label.text,
-						font: new Cesium.ConstantProperty( visEntity.labelSize ? visEntity.labelSize : undefined),
+						font: new Cesium.ConstantProperty( visEntity.labelSize ? `${ visEntity.labelSize }px Calibri,sans-serif` : undefined),
 					}
 				);
 			}
@@ -203,36 +204,42 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
 		const ptColor = this.getColor(s["marker-color"]);
+		const pixelSize = this.getPixelSize(s["marker-size"]);
 
 		entity.position = geoToCesium.coordinatesToCartesian(coordinates);
 		entity.point = new PointGraphics({
-			color: ptColor
+			color: ptColor,
+			pixelSize : pixelSize
 		});
 	}
 
 	private updateLineString(entity: Entity, coordinates: Position[], stylesState?: Partial<IVisualizerStateStyle>): void {
-
 		// TODO: Support all polyline styles
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
 
-		const lineColor = this.getColor(s["stroke"]);
+		const material = this.getLineMaterial(s);
+
 		const lineWidth = s['stroke-width'];
 
 		entity.polyline = new PolylineGraphics({
 			positions: geoToCesium.multiLineToCartesian(coordinates),
 			width: lineWidth,
-			material: lineColor
+			material: material
 		});
 	}
+
+
 
 	private updatePolygon(entity: Entity, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): void {
 		// TODO: Support all polygon styles
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
 
-		const lineColor = this.getColor(s["stroke"]);
-		const fillColor = this.getColor(s["fill"]);
+		const showOutline = s["stroke-opacity"] === 0 ? false : true;
+		const lineColor = this.getColor(s["stroke"], s["stroke-opacity"]);
+		const showFill = s["fill-opacity"] === 0 ? false : true;
+		const fillColor = this.getColor(s["fill"], s["fill-opacity"]);
 
 		const lineWidth = s['stroke-width'];
 
@@ -245,15 +252,16 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		}
 
 		entity.polygon = new PolygonGraphics({
+			fill:  new Cesium.ConstantProperty(showFill),
 			hierarchy: poly,
-			material: fillColor,
-			outline: new Cesium.ConstantProperty(true),
+			material: new Cesium.ColorMaterialProperty(fillColor),
+			outline: new Cesium.ConstantProperty(showOutline),
 			outlineColor: lineColor,
 			outlineWidth: lineWidth
 		});
 	}
 
-	private getColor(color: string = "RED"): Color {
+	private getColor(color: string = "RED", opacity?: number): Color {
 		// Cesium Color Can't handle rrggbbaa so ...
 		const rrggbbaaMatcher = /^#([0-9a-f]{8})$/i;
 
@@ -263,8 +271,47 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			c.alpha = parseInt(color.substring(7), 16) / 255;
 			return c;
 		} else {
-			return Cesium.Color.fromCssColorString(color);
+			const c = Cesium.Color.fromCssColorString(color);
+
+			if (opacity !== undefined) {
+				c.alpha = opacity;
+			}
+			return c;
 		}
+	}
+
+	private getLineMaterial(s) {
+		const color = this.getColor(s["stroke"], s["stroke-opacity"]);
+		let material;
+		if (s["stroke-dasharray"] > 0) {
+			material = new Cesium.PolylineDashMaterialProperty({
+				color: color,
+				dashLength: s["stroke-dasharray"]
+			});
+		} else {
+			material = new Cesium.ColorMaterialProperty(color);
+		}
+		return material;
+	}
+
+	private getPixelSize(markerSize: MarkerSize) {
+		let pixelSize = 1;
+
+		switch (markerSize) {
+			case MarkerSize.small: {
+				pixelSize = 8;
+				break;
+			}
+			case MarkerSize.medium : {
+				pixelSize = 12;
+				break;
+			}
+			case MarkerSize.large: {
+				pixelSize = 20;
+				break;
+			}
+		}
+		return pixelSize;
 	}
 
 	private getOrCreateDataSource(dataSourceGuid): Promise<Cesium.CustomDataSource> {

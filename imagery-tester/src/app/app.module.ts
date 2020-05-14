@@ -131,7 +131,7 @@ import { MapEventsComponent } from './map-events/map-events.component';
           ]
         },
         CesiumMap: {
-          defaultMapSource: 'CESIUM_BING',
+          defaultMapSource: 'CESIUM_OSM',
           sources: [
             {
               key: 'CESIUM_BING',
