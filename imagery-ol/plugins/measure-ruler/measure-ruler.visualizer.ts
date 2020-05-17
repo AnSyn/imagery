@@ -34,7 +34,6 @@ import { Inject } from '@angular/core';
 import { EntitiesVisualizer } from '../entities-visualizer';
 import { OpenLayersProjectionService } from '../../projection/open-layers-projection.service';
 import { OpenLayersMap } from '../../maps/open-layers-map/openlayers-map/openlayers-map';
-import { getAngleDegreeBetweenCoordinates } from '@ansyn/imagery';
 
 export interface ILabelHandler {
 	select: Select;
@@ -54,11 +53,13 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 	interactionSource: VectorSource;
 	hoveredMeasureId: string;
 	onHiddenStateChanged = new Subject();
+	azimuthDigitsAfterDot: number = 0;
+	measurePositionInEndPoint = true;
 
 	protected allLengthTextStyle = new Text({
 		font: '16px Calibri,sans-serif',
 		backgroundFill: new Fill({
-			color: this.colorWithAlpha("#000000", 0.5),
+			color: this.colorWithAlpha('#000000', 0.5),
 		}),
 		fill: new Fill({
 			color: '#fff'
@@ -217,7 +218,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				color: '#FFFFFF'
 			}),
 			backgroundFill: new Fill({
-				color: this.colorWithAlpha("#000000", 0.5),
+				color: this.colorWithAlpha('#000000', 0.5),
 			}),
 			stroke: new Stroke({
 				color: '#000',
@@ -399,10 +400,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 		if (length > 2) {
 			geometry.forEachSegment((start, end) => {
 				const lineString = new LineString([start, end]);
-				const centroid = getPointByGeometry(<any>{
-					type: lineString.getType(),
-					coordinates: lineString.getCoordinates()
-				});
+				const textPosition = this.getMeasurePosition(start, end);
 				const segmentLengthText = this.measureApproximateLength(lineString, projection);
 
 				const singlePointLengthTextStyle = this.getSinglePointLengthTextStyle();
@@ -416,41 +414,51 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 				}
 
 				styles.push(new Style({
-					geometry: new Point(<[number, number]>centroid.coordinates),
+					geometry: new Point(<[number, number]>textPosition.coordinates),
 					text: singlePointLengthTextStyle
 				}));
 			});
 		}
-
 		if (this.isTotalMeasureActive || length === 2) {
+			const coords = geometry.getCoordinates();
 			// all line string
+			let position;
 			const allLengthText = this.measureApproximateLength(geometry, projection);
 			if (this.isAzimuthAngleActive && length === 2) {
 				// find azimuth
-				const coords = geometry.getCoordinates();
 				const angle = this.getAzimuth(coords[0], coords[1]);
 				this.allLengthTextStyle.setText(angle + String.fromCharCode(176) + '\n' + String.fromCharCode(931) + ' ' + allLengthText);
+				position = this.getMeasurePosition(coords[0], coords[coords.length - 1]);
 			} else {
-				this.allLengthTextStyle.setText(String.fromCharCode(931) + ' ' + allLengthText);
+				this.allLengthTextStyle.setText(String.fromCharCode(931) + ' ' + allLengthText)
+				position = {
+					type: 'Point',
+					coordinates: coords[0]
+				};
 			}
-			let allLinePoint = new Point(geometry.getCoordinates()[0]);
-
-			if (calculateCenterOfMass) {
-				const featureId = <string>feature.getId();
-				const entityMap = this.idToEntity.get(featureId);
-				if (entityMap) {
-					const featureGeoJson = <any>this.geoJsonFormat.writeFeatureObject(entityMap.feature);
-					const centroid = getPointByGeometry(featureGeoJson.geometry);
-					allLinePoint = new Point(<[number, number]>centroid.coordinates);
-				}
-			}
-
+			const allLinePoint = new Point(<[number, number]>position.coordinates);
 			styles.push(new Style({
 				geometry: allLinePoint,
 				text: this.allLengthTextStyle
 			}));
 		}
 		return styles;
+	}
+
+	getMeasurePosition(sourceCoords: [number, number], destCoords: [number, number]): Point {
+		let textPosition: Point;
+		if (!this.measurePositionInEndPoint) {
+			textPosition = getPointByGeometry(<any>{
+				type: 'LineString',
+				coordinates: [sourceCoords, destCoords]
+			});
+		} else { // at the end
+			textPosition = {
+				type: Point.type,
+				coordinates: destCoords
+			}
+		}
+		return textPosition;
 	}
 
 	protected createMeasureLabelsFeatures(feature, featureGeoJson: geoJsonLineString) {
@@ -463,11 +471,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 		const length = coordinates.length;
 		if (length > 2) {
 			for (let i = 0; i < featureGeoJson.coordinates.length - 1; i++) {
-				const lineString = new LineString([coordinates[i], coordinates[i + 1]]);
-				const centroid = getPointByGeometry(<any>{
-					type: lineString.getType(),
-					coordinates: lineString.getCoordinates()
-				});
+				const textPosition = this.getMeasurePosition(coordinates[i], coordinates[i + 1]);
 				const segmentLengthText = this.formatLength([featureGeoJson.coordinates[i], featureGeoJson.coordinates[i + 1]]);
 				const singlePointLengthTextStyle = this.getSinglePointLengthTextStyle();
 
@@ -479,7 +483,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 					singlePointLengthTextStyle.setText(segmentLengthText);
 				}
 				const labelFeature = new Feature({
-					geometry: new Point(<[number, number]>centroid.coordinates),
+					geometry: new Point(<[number, number]>textPosition.coordinates),
 				});
 				labelFeature.setStyle(new Style({
 					text: singlePointLengthTextStyle
@@ -490,19 +494,23 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 
 		if (this.isTotalMeasureActive || length === 2) {
 			// all line string
+			let textPosition;
 			const allLengthText = this.formatLength(featureGeoJson.coordinates);
-			const lengthText = this.allLengthTextStyle.clone();
-			lengthText.setText(String.fromCharCode(931) + ' ' + allLengthText);
-			let allLinePoint = new Point(geometry.getCoordinates()[0]);
-			const featureId = <string>feature.getId();
-			const entityMap = this.idToEntity.get(featureId);
-			if (entityMap) {
-				const featureGeoJson = <any>this.geoJsonFormat.writeFeatureObject(entityMap.feature);
-				const centroid = getPointByGeometry(featureGeoJson.geometry);
-				allLinePoint = new Point(<[number, number]>centroid.coordinates);
+			if (this.isAzimuthAngleActive && length === 2) {
+				// find azimuth
+				const angle = this.getAzimuth(coordinates[0], coordinates[coordinates.length - 1]);
+				this.allLengthTextStyle.setText(angle + String.fromCharCode(176) + '\n' + String.fromCharCode(931) + ' ' + allLengthText);
+				textPosition = this.getMeasurePosition(coordinates[0], coordinates[coordinates.length - 1]);
+			} else {
+				this.allLengthTextStyle.setText(String.fromCharCode(931) + ' ' + allLengthText);
+				textPosition = {
+					type: Point.type,
+					coordinates: coordinates[0]
+				};
 			}
+			const lengthText = this.allLengthTextStyle.clone();
 			const labelFeature = new Feature({
-				geometry: allLinePoint
+				geometry: new Point(textPosition.coordinates)
 			});
 			labelFeature.setStyle(new Style({
 				text: lengthText
@@ -517,7 +525,7 @@ export class MeasureRulerVisualizer extends EntitiesVisualizer {
 		const rad = Math.atan2((dest[0] - source[0]), (dest[1] - source[1]));
 		let deg = toDegrees(rad);
 		deg = (deg + 360) % 360;
-		return deg.toFixed(2);
+		return deg.toFixed(this.azimuthDigitsAfterDot);
 	}
 
 	clearLabelInteractions() {
