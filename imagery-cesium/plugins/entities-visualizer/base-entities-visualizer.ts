@@ -20,7 +20,7 @@ import {
 	Color,
 	CustomDataSource,
 	Entity,
-	BillboardGraphics, PointGraphics, PolygonGraphics, PolylineGraphics,
+	BillboardGraphics, PointGraphics, PolygonGraphics, PolylineGraphics, CesiumInspector,
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium'
 import { merge } from 'lodash';
@@ -143,17 +143,31 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			}
 			// Setting the label
 			if (visEntity.label && visEntity.label.text && newEntities.length > 0) {
-				newEntities[0].label = new Cesium.LabelGraphics({
-						text: visEntity.label.text,
-						font: new Cesium.ConstantProperty( visEntity.labelSize ? `${ visEntity.labelSize }px Calibri,sans-serif` : undefined),
-					}
-				);
+				this.updateLabel(newEntities[0], visEntity);
 			}
 
 			// update idToEntity for future use
 			this.idToEntity.set(visEntity.id, {originalEntity: visEntity, entities: newEntities});
 		});
 		return of(true);
+	}
+
+	private updateLabel(entity: Cesium.Entity, visEntity: IVisualizerEntity) {
+
+		const styles = merge({}, visEntity.style);
+		const s: IVisualizerStyle = merge({}, styles.initial);
+
+		entity.label = new Cesium.LabelGraphics({
+				text: visEntity.label.text,
+				font: new Cesium.ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined),
+				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+				verticalOrigin: Cesium.VerticalOrigin.TOP,
+				fillColor : this.getColor(s.label.fill),
+				outlineColor: this.getColor(s.label.stroke),
+				outlineWidth: 2,
+				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+			}
+		);
 	}
 
 	clearEntities() {
@@ -227,6 +241,9 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			width: lineWidth,
 			material: material
 		});
+
+		// Calculate the label position
+		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polyline.positions).getValue()).center;
 	}
 
 
@@ -256,9 +273,13 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 			hierarchy: poly,
 			material: new Cesium.ColorMaterialProperty(fillColor),
 			outline: new Cesium.ConstantProperty(showOutline),
+			height: 0,
 			outlineColor: lineColor,
 			outlineWidth: lineWidth
 		});
+
+		// Calculate the label position
+		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polygon.hierarchy).getValue().positions).center;
 	}
 
 	private getColor(color: string = "RED", opacity?: number): Color {
