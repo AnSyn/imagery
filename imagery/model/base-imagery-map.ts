@@ -39,7 +39,6 @@ export abstract class BaseImageryMap<T = any> {
 
 	public tilesLoadProgressEventEmitter: EventEmitter<IMapProgress> = new EventEmitter<IMapProgress>();
 	public tilesLoadErrorEventEmitter: EventEmitter<IMapErrorMessage> = new EventEmitter<IMapErrorMessage>();
-
 	public mapObject: T;
 
 	abstract getCenter(): Observable<Point>;

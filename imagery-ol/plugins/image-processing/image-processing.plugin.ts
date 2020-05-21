@@ -15,7 +15,6 @@ import { OpenLayersDisabledMap } from '../../maps/openlayers-disabled-map/openla
 import { getDefaultImageProcParams, IImageProcessingData, IImageProcParam, ImageManualProcessArgs } from './model';
 import { ProjectableRaster } from '../../maps/open-layers-map/models/projectable-raster';
 import { IMAGE_PROCESS_ATTRIBUTE } from '../../mapSourceProviders/open-layers.map-source-provider';
-import { AutoSubscription } from 'auto-subscriptions';
 
 @ImageryPlugin({
 	supported: [OpenLayersMap, OpenLayersDisabledMap],
