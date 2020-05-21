@@ -20,9 +20,13 @@ import {
 	Color,
 	CustomDataSource,
 	Entity,
-	BillboardGraphics, PointGraphics, PolygonGraphics, PolylineGraphics, CesiumInspector,
+	BillboardGraphics,
+	PointGraphics,
+	PolylineGraphics,
+	PolygonGraphics
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium'
+
 import { merge } from 'lodash';
 
 declare const Cesium: any;
@@ -36,7 +40,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	protected dataSource: CustomDataSource;
 	public idToEntity: Map<string, IEntityIdentifier> = new Map<string, { originalEntity: null, entities: null }>();
 	isReady$: Subject<boolean> = new Subject();
-	isReady: boolean = false;
+	isReady = false;
 
 	onInit() {
 		this.getOrCreateDataSource(Cesium.createGuid()).then(newDataSource => {
@@ -152,24 +156,6 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		return of(true);
 	}
 
-	private updateLabel(entity: Cesium.Entity, visEntity: IVisualizerEntity) {
-
-		const styles = merge({}, visEntity.style);
-		const s: IVisualizerStyle = merge({}, styles.initial);
-
-		entity.label = new Cesium.LabelGraphics({
-				text: visEntity.label.text,
-				font: new Cesium.ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined),
-				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-				verticalOrigin: Cesium.VerticalOrigin.TOP,
-				fillColor : this.getColor(s.label.fill),
-				outlineColor: this.getColor(s.label.stroke),
-				outlineWidth: 2,
-				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-			}
-		);
-	}
-
 	clearEntities() {
 		this.dataSource.entities.removeAll();
 		this.idToEntity.clear();
@@ -182,6 +168,16 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 
 		return entities;
+	}
+
+	getEntityById(featureId: string): IVisualizerEntity {
+		const entity = this.idToEntity.get(featureId);
+		return entity && entity.originalEntity;
+	}
+
+	getCesiumEntities(featureId: string): Entity[] {
+		const entity = this.idToEntity.get(featureId);
+		return entity && entity.entities;
 	}
 
 	removeEntity(logicalEntityId: string) {
@@ -246,16 +242,14 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polyline.positions).getValue()).center;
 	}
 
-
-
 	private updatePolygon(entity: Entity, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): void {
 		// TODO: Support all polygon styles
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
 
-		const showOutline = s["stroke-opacity"] === 0 ? false : true;
+		const showOutline = s["stroke-opacity"] !== 0;
 		const lineColor = this.getColor(s["stroke"], s["stroke-opacity"]);
-		const showFill = s["fill-opacity"] === 0 ? false : true;
+		const showFill = s["fill-opacity"] !== 0;
 		const fillColor = this.getColor(s["fill"], s["fill-opacity"]);
 
 		const lineWidth = s['stroke-width'];
@@ -280,6 +274,24 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 		// Calculate the label position
 		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polygon.hierarchy).getValue().positions).center;
+	}
+
+	private updateLabel(entity: Cesium.Entity, visEntity: IVisualizerEntity) {
+
+		const styles = merge({}, visEntity.style);
+		const s: IVisualizerStyle = merge({}, styles.initial);
+
+		entity.label = new Cesium.LabelGraphics({
+				text: visEntity.label.text,
+				font: new Cesium.ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined),
+				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+				verticalOrigin: Cesium.VerticalOrigin.TOP,
+				fillColor : this.getColor(s.label.fill),
+				outlineColor: this.getColor(s.label.stroke),
+				outlineWidth: 2,
+				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+			}
+		);
 	}
 
 	private getColor(color: string = "RED", opacity?: number): Color {
