@@ -488,7 +488,12 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	addGeojsonLayer(data: GeoJsonObject) {
-		throw new Error('Method not implemented.');
+		Cesium.GeoJsonDataSource.load(data).then(lyr => {
+			this.mapObject.dataSources.add(lyr);
+		}).otherwise(error => {
+			throw new Error(error);
+		} );
+
 	}
 
 	setAutoImageProcessing(shouldPerform: boolean): void {
@@ -497,13 +502,6 @@ export class CesiumMap extends BaseImageryMap<any> {
 
 	setManualImageProcessing(processingParams: Object): void {
 		throw new Error('Method not implemented.');
-	}
-
-	setPointerMove(enable: boolean) {
-	}
-
-	getPointerMove() {
-		return new Observable();
 	}
 
 	getLayers(): any[] {
