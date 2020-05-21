@@ -1,7 +1,11 @@
-import { combineLatest, Observable, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import ImageLayer from 'ol/layer/Image';
-import { BaseImageryPlugin, CommunicatorEntity, ImageryPlugin } from '@ansyn/imagery';
-import { AutoSubscription } from 'auto-subscriptions';
+import {
+	BaseImageryPlugin,
+	CommunicatorEntity,
+	IMAGERY_BASE_MAP_LAYER,
+	ImageryPlugin
+} from '@ansyn/imagery';
 import { OpenLayersImageProcessing } from './image-processing';
 import { distinctUntilChanged, filter, map, take, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -21,8 +25,6 @@ export class ImageProcessingPlugin extends BaseImageryPlugin {
 	private _imageProcessing: OpenLayersImageProcessing;
 	private imageLayer: ImageLayer;
 	customMainLayer = null;
-
-	currentImageProcessingData: IImageProcessingData;
 
 	startImageProcessing(isAutoImageProcessingActive: boolean, imageManualProcessArgs: ImageManualProcessArgs) {
 		const isImageProcessActive = this.isImageProcessActive(isAutoImageProcessingActive, imageManualProcessArgs);
@@ -116,7 +118,9 @@ export class ImageProcessingPlugin extends BaseImageryPlugin {
 	}
 
 	getMainLayer(): any {
-		return Boolean(this.customMainLayer) ? this.customMainLayer : this.communicator.ActiveMap.getMainLayer();
+		const baseMapLayer = (<any>this.iMap).getLayerByName(IMAGERY_BASE_MAP_LAYER);
+		const mainLayer = Boolean(baseMapLayer) ? baseMapLayer : this.communicator.ActiveMap.getMainLayer();
+		return Boolean(this.customMainLayer) ? this.customMainLayer : mainLayer;
 	}
 
 	public setAutoImageProcessing(shouldPerform: boolean): void {
@@ -137,6 +141,7 @@ export class ImageProcessingPlugin extends BaseImageryPlugin {
 		if (this.imageLayer) {
 			return;
 		}
+
 		const mainLayer = this.getMainLayer();
 		const imageLayer = mainLayer.get(IMAGE_PROCESS_ATTRIBUTE);
 		if (!imageLayer) {
