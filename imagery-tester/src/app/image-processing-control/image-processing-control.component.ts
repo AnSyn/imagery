@@ -96,6 +96,7 @@ export class ImageProcessingControlComponent implements OnInit, OnDestroy {
     this.imageProcessPluggin = communicator.getPlugin(ImageProcessingPlugin);
     communicator.mapInstanceChanged.subscribe(() => {
       this.imageProcessPluggin = communicator.getPlugin(ImageProcessingPlugin);
+      this.imageManualProcessArgs = this.defaultImageManualProcessArgs;
     });
   }
 
