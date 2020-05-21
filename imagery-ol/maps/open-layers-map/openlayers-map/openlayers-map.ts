@@ -276,6 +276,11 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 		return mainLayer;
 	}
 
+	getLayerByName(name: string): Layer {
+		const layer = this._mapLayers.find((layer: Layer) => layer.get(ImageryLayerProperties.NAME) === name);
+		return layer;
+	}
+
 	fitToExtent(extent: ImageryMapExtent, map: OLMap = this.mapObject, view: View = map.getView()) {
 		const collection: any = turf.featureCollection([ExtentCalculator.extentToPolygon(extent)]);
 
@@ -295,6 +300,7 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 		if (layer.get(ImageryLayerProperties.ID) !== main.get(ImageryLayerProperties.ID)) {
 			this.addLayer(layer);
 		}
+		this.mapLayerChangedEventEmitter.emit();
 	}
 
 	public addLayer(layer: any) {

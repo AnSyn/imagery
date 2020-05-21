@@ -14,10 +14,11 @@ describe('ImageryChangeMapComponent', () => {
   const mockMeasureRuler = MockComponent({ selector: 'measure-ruler', inputs: [] });
   const mockImageryPerformance = MockComponent({ selector: 'imagery-performance', inputs: [] });
   const mockMapEvents = MockComponent({ selector: 'map-events', inputs: [] });
+  const mockImageProcessingControl = MockComponent({ selector: 'ansyn-image-processing-control', inputs: [] });
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ImageryChangeMapComponent, mockMeasureRuler, mockImageryPerformance, mockMapEvents],
+			declarations: [ImageryChangeMapComponent, mockMeasureRuler, mockImageryPerformance, mockMapEvents, mockImageProcessingControl],
 			providers: [
         ImageryCommunicatorService,
 				{
