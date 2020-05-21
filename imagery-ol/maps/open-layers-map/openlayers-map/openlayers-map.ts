@@ -300,6 +300,7 @@ export class OpenLayersMap extends BaseImageryMap<OLMap> {
 		if (layer.get(ImageryLayerProperties.ID) !== main.get(ImageryLayerProperties.ID)) {
 			this.addLayer(layer);
 		}
+		this.mapLayerChangedEventEmitter.emit();
 	}
 
 	public addLayer(layer: any) {

@@ -1,10 +1,13 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { filter, map, take, tap } from 'rxjs/operators';
-import { IImageProcParam, ImageManualProcessArgs } from '@ansyn/imagery-ol';
+import {
+  getDefaultImageProcParams,
+  IImageProcParam,
+  ImageManualProcessArgs
+} from '@ansyn/imagery-ol';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
 import { ImageryCommunicatorService } from '@ansyn/imagery';
 import { ImageProcessingPlugin } from '@ansyn/imagery-ol';
-import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'ansyn-image-processing-control',
@@ -12,57 +15,27 @@ import { cloneDeep } from 'lodash';
   styleUrls: ['./image-processing-control.component.less']
 })
 export class ImageProcessingControlComponent implements OnInit, OnDestroy {
-  defaultParams = [
-    {
-      'name': 'Sharpness',
-      'defaultValue': 0,
-      'min': 0,
-      'max': 100
-    },
-    {
-      'name': 'Contrast',
-      'defaultValue': 0,
-      'min': -100,
-      'max': 100
-    },
-    {
-      'name': 'Brightness',
-      'defaultValue': 0,
-      'min': -100,
-      'max': 100
-    },
-    {
-      'name': 'Gamma',
-      'defaultValue': 100,
-      'min': 1,
-      'max': 200
-    },
-    {
-      'name': 'Saturation',
-      'defaultValue': 100,
-      'min': 1,
-      'max': 100
-    }
-  ];
-  localParams;
-  imageManualProcessArgs: ImageManualProcessArgs = this.defaultImageManualProcessArgs;
+
+  localParams: any;
+  imageManualProcessArgs: ImageManualProcessArgs;
 
   get params(): Array<IImageProcParam> {
     return this.localParams;
   }
 
-  get defaultImageManualProcessArgs(): ImageManualProcessArgs {
-    return this.defaultParams.reduce<ImageManualProcessArgs>((initialObject: any, imageProcParam) => {
-      return <any>{ ...initialObject, [imageProcParam.name]: imageProcParam.defaultValue };
+  getDefaultImageManualProcessArgs(): ImageManualProcessArgs {
+    return this.localParams.reduce((initialObject: any, imageProcParam) => {
+      return { ...initialObject, [imageProcParam.name]: imageProcParam.defaultValue };
     }, {});
   }
 
   constructor(protected communicators: ImageryCommunicatorService) {
-    this.localParams = cloneDeep(this.defaultParams);
+    this.localParams = getDefaultImageProcParams();
+    this.imageManualProcessArgs = this.getDefaultImageManualProcessArgs();
   }
 
   resetOne(paramToReset) {
-    this.updateParam(this.defaultImageManualProcessArgs[paramToReset.name], paramToReset.name);
+    this.updateParam(this.getDefaultImageManualProcessArgs()[paramToReset.name], paramToReset.name);
   }
 
   updateParam(value, key) {
@@ -76,9 +49,9 @@ export class ImageProcessingControlComponent implements OnInit, OnDestroy {
 
   resetParams() {
     if (this.imageProcessPluggin) {
-      this.imageProcessPluggin.startImageProcessing(false, { ...this.defaultImageManualProcessArgs });
+      this.imageProcessPluggin.startImageProcessing(false, { ...this.getDefaultImageManualProcessArgs() });
     }
-    this.imageManualProcessArgs = this.defaultImageManualProcessArgs;
+    this.imageManualProcessArgs = this.getDefaultImageManualProcessArgs();
   }
 
   ngOnInit() {
@@ -96,7 +69,7 @@ export class ImageProcessingControlComponent implements OnInit, OnDestroy {
     this.imageProcessPluggin = communicator.getPlugin(ImageProcessingPlugin);
     communicator.mapInstanceChanged.subscribe(() => {
       this.imageProcessPluggin = communicator.getPlugin(ImageProcessingPlugin);
-      this.imageManualProcessArgs = this.defaultImageManualProcessArgs;
+      this.imageManualProcessArgs = this.getDefaultImageManualProcessArgs();
     });
   }
 

@@ -12,9 +12,10 @@ import { isEqual } from 'lodash';
 import { Inject } from '@angular/core';
 import { OpenLayersMap } from '../../maps/open-layers-map/openlayers-map/openlayers-map';
 import { OpenLayersDisabledMap } from '../../maps/openlayers-disabled-map/openlayers-disabled-map';
-import { IImageProcessingData, IImageProcParam, ImageManualProcessArgs } from './model';
+import { getDefaultImageProcParams, IImageProcessingData, IImageProcParam, ImageManualProcessArgs } from './model';
 import { ProjectableRaster } from '../../maps/open-layers-map/models/projectable-raster';
 import { IMAGE_PROCESS_ATTRIBUTE } from '../../mapSourceProviders/open-layers.map-source-provider';
+import { AutoSubscription } from 'auto-subscriptions';
 
 @ImageryPlugin({
 	supported: [OpenLayersMap, OpenLayersDisabledMap],
@@ -25,6 +26,16 @@ export class ImageProcessingPlugin extends BaseImageryPlugin {
 	private _imageProcessing: OpenLayersImageProcessing;
 	private imageLayer: ImageLayer;
 	customMainLayer = null;
+	mapLayerChangedSubscription;
+
+	onInit() {
+		super.onInit();
+		this.mapLayerChangedSubscription = this.iMap.mapLayerChangedEventEmitter.pipe(
+			tap(()=> {
+				this.removeImageLayer();
+			})
+		).subscribe();
+	}
 
 	startImageProcessing(isAutoImageProcessingActive: boolean, imageManualProcessArgs: ImageManualProcessArgs) {
 		const isImageProcessActive = this.isImageProcessActive(isAutoImageProcessingActive, imageManualProcessArgs);
@@ -45,45 +56,11 @@ export class ImageProcessingPlugin extends BaseImageryPlugin {
 		}
 	}
 
-	defaultParams = [
-		{
-			'name': 'Sharpness',
-			'defaultValue': 0,
-			'min': 0,
-			'max': 100
-		},
-		{
-			'name': 'Contrast',
-			'defaultValue': 0,
-			'min': -100,
-			'max': 100
-		},
-		{
-			'name': 'Brightness',
-			'defaultValue': 0,
-			'min': -100,
-			'max': 100
-		},
-		{
-			'name': 'Gamma',
-			'defaultValue': 100,
-			'min': 1,
-			'max': 200
-		},
-		{
-			'name': 'Saturation',
-			'defaultValue': 100,
-			'min': 1,
-			'max': 100
-		}
-	];
-
-	get params(): Array<IImageProcParam> {
-		return this.defaultParams;
-	}
+	params: Array<IImageProcParam>;
 
 	constructor() {
 		super();
+		this.params = getDefaultImageProcParams();
 	}
 
 	defaultImageManualProcessArgs(): ImageManualProcessArgs {
@@ -175,4 +152,11 @@ export class ImageProcessingPlugin extends BaseImageryPlugin {
 		return imageLayer;
 	}
 
+	onDispose() {
+		if (this.mapLayerChangedSubscription) {
+			this.mapLayerChangedSubscription.unsubscribe();
+			this.mapLayerChangedSubscription = null;
+		}
+		super.onDispose();
+	}
 }
