@@ -505,11 +505,13 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	getLayers(): any[] {
-		return [];
+		return [...<any>this.layersToCesiumLayer.keys()];
 	}
 
-	addLayerIfNotExist() {
-
+	addLayerIfNotExist(layer: any) {
+		if (this.layersToCesiumLayer.has(layer)) {
+			this.addLayer(layer);
+		}
 	}
 
 	getRotation(): number {
@@ -528,7 +530,8 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	removeAllLayers(): void {
-
+		this.mapObject.imageryLayers.removeAll();
+		this.layersToCesiumLayer.clear();
 	}
 
 	public dispose() {
