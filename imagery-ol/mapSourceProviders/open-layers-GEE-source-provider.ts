@@ -1,4 +1,3 @@
-import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
 import {
 	CacheService,
@@ -7,11 +6,12 @@ import {
 	IMapSettings, IMapSourceProvidersConfig,
 	MAP_SOURCE_PROVIDERS_CONFIG
 } from '@ansyn/imagery';
-import { OpenLayersMapSourceProvider } from './open-layers.map-source-provider';
+import { IMAGE_PROCESS_ATTRIBUTE, OpenLayersMapSourceProvider } from './open-layers.map-source-provider';
 import { OpenLayersMap } from '../maps/open-layers-map/openlayers-map/openlayers-map';
 import { OpenLayersDisabledMap } from '../maps/openlayers-disabled-map/openlayers-disabled-map';
 import { HttpClient } from '@angular/common/http';
 import { Inject } from '@angular/core';
+
 ​
 export const OpenLayerGEESourceProviderSourceType = 'GEE';
 ​
@@ -21,6 +21,8 @@ export const OpenLayerGEESourceProviderSourceType = 'GEE';
 })
 export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 
+	layerData: any;
+
 	constructor(protected httpClient: HttpClient,
 				protected cacheService: CacheService,
 				protected imageryCommunicatorService: ImageryCommunicatorService,
@@ -28,28 +30,28 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 		super(cacheService, imageryCommunicatorService, mapSourceProvidersConfig);
 	}
 
-	create(metaData: IMapSettings): Promise<any> {
+	async create(metaData: IMapSettings): Promise<any> {
 		const config = { ...this.config, ...metaData.data.config };
-​
-		return this.getLayersData(config.serverUrl)
-			.then((data) => {
-				const geeDefs = JSON.parse(data.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
-				const source = new XYZ({
-					url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
-					crossOrigin: 'anonymous',
-					minZoom: 1
-				});
-​
-				const geeLayer = new TileLayer(<any>{
-					source: source,
-					visible: true,
-					preload: Infinity
-				});
-				return Promise.resolve(geeLayer);
-			})
-			.catch((excpetion) => {
-				console.error(excpetion);
-			});
+
+		if (!this.layerData) {
+			this.layerData = await this.getLayersData(config.serverUrl);
+		}
+
+		const extent = this.createExtent(metaData);
+		const source = this.createSource(metaData);
+		const tileLayer = this.createLayer(source, extent);
+		tileLayer.set(IMAGE_PROCESS_ATTRIBUTE, this.getImageLayer(source, extent));
+		return Promise.resolve(tileLayer);
+	}
+
+	createSource(metaData: IMapSettings): any {
+		const geeDefs = JSON.parse(this.layerData.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
+		const source = new XYZ({
+			url: this.config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
+			crossOrigin: 'anonymous',
+			minZoom: 1
+		});
+		return source;
 	}
 
 	getLayersData(serverURL: string): Promise<any> {

@@ -36,17 +36,22 @@ import { MouseMarkerPlugin } from './plugins/cesium/mouse-marker-plugin';
 import { TestOLPerformanceVisualizer } from './plugins/ol/test-ol-performance-visualizer';
 import { ImageryPerformanceComponent } from './imagery-performance/imagery-performance.component';
 import { MapEventsComponent } from './map-events/map-events.component';
+import { ImageProcessingControlComponent } from './image-processing-control/image-processing-control.component';
+import { ImageProcessingPlugin } from '@ansyn/imagery-ol';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
     AnnotationsControlComponent,
+    ImageProcessingControlComponent,
     ImageryChangeMapComponent,
     MeasureRulerComponent,
     ImageryPerformanceComponent,
     MapEventsComponent
   ],
   imports: [
+    FormsModule,
     BrowserModule,
     BrowserAnimationsModule,
     NavbarModule,
@@ -59,7 +64,7 @@ import { MapEventsComponent } from './map-events/map-events.component';
     TranslateModule.forRoot(),
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
-      plugins: [AnnotationsVisualizer, GridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
+      plugins: [AnnotationsVisualizer, ImageProcessingPlugin, GridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
       mapSourceProviders: [OpenLayerGEESourceProvider, OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, OpenLayerTileWMSSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider, CesiumGEE2dSourceProvider, CesiumGEESourceProvider]
     }),
     AnnotationsContextMenuModule
