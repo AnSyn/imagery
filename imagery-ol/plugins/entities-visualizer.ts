@@ -93,6 +93,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 	}
 
 	onInit() {
+		super.onInit();
 		this.initLayers();
 	}
 
