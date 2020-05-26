@@ -1,13 +1,9 @@
+export { MapOrientation } from "./model/map-settings";
 export { IMapSource } from './model/map-providers-config';
 export { IStroke, IIcon } from './model/visualizers/visualizer-style';
 export { ICanvasExportData } from './model/base-imagery-map';
 export {
-	ImageryMapExtent,
-	ImageryMapExtentPolygon,
-	ImageryMapProjectedState,
-	IImageryMapPosition,
-	IMousePointerMove,
-	IMouseClick
+	ImageryMapExtent, ImageryMapExtentPolygon, ImageryMapProjectedState, IImageryMapPosition, IMousePointerMove, IMouseClick
 }from './model/case-map-position.model';
 
 export { MAP_SOURCE_PROVIDERS_CONFIG, IMapSourceProvidersConfig } from './model/base-map-source-provider';
@@ -53,6 +49,7 @@ export {
 	calculateLineDistance,
 	calculateGeometryArea,
 	getDistanceBetweenPoints,
+	getNewPoint,
 	EPSG_4326,
 	EPSG_3857
 } from './utils/geo';
@@ -77,7 +74,7 @@ export { ProjectionService } from './projection-service/projection.service';
 export { StayInImageryService } from './stay-in-imagery-service/stay-in-imagery.service';
 export { ImageryModule } from './imagery.module';
 export { IMAGERY_CONFIG } from './model/configuration.token';
-export { ImageryLayerProperties, IMAGERY_MAIN_LAYER_NAME, IMAGERY_BASE_MAP_LAYER } from './model/imagery-layer.model';
+export { IBaseImageryLayer, ImageryLayerProperties, IMAGERY_MAIN_LAYER_NAME, IMAGERY_BASE_MAP_LAYER } from './model/imagery-layer.model';
 
 export { IMapSettings, IMapSettingsData, IWorldViewMapState } from './model/map-settings';
 export { toDegrees, toRadians, getAngleDegreeBetweenPoints, getAngleDegreeBetweenCoordinates } from './utils/math';

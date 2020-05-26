@@ -1,13 +1,12 @@
 import {
 	BaseImageryMap,
-	ICanvasExportData,
 	IMAGERY_MAIN_LAYER_NAME,
 	ImageryLayerProperties,
 	ImageryMap,
 	IImageryMapPosition
 } from '@ansyn/imagery';
 import { GeoJsonObject, Point } from 'geojson';
-import Layer from 'ol/layer/Layer';
+import ol_Layer from 'ol/layer/Layer';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import { Observable, of } from 'rxjs';
@@ -19,10 +18,11 @@ export const DisabledOpenLayersMapName = 'disabledOpenLayersMap';
 	mapType: DisabledOpenLayersMapName
 })
 export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
-	mainLayer: Layer;
+	mainLayer: ol_Layer;
 	element: HTMLElement;
 
-	initMap(element: HTMLElement, shadowNorthElement: HTMLElement, shadowDoubleBufferElement: HTMLElement, mainLayer: any, position?: IImageryMapPosition): Observable<boolean> {
+	initMap(element: HTMLElement, shadowNorthElement: HTMLElement, shadowDoubleBufferElement: HTMLElement, mainLayer: ol_Layer, position?: 	IImageryMapPosition
+): Observable<boolean> {
 		this.element = element;
 		this.mapObject = new Map({
 			target: element,
@@ -33,13 +33,13 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		return of(true);
 	}
 
-	addLayerIfNotExist(layer: any) {
+	addLayerIfNotExist(layer: ol_Layer) {
 	}
 
 	toggleGroup(groupName: string, newState: boolean) {
 	}
 
-	getLayers(): any[] {
+	getLayers(): ol_Layer {
 		return this.mapObject.getLayers().getArray();
 	}
 
@@ -52,12 +52,14 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 	}
 
 
-	resetView(layer: any, position?: IImageryMapPosition): Observable<boolean> {
+	resetView(layer: ol_Layer, position?: IImageryMapPosition
+): Observable<boolean> {
 		this.setMainLayer(layer, position);
 		return of(true);
 	}
 
-	setMainLayer(layer: Layer, position?: IImageryMapPosition) {
+	setMainLayer(layer: ol_Layer, position?: IImageryMapPosition
+) {
 		this.removeMainLayer();
 		const view = this.generateNewView(layer, position);
 		this.mapObject.setView(view);
@@ -74,7 +76,8 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		return this.mainLayer;
 	}
 
-	generateNewView(layer: Layer, position?: IImageryMapPosition): View {
+	generateNewView(layer: ol_Layer, position?: IImageryMapPosition
+): View {
 		const newProjection = layer.getSource().getProjection();
 
 		// for outside only
@@ -99,7 +102,7 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		});
 	}
 
-	addLayer(layer: Layer): void {
+	addLayer(layer: ol_Layer): void {
 		this.mapObject.addLayer(layer);
 	}
 
@@ -110,17 +113,19 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		}
 	}
 
-	removeLayer(layer: any): void {
+	removeLayer(layer: ol_Layer): void {
 		olShared.removeWorkers(layer);
 		this.mapObject.removeLayer(layer);
 		this.mapObject.renderSync();
 	}
 
-	setPosition(position: IImageryMapPosition): Observable<boolean> {
+	setPosition(position: IImageryMapPosition
+): Observable<boolean> {
 		return of(true);
 	}
 
-	getPosition(): Observable<IImageryMapPosition> {
+	getPosition(): Observable<IImageryMapPosition
+> {
 		return of(undefined);
 	}
 
