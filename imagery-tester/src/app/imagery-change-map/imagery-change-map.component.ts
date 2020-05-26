@@ -6,6 +6,7 @@ import {
   MAP_PROVIDERS_CONFIG
 } from '@ansyn/imagery';
 import { GridLinesVisualizer, MeasureRulerVisualizer } from '@ansyn/imagery-ol';
+import {CesiumGridLinesVisualizer} from '@ansyn/imagery-cesium';
 
 @Component({
   selector: 'imagery-change-map',
@@ -94,7 +95,7 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
   }
 
   showGrid() {
-    const plugin = this.communicator && this.communicator.getPlugin(GridLinesVisualizer);
+    const plugin = this.communicator && (this.communicator.getPlugin(GridLinesVisualizer) || this.communicator.getPlugin(CesiumGridLinesVisualizer));
     if (plugin && plugin.isEnabled) {
       plugin.isEnabled = false;
     } else {
@@ -102,8 +103,8 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  get isGridOLVisualizerExists() {
-    const plugin = this.communicator && this.communicator.getPlugin(GridLinesVisualizer);
+  get isGridVisualizerExists() {
+    const plugin = this.communicator && (this.communicator.getPlugin(GridLinesVisualizer) || this.communicator.getPlugin(CesiumGridLinesVisualizer));
     return Boolean(plugin);
   }
 }

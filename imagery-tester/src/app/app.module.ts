@@ -27,7 +27,8 @@ import {
   CesiumGeoServerSourceProvider,
   CesiumGEE2dSourceProvider,
   CesiumGEESourceProvider,
-  CesiumBINGSourceProvider
+  CesiumBINGSourceProvider,
+  CesiumGridLinesVisualizer
 } from '@ansyn/imagery-cesium';
 import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-map.component';
 import { MeasureRulerComponent } from './measure-ruler/measure-ruler.component';
@@ -64,7 +65,7 @@ import { FormsModule } from '@angular/forms';
     TranslateModule.forRoot(),
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
-      plugins: [AnnotationsVisualizer, ImageProcessingPlugin, GridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
+      plugins: [AnnotationsVisualizer, ImageProcessingPlugin, GridLinesVisualizer, CesiumGridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
       mapSourceProviders: [OpenLayerGEESourceProvider, OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, OpenLayerTileWMSSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider, CesiumGEE2dSourceProvider, CesiumGEESourceProvider]
     }),
     AnnotationsContextMenuModule
