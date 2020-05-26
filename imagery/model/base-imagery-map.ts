@@ -1,7 +1,7 @@
 import { EventEmitter, ViewContainerRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GeoJsonObject, Point } from 'geojson';
-import { ImageryMapExtent, ImageryMapPosition, IMousePointerMove } from './case-map-position.model';
+import { ImageryMapExtent, IImageryMapPosition, IMousePointerMove, IMouseClick } from './case-map-position.model';
 import { IMapErrorMessage, IMapProgress } from './map-progress.model';
 import { IBaseImageryLayer } from './imagery-layer.model';
 import { EPSG_4326 } from '../utils/geo';
@@ -31,9 +31,13 @@ export abstract class BaseImageryMap<T = any> {
 	readonly mapType?: string;
 	readonly defaultMapSource?: string;
 
-	public positionChanged: EventEmitter<ImageryMapPosition> = new EventEmitter<ImageryMapPosition>();
+	public positionChanged: EventEmitter<IImageryMapPosition> = new EventEmitter<IImageryMapPosition>();
 	public mousePointerMoved: EventEmitter<IMousePointerMove> = new EventEmitter<IMousePointerMove>();
-	public moveStart: EventEmitter<ImageryMapPosition> = new EventEmitter<ImageryMapPosition>();
+	public mouseSingleClick: EventEmitter<IMouseClick> = new EventEmitter<IMouseClick>();
+	public mouseRightClick: EventEmitter<IMouseClick> = new EventEmitter<IMouseClick>();
+	public mouseDoubleClick: EventEmitter<IMouseClick> = new EventEmitter<IMouseClick>();
+	public moveStart: EventEmitter<IImageryMapPosition> = new EventEmitter<IImageryMapPosition>();
+	public mapLayerChangedEventEmitter: EventEmitter<any> = new EventEmitter<any>();
 
 	public tilesLoadProgressEventEmitter: EventEmitter<IMapProgress> = new EventEmitter<IMapProgress>();
 	public tilesLoadErrorEventEmitter: EventEmitter<IMapErrorMessage> = new EventEmitter<IMapErrorMessage>();
@@ -45,7 +49,7 @@ export abstract class BaseImageryMap<T = any> {
 
 	abstract toggleGroup(groupName: string, newState: boolean);
 
-	abstract initMap(element: HTMLElement, shadowNorthElement: HTMLElement, shadowDoubleBufferElement: HTMLElement, layer?: IBaseImageryLayer, position?: ImageryMapPosition, mapViewContainerRef?: ViewContainerRef): Observable<boolean>;
+	abstract initMap(element: HTMLElement, shadowNorthElement: HTMLElement, shadowDoubleBufferElement: HTMLElement, layer?: IBaseImageryLayer, position?: IImageryMapPosition, mapViewContainerRef?: ViewContainerRef): Observable<boolean>;
 
 	// This method is for the use of the @AutoSubscription decorator
 	initMapSubscriptions(): void {
@@ -56,7 +60,7 @@ export abstract class BaseImageryMap<T = any> {
 	 * @param layer The new layer to set the view with. this layer projection will be the views projection
 	 * @param extent The extent (bounding box points) of the map at ESPG:4326
 	 */
-	abstract resetView(layer: IBaseImageryLayer, position: ImageryMapPosition, extent?: ImageryMapExtent, useDoubleBuffer?: boolean): Observable<boolean>;
+	abstract resetView(layer: IBaseImageryLayer, position: IImageryMapPosition, extent?: ImageryMapExtent, useDoubleBuffer?: boolean): Observable<boolean>;
 
 	abstract addLayer(layer: IBaseImageryLayer): void;
 
@@ -72,7 +76,7 @@ export abstract class BaseImageryMap<T = any> {
 
 	abstract removeLayer(layer: IBaseImageryLayer): void;
 
-	abstract setPosition(position: ImageryMapPosition): Observable<boolean>;
+	abstract setPosition(position: IImageryMapPosition): Observable<boolean>;
 
 	abstract setRotation(rotation: number): void;
 
@@ -84,7 +88,7 @@ export abstract class BaseImageryMap<T = any> {
 
 	abstract one2one(): void;
 
-	abstract getPosition(): Observable<ImageryMapPosition>;
+	abstract getPosition(): Observable<IImageryMapPosition>;
 
 	abstract updateSize(): void;
 

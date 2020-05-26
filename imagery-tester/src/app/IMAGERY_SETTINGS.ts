@@ -4,6 +4,7 @@ import { CesiumMapName } from '@ansyn/imagery-cesium';
 
 const IMAGERY_SETTINGS: IMapSettings = {
   id: 'id',
+  orientation: 'User Perspective',
   worldView: {
     mapType: OpenlayersMapName, // CesiumMapName,
     sourceType: 'OSM', // 'CESIUM_OSM'
