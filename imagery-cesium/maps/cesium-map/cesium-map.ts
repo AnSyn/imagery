@@ -509,7 +509,7 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	addLayerIfNotExist(layer: any) {
-		if (this.layersToCesiumLayer.has(layer)) {
+		if (!this.layersToCesiumLayer.has(layer)) {
 			this.addLayer(layer);
 		}
 	}
