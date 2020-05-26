@@ -281,13 +281,16 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		const styles = merge({}, visEntity.style);
 		const s: IVisualizerStyle = merge({}, styles.initial);
 
+		const fillColor = s.label && s.label.fill ? this.getColor(s.label.fill) : undefined;
+		const outlineColor = s.label && s.label.stroke ? this.getColor(s.label.stroke) : undefined;
+
 		entity.label = new Cesium.LabelGraphics({
 				text: visEntity.label.text,
 				font: new Cesium.ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined),
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 				verticalOrigin: Cesium.VerticalOrigin.TOP,
-				fillColor : this.getColor(s.label.fill),
-				outlineColor: this.getColor(s.label.stroke),
+				fillColor : fillColor,
+				outlineColor: outlineColor,
 				outlineWidth: 2,
 				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
 			}

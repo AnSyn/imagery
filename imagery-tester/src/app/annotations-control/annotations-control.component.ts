@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {
-  BaseImageryVisualizer,
+  BaseImageryVisualizer, CommunicatorEntity,
   ImageryCommunicatorService,
   IVisualizerEntity
 } from '@ansyn/imagery';
@@ -10,11 +10,12 @@ import {
   IDrawEndEvent,
   OpenlayersMapName
 } from '@ansyn/imagery-ol';
-import { fromEvent } from 'rxjs';
+import { fromEvent, Observable, of } from 'rxjs';
 import { filter, mergeMap, take, tap } from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
 import { CesiumMapName } from '@ansyn/imagery-cesium';
 import { MouseMarkerPlugin } from '../plugins/cesium/mouse-marker-plugin';
+import { GeoJsonObject } from "geojson";
 
 @Component({
   selector: 'app-annotations-control',
@@ -26,13 +27,18 @@ export class AnnotationsControlComponent implements OnInit {
   annotations: AnnotationsVisualizer;
   reader = new FileReader();
   currentEntities: IVisualizerEntity[];
+  communicator: CommunicatorEntity;
 
   onFileLoad$ = fromEvent(this.reader, 'load').pipe(
     mergeMap(() => {
       const readerResult: string = <string>this.reader.result;
-      const geoJSON = JSON.parse(readerResult);
-      const entities = this.annotations.annotationsLayerToEntities(geoJSON);
+      const geoJSON = <GeoJsonObject> JSON.parse(readerResult);
+      /*const entities = this.annotations.annotationsLayerToEntities(geoJSON);
       return this.annotations.addOrUpdateEntities(entities);
+*/
+
+      this.communicator.addGeojsonLayer(geoJSON);
+      return of(true);
     })
   );
 
@@ -41,6 +47,7 @@ export class AnnotationsControlComponent implements OnInit {
 
   onInitMap() {
     const communicator = this.communicators.provide(IMAGERY_SETTINGS.id);
+    this.communicator = communicator;
     this.annotations = communicator.getPlugin(AnnotationsVisualizer);
     this.subscribeToOnDisposePlugin(this.annotations);
     communicator.mapInstanceChanged.subscribe(() => {

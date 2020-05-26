@@ -488,7 +488,12 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	addGeojsonLayer(data: GeoJsonObject) {
-		throw new Error('Method not implemented.');
+		Cesium.GeoJsonDataSource.load(data).then(lyr => {
+			this.mapObject.dataSources.add(lyr);
+		}).otherwise(error => {
+			throw new Error(error);
+		} );
+
 	}
 
 	setAutoImageProcessing(shouldPerform: boolean): void {
@@ -499,19 +504,14 @@ export class CesiumMap extends BaseImageryMap<any> {
 		throw new Error('Method not implemented.');
 	}
 
-	setPointerMove(enable: boolean) {
-	}
-
-	getPointerMove() {
-		return new Observable();
-	}
-
 	getLayers(): any[] {
-		return [];
+		return Array.from(this.layersToCesiumLayer.keys());
 	}
 
-	addLayerIfNotExist() {
-
+	addLayerIfNotExist(layer: any) {
+		if (!this.layersToCesiumLayer.has(layer)) {
+			this.addLayer(layer);
+		}
 	}
 
 	getRotation(): number {
@@ -530,7 +530,8 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	removeAllLayers(): void {
-
+		this.mapObject && this.mapObject.imageryLayers.removeAll();
+		this.layersToCesiumLayer.clear();
 	}
 
 	public dispose() {
