@@ -505,7 +505,7 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	getLayers(): any[] {
-		return [...<any>this.layersToCesiumLayer.keys()];
+		return Array.from(this.layersToCesiumLayer.keys());
 	}
 
 	addLayerIfNotExist(layer: any) {
@@ -530,7 +530,7 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	removeAllLayers(): void {
-		this.mapObject.imageryLayers.removeAll();
+		this.mapObject && this.mapObject.imageryLayers.removeAll();
 		this.layersToCesiumLayer.clear();
 	}
 
