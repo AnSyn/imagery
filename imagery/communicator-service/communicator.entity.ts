@@ -86,13 +86,6 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 		return this.ActiveMap && this.ActiveMap.mapType;
 	}
 
-	@AutoSubscription
-	activeMap$ = () => merge(this.imageryCommunicatorService.instanceCreated, this.mapInstanceChanged)
-		.pipe(
-			filter(({ id }) => id === this.id),
-			tap(this.initPlugins.bind(this))
-		);
-
 	getMapSourceProvider({ mapType, sourceType }: { mapType?: string, sourceType: string }): BaseMapSourceProvider {
 		return this.imageryMapSources[mapType][sourceType];
 	}
@@ -146,7 +139,13 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 			}
 			return mapComponent.createMap(layer, position)
 				.pipe(
-					tap((map) => this.onMapCreated(map, mapType, this.activeMapName))
+					tap((map: BaseImageryMap) => {
+						this._activeMap = map;
+					}),
+					tap(this.initPlugins.bind(this)),
+					tap(() => {
+						this.raiseMapInstanceChanged(mapType, this.activeMapName)
+					})
 				)
 				.toPromise();
 		});
@@ -297,8 +296,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 		this.plugins.forEach((plugin) => plugin.dispose());
 	}
 
-	private onMapCreated(map: BaseImageryMap, activeMapName, oldMapName) {
-		this._activeMap = map;
+	private raiseMapInstanceChanged(activeMapName, oldMapName) {
 		if (activeMapName !== oldMapName && Boolean(oldMapName)) {
 			this.mapInstanceChanged.emit({
 				id: this.id,
