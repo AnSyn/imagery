@@ -51,14 +51,12 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 	}
 
 
-	resetView(layer: ol_Layer, position?: IImageryMapPosition
-): Observable<boolean> {
+	resetView(layer: ol_Layer, position?: IImageryMapPosition): Observable<boolean> {
 		this.setMainLayer(layer, position);
 		return of(true);
 	}
 
-	setMainLayer(layer: ol_Layer, position?: IImageryMapPosition
-) {
+	setMainLayer(layer: ol_Layer, position?: IImageryMapPosition) {
 		this.removeMainLayer();
 		const view = this.generateNewView(layer, position);
 		this.mapObject.setView(view);
@@ -121,8 +119,7 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		return of(true);
 	}
 
-	getPosition(): Observable<IImageryMapPosition
-> {
+	getPosition(): Observable<IImageryMapPosition> {
 		return of(undefined);
 	}
 
