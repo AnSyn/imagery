@@ -1,6 +1,6 @@
 // Converts from degrees to radians.
 import { Point as GeoPoint, Point } from 'geojson';
-import * as turf from '@turf/turf';
+import { bearing, geometry } from '@turf/turf';
 
 export function toRadians(degrees: number): number {
 	return degrees * Math.PI / 180;
@@ -12,13 +12,13 @@ export function toDegrees(radians: number): number {
 }
 
 export function getAngleDegreeBetweenCoordinates(source: [], destination: []): number {
-	const sourcePoint = <GeoPoint>turf.geometry('Point', source);
-	const destinationPoint = <GeoPoint>turf.geometry('Point', destination);
-	const brng = turf.bearing(sourcePoint, destinationPoint);
+	const sourcePoint = <GeoPoint>geometry('Point', source);
+	const destinationPoint = <GeoPoint>geometry('Point', destination);
+	const brng = bearing(sourcePoint, destinationPoint);
 	return brng;
 }
 
 export function getAngleDegreeBetweenPoints(source: Point, destination: Point): number {
-	const brng = turf.bearing(source, destination);
+	const brng = bearing(source, destination);
 	return brng;
 }

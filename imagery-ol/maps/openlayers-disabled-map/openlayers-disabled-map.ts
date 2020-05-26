@@ -39,7 +39,7 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 	toggleGroup(groupName: string, newState: boolean) {
 	}
 
-	getLayers(): ol_Layer {
+	getLayers(): ol_Layer[] {
 		return this.mapObject.getLayers().getArray();
 	}
 
@@ -76,8 +76,7 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		return this.mainLayer;
 	}
 
-	generateNewView(layer: ol_Layer, position?: IImageryMapPosition
-): View {
+	generateNewView(layer: ol_Layer, position?: IImageryMapPosition): View {
 		const newProjection = layer.getSource().getProjection();
 
 		// for outside only
@@ -119,8 +118,7 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		this.mapObject.renderSync();
 	}
 
-	setPosition(position: IImageryMapPosition
-): Observable<boolean> {
+	setPosition(position: IImageryMapPosition): Observable<boolean> {
 		return of(true);
 	}
 
