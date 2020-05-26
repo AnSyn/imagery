@@ -593,4 +593,7 @@ export class CesiumMap extends BaseImageryMap<any> {
 			this.mapObject.camera.flyTo(flyToObj);
 		});
 	}
+	getProjectionCode(): string {
+		throw new Error("Not implemented yet!");
+	}
 }
