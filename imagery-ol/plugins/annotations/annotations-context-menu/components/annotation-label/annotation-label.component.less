@@ -2,10 +2,7 @@
 @import "less/globals";
 
 :host {
-	font-family: @app-font;
-	font-size: 14px;
 
-	.icon-drag-annotations:before { content: 'D'; }// '\e827'; } /* '' */
 
 	div.annotation-label-form {
 		button.drag-annotation {
@@ -24,7 +21,7 @@
 				opacity: 0.5;
 			}
 
-			i.active {
+			.active {
 				color: @application-primary-color;
 			}
 		}
