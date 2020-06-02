@@ -239,7 +239,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polyline.positions).getValue(null)).center;
+		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polyline.positions).getValue()).center;
 	}
 
 	private updatePolygon(entity: Entity, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): void {
@@ -273,7 +273,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polygon.hierarchy).getValue(null).positions).center;
+		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polygon.hierarchy).getValue().positions).center;
 	}
 
 	private updateLabel(entity: Cesium.Entity, visEntity: IVisualizerEntity) {

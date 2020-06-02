@@ -34,7 +34,7 @@ import { featureCollection } from '@turf/turf';
 export interface IFeatureIdentifier {
 	feature: Feature;
 	originalEntity: IVisualizerEntity;
-	cachedFeatureStyle?: any;
+	cachedFeatureStyle: any;
 }
 
 export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
@@ -144,7 +144,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			if ((<any>entitiy.feature).styleCache) {
 				delete (<any>entitiy.feature).styleCache;
 			}
-			this.idToEntity.set(featureId, {cachedFeatureStyle: null,originalEntity: entitiy.originalEntity, feature: entitiy.feature });
+			this.idToEntity.set(featureId, {cachedFeatureStyle: null, originalEntity: entitiy.originalEntity, feature: entitiy.feature });
 		}
 	}
 
@@ -154,7 +154,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			const key = <string>feature.getId();
 			if (this.idToEntity.has(key)) {
 				const entitiy = this.idToEntity.get(key);
-				this.idToEntity.set(key, {cachedFeatureStyle: null,originalEntity: entitiy.originalEntity, feature: feature });
+				this.idToEntity.set(key, {cachedFeatureStyle: null, originalEntity: entitiy.originalEntity, feature: feature });
 			}
 		} else if (this.source) {
 			let features = this.source.getFeatures();
@@ -507,7 +507,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 		return this.findFeatureWithMinimumArea(featuresArray);
 	};
 
-	entityAtPixel(pixel) : IVisualizerEntity {
+	entityAtPixel(pixel): IVisualizerEntity {
 		const feature = this.featureAtPixel(pixel);
 		if (!feature) {
 			return undefined;
