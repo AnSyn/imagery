@@ -34,7 +34,7 @@ import { featureCollection } from '@turf/turf';
 export interface IFeatureIdentifier {
 	feature: Feature;
 	originalEntity: IVisualizerEntity;
-	cachedFeatureStyle: any;
+	cachedFeatureStyle?: any;
 }
 
 export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
