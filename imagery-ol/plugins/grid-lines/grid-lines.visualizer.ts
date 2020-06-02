@@ -12,10 +12,11 @@ import { OpenLayersMap } from '../../maps/open-layers-map/openlayers-map/openlay
 })
 export class GridLinesVisualizer extends BaseImageryPlugin {
 
-	gridColor = 'rgba(0,0,255,0.9)';
-	gridLineWidth = 2;
+	gridColor = 'rgba(245,245,245,0.85)';
+	gridLineWidth = 3;
 	gridShowLabels = true;
-	protected graticule: any;
+	protected graticule1: any;
+	protected graticule2: any;
 	protected _isEnabled: boolean;
 
 	constructor() {
@@ -23,8 +24,18 @@ export class GridLinesVisualizer extends BaseImageryPlugin {
 	}
 
 	// override this method to format the angle
-	formatAngle(angle) {
-		return angle.toFixed(3) + String.fromCharCode(176);
+	formatAngle(angle: number) {
+		// @ts-ignore
+		const degrees = Math.trunc(angle);
+		// @ts-ignore
+		const minutesAndSeconds = (angle - degrees) * 60;
+		let minutes = Math.round(minutesAndSeconds);
+		let seconds = Math.round(minutesAndSeconds - minutes) * 3600;
+		if (seconds >= 3600) {
+			minutes += 1;
+			seconds = 0;
+		}
+		return `${degrees + String.fromCharCode(176)} ${minutes.toFixed(0)} ${seconds.toFixed(0)}`;
 	}
 
 	onInit() {
@@ -47,27 +58,49 @@ export class GridLinesVisualizer extends BaseImageryPlugin {
 	}
 
 	showGridLines() {
-		if (this.graticule) {
+		if (this.graticule1 || this.graticule2) {
 			this.destroyGridLines();
 		}
-		this.graticule = new Graticule({
+
+		this.graticule1 = new Graticule({
 			// the style to use for the lines, optional.
-			latLabelFormatter: this.formatAngle.bind(this),
-			lonLabelFormatter: this.formatAngle.bind(this),
+			// latLabelFormatter: this.formatAngle.bind(this),
+			// lonLabelFormatter: this.formatAngle.bind(this),
+			intervals: [90, 45, 30, 20, 10, 5, 2, 1],
 			strokeStyle: new Stroke({
 				color: this.gridColor,
 				width: this.gridLineWidth
 			}),
+			// lonLabelStyle: lonLabelStyle,
 			showLabels: this.gridShowLabels
 		});
 
-		this.graticule.setMap(this.iMap.mapObject);
+		this.graticule2 = new Graticule({
+			// the style to use for the lines, optional.
+			intervals: [1 / 6],
+			strokeStyle: new Stroke({
+				color: 'rgba(245,245,245,0.45)',
+				lineDash: [0.5, 4],
+				width: 2
+			}),
+			latLabelFormatter: this.formatAngle.bind(this),
+			lonLabelFormatter: this.formatAngle.bind(this),
+			showLabels: false
+		});
+
+		this.graticule2.setMap(this.iMap.mapObject);
+		this.graticule1.setMap(this.iMap.mapObject);
 	}
 
 	destroyGridLines() {
-		if (this.graticule) {
-			this.graticule.setMap(undefined);
-			this.graticule = undefined;
+		if (this.graticule1) {
+			this.graticule1.setMap(undefined);
+			this.graticule1 = undefined;
+		}
+
+		if (this.graticule2) {
+			this.graticule2.setMap(undefined);
+			this.graticule2 = undefined;
 		}
 	}
 

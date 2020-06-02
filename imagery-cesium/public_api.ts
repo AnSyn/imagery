@@ -15,3 +15,4 @@ export {
 	CesiumBINGSourceProvider, CesiumBingSourceProviderSourceType
 }from './mapSourceProviders/cesium-BING-source-provider';
 export { CesiumMap, CesiumMapName } from './maps/cesium-map/cesium-map';
+export { CesiumGridLinesVisualizer } from './plugins/grid-lines.visualizer';

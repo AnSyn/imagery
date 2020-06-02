@@ -11,11 +11,11 @@ import Point from 'ol/geom/Point';
 import VectorLayer from 'ol/layer/Vector';
 import ol_Layer from 'ol/layer/Layer';
 import OLGeoJSON from 'ol/format/GeoJSON';
+import { getArea } from 'ol/sphere';
 import SelectEvent from 'ol/interaction/Select';
 import * as olExtent from 'ol/extent';
 import {
 	BaseImageryVisualizer,
-	calculateGeometryArea,
 	calculateLineDistance,
 	getPointByGeometry,
 	IVisualizerEntity,
@@ -93,6 +93,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 	}
 
 	onInit() {
+		super.onInit();
 		this.initLayers();
 	}
 
@@ -105,7 +106,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 		this.featuresCollection = [];
 		this.source = new SourceVector({ features: this.featuresCollection, wrapX: false });
 
-		let extent = !this.dontRestrictToExtent ? this.iMap.getMainLayer().getExtent() : undefined;
+		let extent = !this.dontRestrictToExtent ? (this.iMap.getMainLayer() as ol_Layer).getExtent() : undefined;
 		this.vector = new VectorLayer(<any>{
 			source: this.source,
 			style: this.featureStyle.bind(this),
@@ -143,7 +144,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			if ((<any>entitiy.feature).styleCache) {
 				delete (<any>entitiy.feature).styleCache;
 			}
-			this.idToEntity.set(featureId, {cachedFeatureStyle: null,originalEntity: entitiy.originalEntity, feature: entitiy.feature });
+			this.idToEntity.set(featureId, {cachedFeatureStyle: null, originalEntity: entitiy.originalEntity, feature: entitiy.feature });
 		}
 	}
 
@@ -153,7 +154,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 			const key = <string>feature.getId();
 			if (this.idToEntity.has(key)) {
 				const entitiy = this.idToEntity.get(key);
-				this.idToEntity.set(key, {cachedFeatureStyle: null,originalEntity: entitiy.originalEntity, feature: feature });
+				this.idToEntity.set(key, {cachedFeatureStyle: null, originalEntity: entitiy.originalEntity, feature: feature });
 			}
 		} else if (this.source) {
 			let features = this.source.getFeatures();
@@ -477,9 +478,9 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 	}
 
 	formatArea(geometry) {
-		const polygon = new OLGeoJSON().writeGeometryObject(geometry);
 		const fractionDigits = 2;
-		const area = calculateGeometryArea(polygon);
+		const projection = this.iMap.getProjectionCode();
+		const area = getArea(geometry, { projection });
 
 		if (area >= 1000) {
 			return (area / 1000).toFixed(fractionDigits) + 'km2';
@@ -506,7 +507,7 @@ export abstract class EntitiesVisualizer extends BaseImageryVisualizer {
 		return this.findFeatureWithMinimumArea(featuresArray);
 	};
 
-	entityAtPixel(pixel) : IVisualizerEntity {
+	entityAtPixel(pixel): IVisualizerEntity {
 		const feature = this.featureAtPixel(pixel);
 		if (!feature) {
 			return undefined;
