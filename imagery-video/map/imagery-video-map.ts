@@ -1,4 +1,4 @@
-import { BaseImageryMap, ImageryMap, ImageryMapExtent, IImageryMapPosition } from '@ansyn/imagery';
+import { BaseImageryMap, ImageryMap, ImageryMapExtent, IImageryMapPosition, EPSG_4326 } from '@ansyn/imagery';
 import { Observable, of } from 'rxjs';
 import { GeoJsonObject, Point } from 'geojson';
 import { HttpClient } from '@angular/common/http';
@@ -121,6 +121,10 @@ export class ImageryVideoMap extends BaseImageryMap<any> {
 		return of(true);
 	}
 
+	getProjectionCode(): string {
+		throw new Error("Not implemented yet!");
+	}
+
 	private _getCenter(): Point {
 		const line = turf.feature(_get(this.mainLayer, 'data.overlay.footprint'));
 		return turf.center(line ? line : point([0, 0])).geometry
@@ -137,5 +141,6 @@ export class ImageryVideoMap extends BaseImageryMap<any> {
 		const extentPolygon: any = turf.bboxPolygon(bbox).geometry;
 		return { extentPolygon };
 	}
+
 
 }

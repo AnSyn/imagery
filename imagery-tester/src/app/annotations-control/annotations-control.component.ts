@@ -1,9 +1,21 @@
-import {Component, OnInit} from '@angular/core';
-import {ImageryCommunicatorService, IVisualizerEntity} from '@ansyn/imagery';
-import {ANNOTATION_MODE_LIST, AnnotationsVisualizer, IDrawEndEvent} from '@ansyn/imagery-ol';
-import {fromEvent} from 'rxjs';
-import {filter, mergeMap, take, tap} from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import {
+  BaseImageryVisualizer, CommunicatorEntity,
+  ImageryCommunicatorService,
+  IVisualizerEntity
+} from '@ansyn/imagery';
+import {
+  ANNOTATION_MODE_LIST,
+  AnnotationsVisualizer,
+  IDrawEndEvent,
+  OpenlayersMapName
+} from '@ansyn/imagery-ol';
+import { fromEvent, Observable, of } from 'rxjs';
+import { filter, mergeMap, take, tap } from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
+import { CesiumMapName } from '@ansyn/imagery-cesium';
+import { MouseMarkerPlugin } from '../plugins/cesium/mouse-marker-plugin';
+import { GeoJsonObject } from "geojson";
 
 @Component({
   selector: 'app-annotations-control',
@@ -14,13 +26,19 @@ export class AnnotationsControlComponent implements OnInit {
   ANNOTATION_MODE_LIST = ANNOTATION_MODE_LIST;
   annotations: AnnotationsVisualizer;
   reader = new FileReader();
+  currentEntities: IVisualizerEntity[];
+  communicator: CommunicatorEntity;
 
   onFileLoad$ = fromEvent(this.reader, 'load').pipe(
     mergeMap(() => {
       const readerResult: string = <string>this.reader.result;
-      const geoJSON = JSON.parse(readerResult);
-      const entities = this.annotations.annotationsLayerToEntities(geoJSON);
+      const geoJSON = <GeoJsonObject> JSON.parse(readerResult);
+      /*const entities = this.annotations.annotationsLayerToEntities(geoJSON);
       return this.annotations.addOrUpdateEntities(entities);
+*/
+
+      this.communicator.addGeojsonLayer(geoJSON);
+      return of(true);
     })
   );
 
@@ -29,15 +47,42 @@ export class AnnotationsControlComponent implements OnInit {
 
   onInitMap() {
     const communicator = this.communicators.provide(IMAGERY_SETTINGS.id);
+    this.communicator = communicator;
     this.annotations = communicator.getPlugin(AnnotationsVisualizer);
+    this.subscribeToOnDisposePlugin(this.annotations);
     communicator.mapInstanceChanged.subscribe(() => {
-      this.annotations = communicator.getPlugin(AnnotationsVisualizer);
+      if (communicator.activeMapName === OpenlayersMapName) {
+        this.annotations = communicator.getPlugin(AnnotationsVisualizer);
+        this.subscribeToOnDisposePlugin(this.annotations);
+        if (Array.isArray(this.currentEntities)) {
+          this.annotations.setEntities(this.currentEntities).pipe(take(1)).subscribe();
+        }
+      } else if (communicator.activeMapName === CesiumMapName) {
+        const plugin = communicator.getPlugin(MouseMarkerPlugin);
+        if (plugin.isReady) {
+          plugin.isEnabled = false;
+          plugin.setEntities(this.currentEntities).pipe(take(1)).subscribe();
+        } else {
+          plugin.isReady$.pipe(take(1)).subscribe(() => {
+            plugin.isEnabled = false;
+            plugin.setEntities(this.currentEntities).pipe(take(1)).subscribe();
+          })
+        }
+      }
     });
+  }
+
+  subscribeToOnDisposePlugin(plugin: BaseImageryVisualizer) {
+    if (plugin) {
+      plugin.onDisposedEvent.pipe(take(1)).subscribe(() => {
+        this.currentEntities = plugin.getEntities();
+      });
+    }
   }
 
   ngOnInit() {
     this.communicators.instanceCreated.pipe(
-      filter(({id}) => id === IMAGERY_SETTINGS.id),
+      filter(({ id }) => id === IMAGERY_SETTINGS.id),
       tap(this.onInitMap.bind(this)),
       take(1)
     ).subscribe();
@@ -76,11 +121,11 @@ export class AnnotationsControlComponent implements OnInit {
   }
 
   changeFill(color) {
-    this.annotations.updateStyle({initial: {fill: color}});
+    this.annotations.updateStyle({ initial: { fill: color } });
   }
 
   changeStroke(color) {
-    this.annotations.updateStyle({initial: {stroke: color}});
+    this.annotations.updateStyle({ initial: { stroke: color } });
   }
 
   loadJSON(files: FileList) {
@@ -90,12 +135,12 @@ export class AnnotationsControlComponent implements OnInit {
     }
   }
 
-  drawAnnotationWithIcon({value}) {
+  drawAnnotationWithIcon({ value }) {
     let iconSrc;
     if (value === 'None') {
       iconSrc = '';
     } else {
-      iconSrc = `assets/${value}.svg`;
+      iconSrc = `assets/${ value }.svg`;
     }
     this.annotations.setIconSrc(iconSrc);
   }
