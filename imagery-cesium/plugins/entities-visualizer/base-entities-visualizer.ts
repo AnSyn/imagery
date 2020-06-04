@@ -29,7 +29,8 @@ import * as geoToCesium from '../utils/geoToCesium'
 
 import { merge } from 'lodash';
 
-declare const Cesium: any;
+import * as Cesium from 'cesium';
+// declare const Cesium: any;
 
 export interface IEntityIdentifier {
 	originalEntity: IVisualizerEntity;
@@ -43,7 +44,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	isReady = false;
 
 	onInit() {
-		this.getOrCreateDataSource(Cesium.createGuid()).then(newDataSource => {
+		this.getOrCreateDataSource((Cesium as any).createGuid()).then(newDataSource => {
 			this.dataSource = newDataSource;
 			this.isReady = true;
 			this.isReady$.next(this.isReady);
@@ -239,7 +240,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polyline.positions).getValue()).center;
+		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polyline.positions).getValue()).center as any;
 	}
 
 	private updatePolygon(entity: Entity, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): void {
@@ -259,13 +260,13 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 		// Adding holes
 		for (let i = 1; i < coordinates.length; i++) {
-			poly.holes.push(geoToCesium.polygonCoordinatesToCartesian(coordinates[i]));
+			poly.holes.push(geoToCesium.polygonCoordinatesToCartesian(coordinates[i]) as any);
 		}
 
 		entity.polygon = new PolygonGraphics({
 			fill:  new Cesium.ConstantProperty(showFill),
 			hierarchy: poly,
-			material: new Cesium.ColorMaterialProperty(fillColor),
+			material: new Cesium.ColorMaterialProperty(fillColor as any),
 			outline: new Cesium.ConstantProperty(showOutline),
 			height: 0,
 			outlineColor: lineColor,
@@ -273,7 +274,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polygon.hierarchy).getValue().positions).center;
+		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polygon.hierarchy).getValue().positions).center as any;
 	}
 
 	private updateLabel(entity: Cesium.Entity, visEntity: IVisualizerEntity) {
@@ -286,13 +287,13 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 		entity.label = new Cesium.LabelGraphics({
 				text: visEntity.label.text,
-				font: new Cesium.ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined),
-				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-				verticalOrigin: Cesium.VerticalOrigin.TOP,
+				font: (new Cesium.ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined)) as any,
+				horizontalOrigin: Cesium.HorizontalOrigin.CENTER as any,
+				verticalOrigin: Cesium.VerticalOrigin.TOP as any,
 				fillColor : fillColor,
 				outlineColor: outlineColor,
 				outlineWidth: 2,
-				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+				style: Cesium.LabelStyle.FILL_AND_OUTLINE as any,
 			}
 		);
 	}
@@ -321,11 +322,11 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		let material;
 		if (s["stroke-dasharray"] > 0) {
 			material = new Cesium.PolylineDashMaterialProperty({
-				color: color,
+				color: color as any,
 				dashLength: s["stroke-dasharray"]
 			});
 		} else {
-			material = new Cesium.ColorMaterialProperty(color);
+			material = new Cesium.ColorMaterialProperty(color as any);
 		}
 		return material;
 	}

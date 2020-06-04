@@ -11,13 +11,14 @@ import { point } from '@turf/turf';
 export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
 
   private _isEnabled: boolean;
+  private first = false;
 
   public set isEnabled(value: boolean) {
     if (this._isEnabled !== value) {
       this._isEnabled = value;
 
       if (!this.isEnabled) {
-        if (this.idToEntity.has('visEntity')){
+        if (this.idToEntity.has('visEntity')) {
           this.removeEntity('visEntity');
         }
       }
@@ -33,7 +34,7 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
     if (this.isEnabled && !isNaN(position.lat) && !isNaN(position.long)) {
       this.tryDraw(position);
     }
-  });
+  })
 
   constructor() {
     super();
@@ -48,8 +49,6 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
     super.dispose();
   }
 
-  private first : boolean = false;
-
   private tryDraw(position: IMousePointerMove) {
     if (!this._isEnabled) {
       return;
@@ -58,8 +57,9 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
       return;
     }
 
-    if (!this.first)
+    if (!this.first) {
       this.first = true;
+    }
 
     const entity: IVisualizerEntity = {
       id: 'visEntity',
@@ -67,13 +67,13 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
       featureJson: point([position.long, position.lat, position.height])
     };
 
-    const polygon : IVisualizerEntity = {
+    const polygon: IVisualizerEntity = {
       id: 'Polygon',
       featureJson: {
-        type: "Feature",
+        type: 'Feature',
         geometry: {
-          "type":"Polygon",
-          "coordinates":[
+          'type': 'Polygon',
+          'coordinates': [
             [
               [
                 -79.9441543655779,
@@ -94,32 +94,32 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
             ]
           ]
         },
-        properties:{
+        properties: {
           label: {
-            text: "BLa"
+            text: 'BLa'
           },
           labelSize : 28
 
         }
       },
-      style:{
-        initial:{
-          "fill":"white",
-          "stroke":"#27b2cfe6",
-          "stroke-width":1,
-          "stroke-dasharray":0,
-          "fill-opacity":0.4,
-          "stroke-opacity":1,
+      style: {
+        initial: {
+          'fill': 'white',
+          'stroke': '#27b2cfe6',
+          'stroke-width': 1,
+          'stroke-dasharray': 0,
+          'fill-opacity': 0.4,
+          'stroke-opacity': 1,
         }
       }
-    }
+    };
 
-    const polyline : IVisualizerEntity = {
+    const polyline: IVisualizerEntity = {
       id: 'Polyline',
       featureJson: {
-        type: "Feature",
+        type: 'Feature',
         geometry: {
-          type : "LineString",
+          type : 'LineString',
           coordinates: [
             [
               37.08545167242462,
@@ -135,71 +135,71 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
             ]
           ]
         },
-        properties:{}
+        properties: {}
       },
-      style:{
-        initial:{
-          stroke:"#27b2cfe6",
-          "stroke-width":1,
-          "stroke-dasharray":0,
+      style: {
+        initial: {
+          stroke: '#27b2cfe6',
+          'stroke-width': 1,
+          'stroke-dasharray': 0,
         }
       }
     };
 
-    const billboardEntity : IVisualizerEntity = {
+    const billboardEntity: IVisualizerEntity = {
       id: 'billboard',
       icon: 'assets//logo.svg',
       featureJson: {
-        type: "Feature",
+        type: 'Feature',
         geometry: {
-          type : "Point",
+          type : 'Point',
           coordinates: [
             -6.018961997487438,
             31.26325432597315
           ]
         },
-        properties:{}
+        properties: {}
       },
-      style:{
-        initial:{
-          "marker-color":"#ffffff",
+      style: {
+        initial: {
+          'marker-color': '#ffffff',
         }
       }
     };
 
-    const pointEntity : IVisualizerEntity = {
+    const pointEntity: IVisualizerEntity = {
       id: 'Point',
       label: {
-        text: "BLa"
+        text: 'BLa'
       },
       labelSize : 28,
       featureJson: {
-        type: "Feature",
+        type: 'Feature',
         geometry: {
-          type : "Point",
+          type : 'Point',
           coordinates: [
             32.018961997487438,
             34.26325432597315
           ]
         },
-        properties:{
+        properties: {
           label: {
-            text: "BLa"
+            text: 'BLa'
           },
           labelSize : 28
         }
       },
-      style:{
-        initial:{
-          "marker-color":"#ffffff",
+      style: {
+        initial: {
+          'marker-color': '#ffffff',
         }
       }
     };
 
-    const multiLineString : IVisualizerEntity = {
+    const multiLineString: IVisualizerEntity = {
       id: 'multiLineString',
       featureJson: {
-        type: "Feature",
+        type: 'Feature',
         geometry: {
           'type': 'MultiLineString',
           'coordinates': [
@@ -209,19 +209,19 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
             [[-32, 34], [32, 34]]
           ]
         },
-        properties:{}
+        properties: {}
       },
-      style:{
-        initial:{
-          stroke:"#27b2cfe6",
-          "stroke-width":1,
-          "stroke-dasharray":0,
+      style: {
+        initial: {
+          stroke: '#27b2cfe6',
+          'stroke-width': 1,
+          'stroke-dasharray': 0,
         }
       }
     };
 
 
-    //this.setEntities([polygon, polyline, pointEntity,multiLineString]);
+    // this.setEntities([polygon, polyline, pointEntity,multiLineString]);
     this.setEntities([pointEntity]);
   }
 }

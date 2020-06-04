@@ -21,6 +21,12 @@ export class AnnotationsContextMenuButtonsComponent implements OnInit, AfterView
 	@Input() featureId: string;
 	@Input() selectedTab: { [id: string]: AnnotationsContextmenuTabs } = {};
 
+	SVGICON = SVG;
+	Tabs = AnnotationsContextmenuTabs;
+
+	isFeatureNonEditable: boolean;
+	featureProps: IFeatureProperties;
+
 	@HostBinding('style.right.px')
 	get right() {
 		return this.stayInImageryService.moveLeft;
@@ -30,12 +36,6 @@ export class AnnotationsContextMenuButtonsComponent implements OnInit, AfterView
 	get top() {
 		return this.stayInImageryService.moveDown;
 	}
-
-	SVGICON = SVG;
-	Tabs = AnnotationsContextmenuTabs;
-
-	isFeatureNonEditable: boolean;
-	featureProps: IFeatureProperties;
 
 	constructor(
 		protected myElement: ElementRef,

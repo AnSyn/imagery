@@ -9,7 +9,7 @@ import { GridLinesVisualizer, MeasureRulerVisualizer } from '@ansyn/imagery-ol';
 import {CesiumGridLinesVisualizer} from '@ansyn/imagery-cesium';
 
 @Component({
-  selector: 'imagery-change-map',
+  selector: 'app-imagery-change-map',
   templateUrl: './imagery-change-map.component.html',
   styleUrls: ['./imagery-change-map.component.less']
 })
@@ -30,7 +30,7 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
       this.currentSourceType = this.communicator.mapSettings.worldView.sourceType;
       this.mapSources = this.mapProvidersConfig[this.communicator.ActiveMap.mapType].sources;
       this.mapTypes = [];
-      for (let i in this.mapProvidersConfig) {
+      for (const i of Object.keys(this.mapProvidersConfig)) {
         this.mapTypes.push(i);
       }
       this.currentMapType = this.communicator.ActiveMap.mapType;
@@ -57,8 +57,8 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
         this.currentMapType = type;
         this.currentSourceType = this.communicator.mapSettings.worldView.sourceType;
         this.mapSources = this.mapProvidersConfig[this.communicator.ActiveMap.mapType].sources;
-      })
-    })
+      });
+    });
   }
 
   toggleRuler() {
@@ -95,7 +95,10 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
   }
 
   showGrid() {
-    const plugin = this.communicator && (this.communicator.getPlugin(GridLinesVisualizer) || this.communicator.getPlugin(CesiumGridLinesVisualizer));
+    let plugin;
+    if (!!this.communicator) {
+      plugin = this.communicator.getPlugin(GridLinesVisualizer) || this.communicator.getPlugin(CesiumGridLinesVisualizer);
+    }
     if (plugin && plugin.isEnabled) {
       plugin.isEnabled = false;
     } else {
@@ -104,7 +107,10 @@ export class ImageryChangeMapComponent implements OnInit, OnDestroy {
   }
 
   get isGridVisualizerExists() {
-    const plugin = this.communicator && (this.communicator.getPlugin(GridLinesVisualizer) || this.communicator.getPlugin(CesiumGridLinesVisualizer));
+    let plugin;
+    if (!!this.communicator) {
+      plugin = this.communicator.getPlugin(GridLinesVisualizer) || this.communicator.getPlugin(CesiumGridLinesVisualizer);
+    }
     return Boolean(plugin);
   }
 }

@@ -16,12 +16,11 @@ import { Feature, GeoJsonObject, Point, Polygon } from 'geojson';
 import { ImageryCommunicatorService } from './communicator.service';
 import { BaseImageryVisualizer } from '../model/base-imagery-visualizer';
 import { map, mergeMap, tap } from 'rxjs/operators';
-import { IMAGERY_MAPS, ImageryMaps } from '../providers/imagery-map-collection';
+import { IMAGERY_MAPS, IImageryMaps } from '../providers/imagery-map-collection';
 import { BaseMapSourceProvider } from '../model/base-map-source-provider';
 import { MapComponent } from '../map/map.component';
 import { BaseImageryPluginProvider } from '../imagery/providers/imagery.providers';
 import { AutoSubscriptions } from 'auto-subscriptions';
-import { ImageryMapSources } from '../providers/map-source-providers';
 import { get as _get } from 'lodash';
 import { ImageryMapExtent, IImageryMapPosition } from '../model/case-map-position.model';
 import { getPolygonByPointAndRadius } from '../utils/geo';
@@ -33,6 +32,7 @@ import {
 } from '../model/map-providers-config';
 import { IMapSettings } from '../model/map-settings';
 import { IBaseImageryLayer, IMAGERY_BASE_MAP_LAYER, ImageryLayerProperties } from '../model/imagery-layer.model';
+import { IImageryMapSources } from '../providers/map-source-providers';
 
 export interface IMapInstanceChanged {
 	id: string;
@@ -54,10 +54,10 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 	public mapInstanceChanged: EventEmitter<IMapInstanceChanged> = new EventEmitter<IMapInstanceChanged>();
 
 	constructor(protected injector: Injector,
-				@Inject(IMAGERY_MAPS) protected imageryMaps: ImageryMaps,
+				@Inject(IMAGERY_MAPS) protected imageryMaps: IImageryMaps,
 				protected componentFactoryResolver: ComponentFactoryResolver,
 				public imageryCommunicatorService: ImageryCommunicatorService,
-				@Inject(BaseMapSourceProvider) public imageryMapSources: ImageryMapSources,
+				@Inject(BaseMapSourceProvider) public imageryMapSources: IImageryMapSources,
 				@Inject(MAP_PROVIDERS_CONFIG) protected mapProvidersConfig: IMapProvidersConfig
 	) {
 	}

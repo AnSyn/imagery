@@ -4,7 +4,7 @@ import { IMouseClick } from '@ansyn/imagery';
 import { TestOLPerformanceVisualizer } from '../plugins/ol/test-ol-performance-visualizer';
 
 @Component({
-  selector: 'map-events',
+  selector: 'app-map-events',
   templateUrl: './map-events.component.html',
   styleUrls: ['./map-events.component.less']
 })

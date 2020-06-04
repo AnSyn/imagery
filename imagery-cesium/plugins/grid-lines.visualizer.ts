@@ -3,10 +3,10 @@ import {
 } from '@ansyn/imagery';
 
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
-import { ImageryLayer } from "cesium";
+import * as Cesium from "cesium";
 import { Observable } from "rxjs";
 
-declare const Cesium: any;
+// declare const Cesium: any;
 
 @ImageryPlugin({
 	supported: [CesiumMap],
@@ -16,7 +16,7 @@ export class CesiumGridLinesVisualizer extends BaseImageryPlugin {
 
 	protected _isEnabled: boolean;
 
-	layer: ImageryLayer;
+	layer: Cesium.ImageryLayer;
 
 	constructor() {
 		super();
@@ -46,7 +46,7 @@ export class CesiumGridLinesVisualizer extends BaseImageryPlugin {
 		this.layer = viewer.imageryLayers.addImageryProvider(new Cesium.GridImageryProvider({
 			glowWidth: 0,
 			backgroundColor: Cesium.Color.TRANSPARENT
-		}))
+		}) as any);
 
 		this.layer.alpha = 0.85;
 		this.layer.show = true;

@@ -1,4 +1,4 @@
-import { Inject } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import {
 	ImageryVisualizer,
 	IVisualizerEntity,
@@ -50,6 +50,8 @@ export interface IEditAnnotationMode {
 
 
 // @dynamic
+
+@Injectable()
 @ImageryVisualizer({
 	supported: [OpenLayersMap],
 	deps: [OpenLayersProjectionService, OL_PLUGINS_CONFIG, TranslateService],

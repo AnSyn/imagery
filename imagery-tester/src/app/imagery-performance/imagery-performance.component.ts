@@ -3,7 +3,7 @@ import { CommunicatorEntity, ImageryCommunicatorService } from '@ansyn/imagery';
 import { NumberOfEntities, TestOLPerformanceVisualizer } from '../plugins/ol/test-ol-performance-visualizer';
 
 @Component({
-  selector: 'imagery-performance',
+  selector: 'app-imagery-performance',
   templateUrl: './imagery-performance.component.html',
   styleUrls: ['./imagery-performance.component.less']
 })
@@ -68,7 +68,7 @@ export class ImageryPerformanceComponent implements OnInit, OnDestroy {
     } else if (number === 10000) {
       this.testOLPerformanceVisualizer.setTestEntities(NumberOfEntities.Entities_10000);
     } else {
-      alert('only 10, 100, 1000 and 10000 are supported')
+      alert('only 10, 100, 1000 and 10000 are supported');
     }
   }
 
