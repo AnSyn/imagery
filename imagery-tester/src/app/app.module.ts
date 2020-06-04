@@ -13,7 +13,8 @@ import {
   OpenLayerTileWMSSourceProvider,
   OpenLayerGEESourceProvider,
   MeasureRulerVisualizer,
-  GridLinesVisualizer
+  GridLinesVisualizer,
+  ImageProcessingPlugin
 } from '@ansyn/imagery-ol';
 import { NavbarModule } from './navbar/navbar.module';
 import { AnnotationsControlComponent } from './annotations-control/annotations-control.component';
@@ -39,6 +40,8 @@ import { MapEventsComponent } from './map-events/map-events.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { ImageProcessingControlComponent } from './image-processing-control/image-processing-control.component';
 
 @NgModule({
   declarations: [
