@@ -14,6 +14,7 @@
     "build:prod": "ng build --prod",
     "build:libs": "bash scripts/build-libs.sh",
     "publish:libs": "bash scripts/publish-libs.sh",
+    "rm:nodemodules": "bash scripts/rm-nodemodules.sh",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
