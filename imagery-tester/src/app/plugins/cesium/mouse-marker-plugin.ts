@@ -32,7 +32,7 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
   @AutoSubscription
   mousePositionChanged$ = () => this.communicator.ActiveMap.mousePointerMoved.subscribe((position: IMousePointerMove) => {
     if (this.isEnabled && !isNaN(position.lat) && !isNaN(position.long)) {
-      this.tryDraw(position);
+      // this.tryDraw(position);
     }
   })
 

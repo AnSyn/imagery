@@ -137,6 +137,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 			if (!Boolean(layer)) {
 				return Promise.reject('failed to load map layer: ' + sourceType);
 			}
+			const prevMapName = this.activeMapName;
 			return mapComponent.createMap(layer, position)
 				.pipe(
 					tap((map: BaseImageryMap) => {
@@ -144,7 +145,7 @@ export class CommunicatorEntity implements OnInit, OnDestroy {
 					}),
 					tap(this.initPlugins.bind(this)),
 					tap(() => {
-						this.raiseMapInstanceChanged(mapType, this.activeMapName)
+						this.raiseMapInstanceChanged(mapType, prevMapName);
 					})
 				)
 				.toPromise();
