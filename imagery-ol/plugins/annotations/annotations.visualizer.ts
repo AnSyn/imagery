@@ -50,13 +50,12 @@ export interface IEditAnnotationMode {
 
 
 // @dynamic
-
-@Injectable()
 @ImageryVisualizer({
 	supported: [OpenLayersMap],
 	deps: [OpenLayersProjectionService, OL_PLUGINS_CONFIG, TranslateService],
 	isHideable: true
 })
+@Injectable()
 export class AnnotationsVisualizer extends EntitiesVisualizer {
 	static fillAlpha = 0.4;
 	disableCache = true;
@@ -183,8 +182,10 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 
 	annotationsLayerToEntities(annotationsLayer: FeatureCollection<any>): IVisualizerEntity[] {
 		return annotationsLayer.features.map((feature: Feature<any>): IVisualizerEntity => {
-			const featureJson = { ...feature };
-			delete featureJson.properties.featureJson;
+			const featureJson: Feature<any> = {
+				...feature,
+				properties: { ...feature.properties, featureJson: undefined }
+			};
 			return {
 				featureJson,
 				id: feature.properties.id,
