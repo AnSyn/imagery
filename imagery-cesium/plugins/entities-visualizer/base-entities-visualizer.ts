@@ -23,14 +23,14 @@ import {
 	BillboardGraphics,
 	PointGraphics,
 	PolylineGraphics,
-	PolygonGraphics
+	PolygonGraphics,
+	ConstantProperty
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium'
 
 import { merge } from 'lodash';
 
-import * as Cesium from 'cesium';
-// declare const Cesium: any;
+declare const Cesium: any;
 
 export interface IEntityIdentifier {
 	originalEntity: IVisualizerEntity;
@@ -240,7 +240,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polyline.positions).getValue()).center as any;
+		entity.position = Cesium.BoundingSphere.fromPoints((<ConstantProperty> entity.polyline.positions).getValue()).center as any;
 	}
 
 	private updatePolygon(entity: Entity, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): void {
@@ -274,10 +274,10 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<Cesium.ConstantProperty> entity.polygon.hierarchy).getValue().positions).center as any;
+		entity.position = Cesium.BoundingSphere.fromPoints((<ConstantProperty> entity.polygon.hierarchy).getValue().positions).center as any;
 	}
 
-	private updateLabel(entity: Cesium.Entity, visEntity: IVisualizerEntity) {
+	private updateLabel(entity: Entity, visEntity: IVisualizerEntity) {
 
 		const styles = merge({}, visEntity.style);
 		const s: IVisualizerStyle = merge({}, styles.initial);
@@ -351,8 +351,8 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		return pixelSize;
 	}
 
-	private getOrCreateDataSource(dataSourceGuid): Promise<Cesium.CustomDataSource> {
-		return new Promise<Cesium.CustomDataSource>((resolve) => {
+	private getOrCreateDataSource(dataSourceGuid): Promise<CustomDataSource> {
+		return new Promise<CustomDataSource>((resolve) => {
 			const ds = this.iMap.mapObject.dataSources.getByName(dataSourceGuid);
 			if (ds.length === 0) {
 				return this.iMap.mapObject.dataSources.add(new Cesium.CustomDataSource(dataSourceGuid)).then(value => resolve(value));
