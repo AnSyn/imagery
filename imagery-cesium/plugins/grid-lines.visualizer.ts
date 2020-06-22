@@ -41,7 +41,7 @@ export class CesiumGridLinesVisualizer extends BaseImageryPlugin {
 
 	showGridLines() {
 		const viewer: Viewer = this.iMap.mapObject;
-		this.layer = viewer.imageryLayers.addImageryProvider(new Cesium.GridImageryProvider({glowWidth: 0}) as any);
+		this.layer = viewer.imageryLayers.addImageryProvider(new Cesium.GridImageryProvider({glowWidth: 0, backgroundColor: Cesium.Color.TRANSPARENT}) as any);
 
 		this.layer.alpha = 0.85;
 		this.layer.show = true;
