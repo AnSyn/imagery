@@ -46,7 +46,14 @@ export interface IMapInstanceChanged {
 	destroy: 'ngOnDestroy'
 })
 export class CommunicatorEntity implements OnInit, OnDestroy {
-	public mapSettings: IMapSettings;
+	private _mapSettings: IMapSettings;
+	public set mapSettings(settings: IMapSettings) {
+		// Deep copy
+		this._mapSettings = JSON.parse(JSON.stringify(settings));
+	};
+	public get mapSettings() {
+		return this._mapSettings;
+	};
 	public mapComponentElem: ViewContainerRef;
 	private _mapComponentRef: ComponentRef<MapComponent>;
 	private _activeMap: BaseImageryMap;
