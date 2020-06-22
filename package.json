@@ -45,6 +45,7 @@
     "ol": "^5.3.3",
     "rxjs": "~6.5.5",
     "tslib": "^1.11.2",
+    "wellknown": "^0.5.0",
     "zone.js": "~0.10.3"
   },
   "devDependencies": {
