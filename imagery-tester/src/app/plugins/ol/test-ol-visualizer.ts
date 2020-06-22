@@ -1,12 +1,7 @@
 
 import { EntitiesVisualizer, OpenLayersMap, OpenLayersProjectionService } from '@ansyn/imagery-ol';
-import Icon from 'ol/style/Icon';
-import Style from 'ol/style/Style';
 import Feature from 'ol/Feature';
-import Stroke from 'ol/style/Stroke';
-import Fill from 'ol/style/Fill';
 import olPoint from 'ol/geom/Point';
-import olPolygon, { fromCircle } from 'ol/geom/Polygon';
 import { Point } from 'geojson';
 import * as turf from '@turf/turf';
 import { take } from 'rxjs/operators';
@@ -50,7 +45,7 @@ export class TestOLVisualizer extends EntitiesVisualizer {
       .subscribe((point: Point) => {
         this.drawGotoIconOnMap([true, turf.point(point.coordinates)]).pipe(take(1)).subscribe();
       });
-  };
+  }
 
   constructor(protected projectionService: OpenLayersProjectionService) {
     super();

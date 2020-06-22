@@ -1,4 +1,4 @@
-export { IImageProcParam, ImageManualProcessArgs, getDefaultImageProcParams } from './plugins/image-processing/model';
+export { IImageProcParam, IImageManualProcessArgs, getDefaultImageProcParams } from './plugins/image-processing/model';
 export { ImageProcessingPlugin } from './plugins/image-processing/image-processing.plugin';
 
 export { GridLinesVisualizer } from './plugins/grid-lines/grid-lines.visualizer';
@@ -26,7 +26,7 @@ export {
 	OpenLayersStaticImageSourceProviderSourceType
 }from './mapSourceProviders/open-layers-static-image-source-provider';
 export { OpenLayerMarcoSourceProviderSourceType } from './mapSourceProviders/marco/open-layers-MARCO-source-provider';
-export { OpenLayersMapSourceProvider } from './mapSourceProviders/open-layers.map-source-provider';
+export { OpenLayersMapSourceProvider, IMAGE_PROCESS_ATTRIBUTE } from './mapSourceProviders/open-layers.map-source-provider';
 export { OpenLayersMap } from './maps/open-layers-map/openlayers-map/openlayers-map';
 export { OpenLayersDisabledMap } from './maps/openlayers-disabled-map/openlayers-disabled-map';
 export { OpenLayerTileWMSSourceProvider } from './mapSourceProviders/open-layers-TileWMS-source-provider';

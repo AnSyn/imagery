@@ -15,7 +15,7 @@ import { filter, mergeMap, take, tap } from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
 import { CesiumMapName } from '@ansyn/imagery-cesium';
 import { MouseMarkerPlugin } from '../plugins/cesium/mouse-marker-plugin';
-import { GeoJsonObject } from "geojson";
+import { GeoJsonObject } from 'geojson';
 
 @Component({
   selector: 'app-annotations-control',
@@ -66,7 +66,7 @@ export class AnnotationsControlComponent implements OnInit {
           plugin.isReady$.pipe(take(1)).subscribe(() => {
             plugin.isEnabled = false;
             plugin.setEntities(this.currentEntities).pipe(take(1)).subscribe();
-          })
+          });
         }
       }
     });

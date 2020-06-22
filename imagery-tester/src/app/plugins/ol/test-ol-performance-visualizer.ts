@@ -92,14 +92,14 @@ export class TestOLPerformanceVisualizer extends EntitiesVisualizer {
           'stroke-width': 1
         }
       };
-      entities.push({ id: i.toString(), featureJson: feature, style, label: { text: i.toString(), geometry: null } })
+      entities.push({ id: i.toString(), featureJson: feature, style, label: { text: i.toString(), geometry: null } });
     }
     this.setEntities(entities).pipe(take(1)).subscribe((result) => {
     });
   }
 
   generateItems(rows, columns) {
-    let data = {
+    const data = {
       points: [],
       lines: [],
       polygons: []

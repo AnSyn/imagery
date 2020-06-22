@@ -1,14 +1,13 @@
 import {
 	BaseImageryMap,
 	ExtentCalculator,
-	ICanvasExportData,
 	IMAGERY_BASE_MAP_LAYER,
 	IMAGERY_MAIN_LAYER_NAME,
 	ImageryLayerProperties,
 	ImageryMap,
 	ImageryMapExtent,
 	IImageryMapPosition,
-	ImageryMapProjectedState,
+	IImageryMapProjectedState,
 	toDegrees
 } from '@ansyn/imagery';
 import { featureCollection } from '@turf/helpers';
@@ -420,7 +419,7 @@ export class CesiumMap extends BaseImageryMap<any> {
 	getPosition(): Observable<IImageryMapPosition> {
 		try {
 			const center = this.getInnerCenter();
-			const projectedState: ImageryMapProjectedState = {
+			const projectedState: IImageryMapProjectedState = {
 				center: [center.coordinates[0], center.coordinates[1], center.coordinates[2]],
 				cameraPosition: this.mapObject.camera.position,
 				rotation: +this.mapObject.camera.heading.toFixed(7),
@@ -530,7 +529,10 @@ export class CesiumMap extends BaseImageryMap<any> {
 	}
 
 	removeAllLayers(): void {
-		this.mapObject && this.mapObject.imageryLayers.removeAll();
+		if (!!this.mapObject) {
+			this.mapObject.imageryLayers.removeAll();
+		}
+
 		this.layersToCesiumLayer.clear();
 	}
 

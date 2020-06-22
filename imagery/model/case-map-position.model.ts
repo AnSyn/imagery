@@ -2,7 +2,7 @@ import { Point, Polygon } from 'geojson';
 
 export type ImageryMapExtent = [number, number, number, number];
 
-export interface ImageryMapProjectedState {
+export interface IImageryMapProjectedState {
 	projection: {
 		code: string;
 	};
@@ -30,7 +30,7 @@ export interface IMouseClick {
 export type ImageryMapExtentPolygon = Polygon;
 
 export interface IImageryMapPosition {
-	projectedState?: ImageryMapProjectedState;
+	projectedState?: IImageryMapProjectedState;
 	extentPolygon?: ImageryMapExtentPolygon;
 	customResolution?: number;
 }

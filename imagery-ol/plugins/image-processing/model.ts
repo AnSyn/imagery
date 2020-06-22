@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 
-export interface ImageManualProcessArgs {
+export interface IImageManualProcessArgs {
 	Brightness?: number;
 	Contrast?: number;
 	Gamma?: number;
@@ -10,7 +10,7 @@ export interface ImageManualProcessArgs {
 
 export interface IImageProcessingData {
 	isAutoImageProcessingActive?: boolean;
-	imageManualProcessArgs?: ImageManualProcessArgs;
+	imageManualProcessArgs?: IImageManualProcessArgs;
 }
 
 export interface IImageProcParam {
@@ -18,10 +18,6 @@ export interface IImageProcParam {
 	defaultValue: number,
 	min: number,
 	max: number
-}
-
-export function getDefaultImageProcParams(): IImageProcParam[] {
-	return cloneDeep(defaultImageProcParams);
 }
 
 const defaultImageProcParams: IImageProcParam[] = [
@@ -56,3 +52,7 @@ const defaultImageProcParams: IImageProcParam[] = [
 		'max': 100
 	}
 ];
+
+export function getDefaultImageProcParams(): IImageProcParam[] {
+	return cloneDeep(defaultImageProcParams);
+}

@@ -1,8 +1,6 @@
-import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ImageryChangeMapComponent } from './imagery-change-map.component';
-import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
 import { ImageryCommunicatorService, MAP_PROVIDERS_CONFIG } from '@ansyn/imagery';
 import { MockComponent } from '../../../../test/mock-component';
 
@@ -10,11 +8,11 @@ const SOURCETYPE = 'sourceType';
 const MAPID = 'mapId';
 describe('ImageryChangeMapComponent', () => {
 	let component: ImageryChangeMapComponent;
-	let fixture: ComponentFixture<ImageryChangeMapComponent>;
-  const mockMeasureRuler = MockComponent({ selector: 'measure-ruler', inputs: [] });
-  const mockImageryPerformance = MockComponent({ selector: 'imagery-performance', inputs: [] });
-  const mockMapEvents = MockComponent({ selector: 'map-events', inputs: [] });
-  const mockImageProcessingControl = MockComponent({ selector: 'ansyn-image-processing-control', inputs: [] });
+  let fixture: ComponentFixture<ImageryChangeMapComponent>;
+  const mockMeasureRuler = MockComponent({ selector: 'app-measure-ruler', inputs: [] });
+  const mockImageryPerformance = MockComponent({ selector: 'app-imagery-performance', inputs: [] });
+  const mockMapEvents = MockComponent({ selector: 'app-map-events', inputs: [] });
+  const mockImageProcessingControl = MockComponent({ selector: 'app-image-processing-control', inputs: [] });
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({

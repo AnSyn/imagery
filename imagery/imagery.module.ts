@@ -14,7 +14,7 @@ import { IBaseImageryPluginConstructor } from './model/base-imagery-plugin';
 import { IBaseMapSourceProviderConstructor } from './model/base-map-source-provider';
 import { HttpClientModule } from '@angular/common/http';
 
-export interface ImageryMetaData {
+export interface IImageryMetaData {
 	maps: IBaseImageryMapConstructor[],
 	plugins: IBaseImageryPluginConstructor[],
 	mapSourceProviders: IBaseMapSourceProviderConstructor[]
@@ -41,8 +41,7 @@ export interface ImageryMetaData {
 	exports: [ImageryComponent]
 })
 export class ImageryModule {
-
-	static provide(metadata: ImageryMetaData): ModuleWithProviders<ImageryModule> {
+	static provide(metadata: IImageryMetaData): ModuleWithProviders<ImageryModule> {
 		return {
 			ngModule: ImageryModule,
 			providers: [
