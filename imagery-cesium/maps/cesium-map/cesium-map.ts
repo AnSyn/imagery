@@ -20,6 +20,7 @@ import { map, mergeMap, take } from 'rxjs/operators';
 import { CesiumLayer, ISceneMode } from '../../models/cesium-layer';
 import { CesiumProjectionService } from '../../projection/cesium-projection.service';
 import { Cartesian2, Cartesian3, Viewer } from 'cesium';
+import { cloneDeep } from 'lodash';
 
 declare const Cesium: any;
 
@@ -380,7 +381,8 @@ export class CesiumMap extends BaseImageryMap<any> {
 	setPosition(position: IImageryMapPosition): Observable<boolean> {
 		if (position.projectedState && position.projectedState.projection &&
 			position.projectedState.projection.code === 'cesium_WGS84') {
-			this.setCameraView(position.projectedState.rotation, position.projectedState.pitch, position.projectedState.roll, position.projectedState.cameraPosition);
+			const cameraPositionClone = cloneDeep(position.projectedState.cameraPosition)
+			this.setCameraView(position.projectedState.rotation, position.projectedState.pitch, position.projectedState.roll, cameraPositionClone);
 			return of(true);
 		} else {
 			const { extentPolygon } = position;
@@ -421,7 +423,7 @@ export class CesiumMap extends BaseImageryMap<any> {
 			const center = this.getInnerCenter();
 			const projectedState: IImageryMapProjectedState = {
 				center: [center.coordinates[0], center.coordinates[1], center.coordinates[2]],
-				cameraPosition: this.mapObject.camera.position,
+				cameraPosition:  Cesium.cloneObject(this.mapObject.camera.position),
 				rotation: +this.mapObject.camera.heading.toFixed(7),
 				pitch: +this.mapObject.camera.pitch.toFixed(7),
 				roll: +this.mapObject.camera.roll.toFixed(7),

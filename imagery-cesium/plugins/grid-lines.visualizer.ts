@@ -15,9 +15,7 @@ export declare const Cesium;
 export class CesiumGridLinesVisualizer extends BaseImageryPlugin {
 
 	protected _isEnabled: boolean;
-
 	layer: ImageryLayer;
-
 	constructor() {
 		super();
 	}
