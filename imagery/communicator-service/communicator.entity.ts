@@ -21,7 +21,7 @@ import { BaseMapSourceProvider } from '../model/base-map-source-provider';
 import { MapComponent } from '../map/map.component';
 import { BaseImageryPluginProvider } from '../imagery/providers/imagery.providers';
 import { AutoSubscriptions } from 'auto-subscriptions';
-import { get as _get } from 'lodash';
+import { get as _get, cloneDeep } from 'lodash';
 import { ImageryMapExtent, IImageryMapPosition } from '../model/case-map-position.model';
 import { getPolygonByPointAndRadius } from '../utils/geo';
 import {
@@ -46,19 +46,20 @@ export interface IMapInstanceChanged {
 	destroy: 'ngOnDestroy'
 })
 export class CommunicatorEntity implements OnInit, OnDestroy {
+	private _mapComponentRef: ComponentRef<MapComponent>;
+	private _activeMap: BaseImageryMap;
+	private _virtualNorth = 0;
+
+	public mapComponentElem: ViewContainerRef;
+	public mapInstanceChanged: EventEmitter<IMapInstanceChanged> = new EventEmitter<IMapInstanceChanged>();
+
 	private _mapSettings: IMapSettings;
 	public set mapSettings(settings: IMapSettings) {
-		// Deep copy
-		this._mapSettings = JSON.parse(JSON.stringify(settings));
+		this._mapSettings = cloneDeep(settings);
 	};
 	public get mapSettings() {
 		return this._mapSettings;
 	};
-	public mapComponentElem: ViewContainerRef;
-	private _mapComponentRef: ComponentRef<MapComponent>;
-	private _activeMap: BaseImageryMap;
-	private _virtualNorth = 0;
-	public mapInstanceChanged: EventEmitter<IMapInstanceChanged> = new EventEmitter<IMapInstanceChanged>();
 
 	constructor(protected injector: Injector,
 				@Inject(IMAGERY_MAPS) protected imageryMaps: IImageryMaps,

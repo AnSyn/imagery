@@ -1,12 +1,13 @@
 import { ImageryMapSource, BaseMapSourceProvider, IMapSettings } from "@ansyn/imagery";
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { CesiumLayer } from '../models/cesium-layer';
-import * as wellknown from 'wellknown';
+import { stringify, GeoJSONGeometry } from 'wellknown';
 import { BBox2d } from '@turf/helpers/lib/geojson';
-import * as turf from '@turf/turf';
+import { bbox, feature } from '@turf/turf';
+import { cloneDeep } from 'lodash';
 
 declare const Cesium: any;
-export const CesiumSentinelSourceProviderSourceType = 'SENTINEL';
+export const CesiumSentinelSourceProviderSourceType = 'CESIUM_SENTINEL';
 
 @ImageryMapSource({
 	supported: [CesiumMap],
@@ -14,16 +15,14 @@ export const CesiumSentinelSourceProviderSourceType = 'SENTINEL';
 })
 export class CesiumSentinelSourceProvider extends BaseMapSourceProvider {
 	protected create(metaData: IMapSettings): Promise<any> {
-		const baseUrl = 'http://ansyn.webiks.com:89/api/wms';
-
+		const baseUrl = this.config.url;
 		const overlay = metaData.data.overlay;
-		// Deep copy
-		const footprint = JSON.parse(JSON.stringify(overlay.footprint));
+		const footprint: GeoJSONGeometry = cloneDeep(overlay.footprint);
 
 		const TIME = this.createDateString(overlay.date);
 		const MAXCC = 100;
-		const GEOMETRY = wellknown.stringify(footprint);
-		const extent = (<BBox2d>turf.bbox(turf.feature(footprint)));
+		const GEOMETRY = stringify(footprint);
+		const extent = bbox(feature(footprint)) as BBox2d;
 
 		const sentinelLayer = new Cesium.WebMapServiceImageryProvider({
 			url: baseUrl,
@@ -31,7 +30,7 @@ export class CesiumSentinelSourceProvider extends BaseMapSourceProvider {
 				GEOMETRY,
 				MAXCC,
 				TIME,
-				transparent: true,
+				transparent: true
 			},
 			rectangle: Cesium.Rectangle.fromDegrees(...extent),
 			layers: 'TRUE_COLOR'

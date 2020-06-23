@@ -20,6 +20,7 @@ import { map, mergeMap, take } from 'rxjs/operators';
 import { CesiumLayer, ISceneMode } from '../../models/cesium-layer';
 import { CesiumProjectionService } from '../../projection/cesium-projection.service';
 import { Cartesian2, Cartesian3, Viewer } from 'cesium';
+import { cloneDeep } from 'lodash';
 
 declare const Cesium: any;
 
@@ -380,7 +381,7 @@ export class CesiumMap extends BaseImageryMap<any> {
 	setPosition(position: IImageryMapPosition): Observable<boolean> {
 		if (position.projectedState && position.projectedState.projection &&
 			position.projectedState.projection.code === 'cesium_WGS84') {
-			const cameraPositionClone = JSON.parse(JSON.stringify(position.projectedState.cameraPosition));
+			const cameraPositionClone = cloneDeep(position.projectedState.cameraPosition)
 			this.setCameraView(position.projectedState.rotation, position.projectedState.pitch, position.projectedState.roll, cameraPositionClone);
 			return of(true);
 		} else {

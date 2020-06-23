@@ -221,8 +221,10 @@ import { ImageProcessingControlComponent } from './image-processing-control/imag
           tilesServerUrl: 'http://marco-polo.imisight.net/mp-gw/'
         },
         ESRI_4326: {},
-
-        CESIUM_GEO_SERVER: {}
+        CESIUM_GEO_SERVER: {},
+        CESIUM_SENTINEL: {
+          url: 'http://ansyn.webiks.com:89/api/wms'
+        }
       }
     }],
   bootstrap: [AppComponent]
