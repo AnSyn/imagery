@@ -13,14 +13,15 @@ import {
 import { featureCollection } from '@turf/helpers';
 import { feature, geometry } from '@turf/turf';
 import { GeoJsonObject, Point, Polygon } from 'geojson';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 
 import { fromPromise } from 'rxjs/internal-compatibility';
 import { map, mergeMap, take } from 'rxjs/operators';
 import { CesiumLayer, ISceneMode } from '../../models/cesium-layer';
 import { CesiumProjectionService } from '../../projection/cesium-projection.service';
-import { Cartesian2, Cartesian3, Viewer } from 'cesium';
+import { Cartesian2, Cartesian3, Viewer, ScreenSpaceEventType } from 'cesium';
 import { cloneDeep } from 'lodash';
+import { IPixelPositionMovement, IPixelPosition } from '../../models/map-events';
 
 declare const Cesium: any;
 
@@ -38,11 +39,17 @@ export class CesiumMap extends BaseImageryMap<any> {
 	static groupLayers = new Map<string, any>();
 	mapObject: Viewer;
 	element: HTMLElement;
-	_moveEndListener;
-	_mouseMoveHandler;
+	private _moveEndListener;
+	private _mouseMoveHandler;
 	lastRotation = 0;
 	mainLayer: CesiumLayer;
 	layersToCesiumLayer: Map<CesiumLayer, any>;
+
+	events = {
+		mousePointerMovedEvent: new Subject<IPixelPositionMovement>(),
+		leftClickEvent: new Subject<IPixelPosition>(),
+		leftDoubleClickEvent: new Subject<IPixelPosition>()
+	}
 
 	constructor(public projectionService: CesiumProjectionService) {
 		super();
@@ -119,43 +126,37 @@ export class CesiumMap extends BaseImageryMap<any> {
 
 	registerScreenEvents(): any {
 		const handler = new Cesium.ScreenSpaceEventHandler(this.mapObject.scene.canvas);
-		handler.setInputAction((movement: { startPosition: Cartesian2, endPosition: Cartesian2 }) => {
-			// Cesium's camera.pickEllipsoid works in 2D, 2.5D (Columbus View), and 3D.
-			// PickEllipsoid produces a coordinate on the surface of the 3D globe,
-			// but this can easily be converted to a latitude/longitude coordinate
-			// using Cesium.Cartographic.fromCartesian.
-			const latLongCoord: [number, number, number] = this.getCoordinateFromScreenPixel(movement.endPosition);
-			if (latLongCoord) {
-				this.mousePointerMoved.emit({
-					long: latLongCoord[0],
-					lat: latLongCoord[1],
-					height: latLongCoord[2]
-				});
-			} else {
-				this.mousePointerMoved.emit({ long: NaN, lat: NaN, height: NaN });
-			}
+		handler.setInputAction((movement: IPixelPositionMovement) => {
+			this.events.mousePointerMovedEvent.next(movement);
+		}, ScreenSpaceEventType.MOUSE_MOVE);
 
-		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		handler.setInputAction((movement: IPixelPosition) => {
+			this.events.leftClickEvent.next(movement);
+		}, ScreenSpaceEventType.LEFT_CLICK);
+
+		handler.setInputAction((movement: IPixelPosition) => {
+			this.events.leftDoubleClickEvent.next(movement);
+		}, ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
 		handler.setInputAction(function (movement) {
 			(<any>document.activeElement).blur();
-		}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+		}, ScreenSpaceEventType.LEFT_DOWN);
 
 		handler.setInputAction(function (movement) {
 			(<any>document.activeElement).blur();
-		}, Cesium.ScreenSpaceEventType.WHEEL);
+		}, ScreenSpaceEventType.WHEEL);
 
 		handler.setInputAction(function (movement) {
 			(<any>document.activeElement).blur();
-		}, Cesium.ScreenSpaceEventType.MIDDLE_DOWN);
+		}, ScreenSpaceEventType.MIDDLE_DOWN);
 
 		handler.setInputAction(function (movement) {
 			(<any>document.activeElement).blur();
-		}, Cesium.ScreenSpaceEventType.RIGHT_DOWN);
+		}, ScreenSpaceEventType.RIGHT_DOWN);
 
 		handler.setInputAction(function (movement) {
 			(<any>document.activeElement).blur();
-		}, Cesium.ScreenSpaceEventType.PINCH_START);
+		}, ScreenSpaceEventType.PINCH_START);
 		return handler;
 	}
 
@@ -172,6 +173,10 @@ export class CesiumMap extends BaseImageryMap<any> {
 			return result;
 		}
 		return null;
+	}
+
+	getEarthPositionFromScreenPixels(screenPixelPosition: Cartesian2) {
+		return this.mapObject.camera.pickEllipsoid(screenPixelPosition);
 	}
 
 	getHtmlContainer(): HTMLElement {
