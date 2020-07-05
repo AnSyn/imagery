@@ -1,4 +1,4 @@
-import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle } from "@ansyn/imagery";
+import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from "@ansyn/imagery";
 import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, ScreenSpaceEventType, Cartesian2, PositionProperty } from "cesium";
 import { CesiumMap } from "../maps/cesium-map/cesium-map";
 import { Observable, Subscription } from "rxjs";
@@ -10,7 +10,6 @@ import { AnnotationMode } from "../models/annotation-mode.enum";
 import { IPixelPositionMovement, IPixelPosition } from "../models/map-events";
 import { AnnotationType } from "../models/annotation-type.enum";
 
-// TODO - styling as in ol
 // TODO - enable drawing of the other annotation types
 
 @ImageryPlugin({
@@ -31,14 +30,11 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	private mouseMoveEvent$: Observable<IPixelPositionMovement>;
 
 	private mapEventsSubscription = new Subscription();
+
+	// This style is the same as in ol annotations visualizer
 	protected visualizerStyle: IVisualizerStateStyle = {
 		opacity: 1,
-		initial: {
-			fill: "transparent",
-			stroke: "blue",
-			"stroke-width": 3,
-			"stroke-dasharray": 0,
-		},
+		initial: ANNOTATIONS_INITIAL_STYLE
 	};
 
 	constructor() {
@@ -207,7 +203,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			case AnnotationMode.Polygon: {
 				geometry = {
 					type: AnnotationMode.Polygon,
-					coordinates: [[...coordinates, coordinates[coordinates.length - 1]]]
+					coordinates: [[...coordinates, coordinates[0]]]
 				};
 				break;
 			}
