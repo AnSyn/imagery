@@ -1,5 +1,5 @@
 import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from '@ansyn/imagery';
-import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2 } from 'cesium';
+import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry } from 'cesium';
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FeatureCollection, GeometryObject, Feature } from 'geojson';
@@ -18,8 +18,14 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	private viewer: Viewer;
 	private cesiumMap: CesiumMap;
 
-	private activeShapePoints: Cartesian3[] = [];
-	private activeShape: Entity;
+	private activeShapePoints: Cartesian3[];
+
+	/* all added entites which enable drawing visualization 
+	but eventually they should be removed from map */
+	private temporaryShapes: Entity[];
+
+	/* floating point is the point that sticks to the cursor when drawing!
+	on every mouse move event I update it's value to the last mouse position */
 	private floatingPoint: Entity;
 	private drawingMode = AnnotationMode.LineString;
 
@@ -89,10 +95,15 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		this.drawingMode = mode;
 		this.reset();
 
+		const mouseMoveEventSubscription = this.mouseMoveEvent$.subscribe((event) => {
+			this.onMouseMoveEvent(event.endPosition);
+		});
+		this.mapEventsSubscription.add(mouseMoveEventSubscription)
+
 		if (this.drawingMode === AnnotationMode.Point) {
 			const leftClickEventSubscription = this.leftClickEvent$.pipe(take(1), tap((screenPixels: IPixelPosition) => {
 				const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
-				this.activeShapePoints.push(earthPosition)				
+				this.activeShapePoints = [earthPosition];				
 				this.events.onDrawEnd.next(this.onDrawEnd());
 			})).subscribe();
 			this.mapEventsSubscription.add(leftClickEventSubscription);
@@ -103,11 +114,8 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		const leftClickEventSubscription = this.leftClickEvent$.subscribe((screenPixels: IPixelPosition) => {
 			const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
 			if (defined(earthPosition)) {
-				if (this.activeShapePoints.length === 0) {
-					// floating point is the point that sticks to the cursor when drawing!
-					// on every mouse move I update it's value to the last mouse position
-					// here I create it for the first time
-					this.floatingPoint = this.addAnnotation(AnnotationType.Point, earthPosition);
+				if (!this.activeShapePoints) {
+					this.activeShapePoints = [];
 
 					this.activeShapePoints.push(earthPosition);
 					const dynamicPositions = new CallbackProperty(() => {
@@ -116,28 +124,27 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 						}
 						return this.activeShapePoints;
 					}, false);
-					this.activeShape = this.addAnnotation(this.drawingMode as unknown as AnnotationType, dynamicPositions);
+					this.addAnnotation(this.drawingMode as unknown as AnnotationType, dynamicPositions);
 				}
 				this.activeShapePoints.push(earthPosition);
 			}
 		})
 
-		
-		const mouseMoveEventSubscription = this.mouseMoveEvent$.subscribe((event) => {
-			this.updateLastActivePoint(event.endPosition);
-		});
 		const leftDoubleClickEventSubscription = this.leftDoubleClickEvent$.pipe(take(1), tap(() => this.events.onDrawEnd.next(this.onDrawEnd()))).subscribe();
 
 		this.mapEventsSubscription.add(leftDoubleClickEventSubscription);
 		this.mapEventsSubscription.add(leftClickEventSubscription);
-		this.mapEventsSubscription.add(mouseMoveEventSubscription);
 	}
 
-	private updateLastActivePoint(pixelPoint: Cartesian2) {
-		if (defined(this.floatingPoint)) {
-			const newPosition = this.cesiumMap.getEarthPositionFromScreenPixels(pixelPoint);
-			if (defined(newPosition)) {
-				(this.floatingPoint.position as any).setValue(newPosition);
+	private onMouseMoveEvent(pixelPoint: Cartesian2) {
+		if (!defined(this.floatingPoint)) {
+			const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(pixelPoint);
+			this.floatingPoint = defined(earthPosition) ? this.addAnnotation(AnnotationType.Point, earthPosition) : undefined;
+		}
+		const newPosition = this.cesiumMap.getEarthPositionFromScreenPixels(pixelPoint);
+		if (defined(newPosition) && !!this.floatingPoint.position) {
+			(this.floatingPoint.position as any).setValue(newPosition);
+			if (!!this.activeShapePoints && this.activeShapePoints.length > 1) {
 				this.activeShapePoints.pop();
 				this.activeShapePoints.push(newPosition);
 			}
@@ -158,6 +165,17 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				break;
 			}
 			case AnnotationType.Polygon: {
+				const tempPloyline = this.viewer.entities.add({
+					polyline: {
+						positions: new CallbackProperty(() => {
+							return this.activeShapePoints;
+						}, false),
+						clampToGround: true,
+						width: 3,
+					},
+				});
+
+				this.temporaryShapes.push(tempPloyline);
 				shape = this.viewer.entities.add({
 					polygon: {
 						hierarchy: positionData as Property,
@@ -177,6 +195,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				});
 			}
 		}
+		this.temporaryShapes.push(shape);
 		return shape;
 	}
 
@@ -190,11 +209,14 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	private reset() {
 		this.mapEventsSubscription.unsubscribe();
 		this.mapEventsSubscription = new Subscription();
-		this.viewer.entities.remove(this.floatingPoint);
-		this.viewer.entities.remove(this.activeShape);
+		if (!!this.temporaryShapes) {
+			this.temporaryShapes.forEach(shape => {
+				this.viewer.entities.remove(shape);
+			});
+		}
 		this.floatingPoint = undefined;
-		this.activeShapePoints = [];
-		this.activeShape = undefined;
+		this.activeShapePoints = undefined;
+		this.temporaryShapes = [];
 	}
 
 
