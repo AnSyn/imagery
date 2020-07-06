@@ -1,16 +1,14 @@
-import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from "@ansyn/imagery";
-import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, ScreenSpaceEventType, Cartesian2, PositionProperty } from "cesium";
-import { CesiumMap } from "../maps/cesium-map/cesium-map";
-import { Observable, Subscription } from "rxjs";
-import { FeatureCollection, GeometryObject, Feature } from "geojson";
-import { map, take } from "rxjs/operators";
-import { cartesianToCoordinates } from "./utils/cesiumToGeo";
-import { feature as turfFeature, featureCollection as turfFeatureCollection, Geometry } from "@turf/turf";
-import { AnnotationMode } from "../models/annotation-mode.enum";
-import { IPixelPositionMovement, IPixelPosition } from "../models/map-events";
-import { AnnotationType } from "../models/annotation-type.enum";
-
-// TODO - enable drawing of the other annotation types
+import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from '@ansyn/imagery';
+import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2 } from 'cesium';
+import { CesiumMap } from '../maps/cesium-map/cesium-map';
+import { Observable, Subscription, Subject } from 'rxjs';
+import { FeatureCollection, GeometryObject, Feature } from 'geojson';
+import { take, tap } from 'rxjs/operators';
+import { cartesianToCoordinates } from './utils/cesiumToGeo';
+import { feature as turfFeature, featureCollection as turfFeatureCollection, Geometry } from '@turf/turf';
+import { AnnotationMode } from '../models/annotation-mode.enum';
+import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
+import { AnnotationType } from '../models/annotation-type.enum';
 
 @ImageryPlugin({
 	supported: [CesiumMap],
@@ -36,6 +34,10 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		opacity: 1,
 		initial: ANNOTATIONS_INITIAL_STYLE
 	};
+
+	events = {
+		onDrawEnd: new Subject<FeatureCollection<GeometryObject>>()
+	}
 
 	constructor() {
 		super();
@@ -83,48 +85,52 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		);
 	}
 
-	startDrawing(mode: AnnotationMode): Observable<FeatureCollection<GeometryObject>> {
+	startDrawing(mode: AnnotationMode) {
 		this.drawingMode = mode;
-		this.mapEventsSubscription.unsubscribe();
-		this.mapEventsSubscription = new Subscription();
+		this.reset();
 
 		if (this.drawingMode === AnnotationMode.Point) {
-			return this.leftClickEvent$.pipe(take(1), map((screenPixels: IPixelPosition) => {
+			const leftClickEventSubscription = this.leftClickEvent$.pipe(take(1), tap((screenPixels: IPixelPosition) => {
 				const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
-				return this.generateGeometry(this.drawingMode, [earthPosition]);
-			}));
+				this.activeShapePoints.push(earthPosition)				
+				this.events.onDrawEnd.next(this.onDrawEnd());
+			})).subscribe();
+			this.mapEventsSubscription.add(leftClickEventSubscription);
+
+			return;
 		}
 
-		this.mapEventsSubscription.add(
-			this.leftClickEvent$.subscribe((screenPixels: IPixelPosition) => {
-				const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
-				if (defined(earthPosition)) {
-					if (this.activeShapePoints.length === 0) {
-						// floating point is the point that sticks to the cursor when drawing!
-						// on every mouse move I update it's value to the last mouse position
-						// here I create it for the first time
-						this.floatingPoint = this.addAnnotation(AnnotationType.Point, earthPosition);
+		const leftClickEventSubscription = this.leftClickEvent$.subscribe((screenPixels: IPixelPosition) => {
+			const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
+			if (defined(earthPosition)) {
+				if (this.activeShapePoints.length === 0) {
+					// floating point is the point that sticks to the cursor when drawing!
+					// on every mouse move I update it's value to the last mouse position
+					// here I create it for the first time
+					this.floatingPoint = this.addAnnotation(AnnotationType.Point, earthPosition);
 
-						this.activeShapePoints.push(earthPosition);
-						const dynamicPositions = new CallbackProperty(() => {
-							if (this.drawingMode === AnnotationMode.Polygon) {
-								return new PolygonHierarchy(this.activeShapePoints);
-							}
-							return this.activeShapePoints;
-						}, false);
-						this.activeShape = this.addAnnotation(this.drawingMode as unknown as AnnotationType, dynamicPositions);
-					}
 					this.activeShapePoints.push(earthPosition);
+					const dynamicPositions = new CallbackProperty(() => {
+						if (this.drawingMode === AnnotationMode.Polygon) {
+							return new PolygonHierarchy(this.activeShapePoints);
+						}
+						return this.activeShapePoints;
+					}, false);
+					this.activeShape = this.addAnnotation(this.drawingMode as unknown as AnnotationType, dynamicPositions);
 				}
-			})
-		);
-		this.mapEventsSubscription.add(
-			this.mouseMoveEvent$.subscribe((event) => {
-				this.updateLastActivePoint(event.endPosition);
-			})
-		);
+				this.activeShapePoints.push(earthPosition);
+			}
+		})
 
-		return this.leftDoubleClickEvent$.pipe(map(() => this.onDrawEnd()));
+		
+		const mouseMoveEventSubscription = this.mouseMoveEvent$.subscribe((event) => {
+			this.updateLastActivePoint(event.endPosition);
+		});
+		const leftDoubleClickEventSubscription = this.leftDoubleClickEvent$.pipe(take(1), tap(() => this.events.onDrawEnd.next(this.onDrawEnd()))).subscribe();
+
+		this.mapEventsSubscription.add(leftDoubleClickEventSubscription);
+		this.mapEventsSubscription.add(leftClickEventSubscription);
+		this.mapEventsSubscription.add(mouseMoveEventSubscription);
 	}
 
 	private updateLastActivePoint(pixelPoint: Cartesian2) {
@@ -175,16 +181,20 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	}
 
 	private onDrawEnd(): FeatureCollection<GeometryObject> {
-		this.mapEventsSubscription.unsubscribe();
 		const shapePoints = this.activeShapePoints;
+		this.reset();
 
+		return this.generateGeometry(this.drawingMode, shapePoints);
+	}
+
+	private reset() {
+		this.mapEventsSubscription.unsubscribe();
+		this.mapEventsSubscription = new Subscription();
 		this.viewer.entities.remove(this.floatingPoint);
 		this.viewer.entities.remove(this.activeShape);
 		this.floatingPoint = undefined;
 		this.activeShapePoints = [];
 		this.activeShape = undefined;
-
-		return this.generateGeometry(this.drawingMode, shapePoints);
 	}
 
 

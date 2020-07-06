@@ -25,7 +25,7 @@ import { GeoJsonObject } from 'geojson';
 export class AnnotationsControlComponent implements OnInit {
   ANNOTATION_MODE_LIST = ANNOTATION_MODE_LIST;
   annotations: AnnotationsVisualizer;
-  cesiumDrawer:  CesiumDrawAnnotationsVisualizer;
+  cesiumDrawer: CesiumDrawAnnotationsVisualizer;
   reader = new FileReader();
   currentEntities: IVisualizerEntity[];
   communicator: CommunicatorEntity;
@@ -101,7 +101,8 @@ export class AnnotationsControlComponent implements OnInit {
         this.annotations.addOrUpdateEntities(newEntities).subscribe();
       });
     } else if (this.communicator.activeMapName === CesiumMapName) {
-      this.cesiumDrawer.startDrawing(mode).pipe(take(1)).subscribe(geoJson => {
+      this.cesiumDrawer.startDrawing(mode);
+      this.cesiumDrawer.events.onDrawEnd.pipe(take(1)).subscribe(geoJson => {
         const newEntities = this.cesiumDrawer.annotationsLayerToEntities(geoJson);
 
         const plugin = this.communicator.getPlugin(MouseMarkerPlugin);

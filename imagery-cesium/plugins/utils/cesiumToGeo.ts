@@ -1,8 +1,9 @@
-import { Cartesian3, Ellipsoid, Math } from "cesium";
-import { Position } from "@turf/turf";
+import { Cartesian3, Ellipsoid, Math } from 'cesium';
+import { Position } from '@turf/turf';
 
 export function cartesianToCoordinates(cartesianPositions: Cartesian3[]): Position[] {
     const coordinates = cartesianPositions.map(position => {
+        // TODO - use projection
         const carto  = Ellipsoid.WGS84.cartesianToCartographic(position);
         const lon = Math.toDegrees(carto.longitude);
         const lat = Math.toDegrees(carto.latitude);
