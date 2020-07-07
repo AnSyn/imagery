@@ -25,7 +25,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	private temporaryShapes: Entity[];
 
 	/* floating point is the point that sticks to the cursor when drawing!
-	on every mouse move event I update it's value to the last mouse position */
+	on every mouse move event it's value is updated to the last mouse position */
 	private floatingPoint: Entity;
 	private drawingMode = AnnotationMode.LineString;
 
@@ -103,8 +103,11 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		if (this.drawingMode === AnnotationMode.Point) {
 			const leftClickEventSubscription = this.leftClickEvent$.pipe(take(1), tap((screenPixels: IPixelPosition) => {
 				const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
-				this.activeShapePoints = [earthPosition];				
-				this.events.onDrawEnd.next(this.onDrawEnd());
+
+				if (defined(earthPosition)) {
+					this.activeShapePoints = [earthPosition];				
+					this.events.onDrawEnd.next(this.onDrawEnd());
+				}
 			})).subscribe();
 			this.mapEventsSubscription.add(leftClickEventSubscription);
 
@@ -137,17 +140,21 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	}
 
 	private onMouseMoveEvent(pixelPoint: Cartesian2) {
+		const newEarthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(pixelPoint);
+
 		if (!defined(this.floatingPoint)) {
-			const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(pixelPoint);
-			this.floatingPoint = defined(earthPosition) ? this.addAnnotation(AnnotationType.Point, earthPosition) : undefined;
+			this.floatingPoint = defined(newEarthPosition) ? this.addAnnotation(AnnotationType.Point, newEarthPosition) : undefined;
+
+			return;
 		}
-		const newPosition = this.cesiumMap.getEarthPositionFromScreenPixels(pixelPoint);
-		if (defined(newPosition) && !!this.floatingPoint.position) {
-			(this.floatingPoint.position as any).setValue(newPosition);
-			if (!!this.activeShapePoints && this.activeShapePoints.length > 1) {
-				this.activeShapePoints.pop();
-				this.activeShapePoints.push(newPosition);
-			}
+	
+		if (!!this.floatingPoint.position) {
+			(this.floatingPoint.position as any).setValue(newEarthPosition);
+		}
+
+		if (!!this.activeShapePoints && this.activeShapePoints.length > 1) {
+			this.activeShapePoints.pop();
+			this.activeShapePoints.push(newEarthPosition);
 		}
 	}
 
@@ -184,7 +191,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				});
 				break;
 			}
-			case AnnotationType.Point: {
+			case AnnotationType.Point : {
 				shape = this.viewer.entities.add({
 					position: positionData as Cartesian3,
 					point: {
