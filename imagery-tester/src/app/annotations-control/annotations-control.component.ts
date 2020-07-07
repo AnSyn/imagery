@@ -101,7 +101,8 @@ export class AnnotationsControlComponent implements OnInit {
         this.annotations.addOrUpdateEntities(newEntities).subscribe();
       });
     } else if (this.communicator.activeMapName === CesiumMapName) {
-      this.cesiumDrawer.startDrawing(mode);
+      const a = this.cesiumDrawer.startDrawing(mode);
+      console.log('start drawing: ', a);
       this.cesiumDrawer.events.onDrawEnd.pipe(take(1)).subscribe(geoJson => {
         const newEntities = this.cesiumDrawer.annotationsLayerToEntities(geoJson);
 

@@ -91,7 +91,11 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		);
 	}
 
-	startDrawing(mode: AnnotationMode) {
+	startDrawing(mode: AnnotationMode): boolean {
+		if (!this.isDrawingModeSupported(mode)) {
+			return false;
+		}
+
 		this.drawingMode = mode;
 		this.reset();
 
@@ -111,7 +115,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			})).subscribe();
 			this.mapEventsSubscription.add(leftClickEventSubscription);
 
-			return;
+			return true;
 		}
 
 		const leftClickEventSubscription = this.leftClickEvent$.subscribe((screenPixels: IPixelPosition) => {
@@ -137,6 +141,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 
 		this.mapEventsSubscription.add(leftDoubleClickEventSubscription);
 		this.mapEventsSubscription.add(leftClickEventSubscription);
+		return true;
 	}
 
 	private onMouseMoveEvent(pixelPoint: Cartesian2) {
@@ -258,5 +263,10 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		const feature = turfFeature(geometry);
 		const featureCollection = turfFeatureCollection([feature]) as FeatureCollection<GeometryObject>;
 		return featureCollection;
+	}
+
+	private isDrawingModeSupported(mode: AnnotationMode) {
+		const supportedModes = Object.values(AnnotationMode);
+		return supportedModes.includes(mode);
 	}
 }
