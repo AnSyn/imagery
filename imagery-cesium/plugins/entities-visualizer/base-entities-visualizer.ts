@@ -4,7 +4,8 @@ import {
 	IVisualizerEntity,
 	VisualizerInteractionTypes,
 	IVisualizerStyle,
-	IVisualizerStateStyle
+	IVisualizerStateStyle,
+	ANNOTATIONS_INITIAL_STYLE
 } from '@ansyn/imagery';
 import { Observable, of, Subject } from 'rxjs';
 import {
@@ -14,7 +15,8 @@ import {
 	MultiPoint,
 	MultiPolygon,
 	Point,
-	Polygon, Position
+	Polygon, Position,
+	FeatureCollection
 } from 'geojson';
 import {
 	Color,
@@ -26,7 +28,7 @@ import {
 	PolygonGraphics,
 	ConstantProperty
 } from 'cesium'
-import * as geoToCesium from '../utils/geoToCesium'
+import * as geoToCesium from '../utils/geoToCesium';
 
 import { merge } from 'lodash';
 
@@ -42,6 +44,12 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	public idToEntity: Map<string, IEntityIdentifier> = new Map<string, { originalEntity: null, entities: null }>();
 	isReady$: Subject<boolean> = new Subject();
 	isReady = false;
+
+	// This style is the same as in ol annotations visualizer
+	protected visualizerStyle: IVisualizerStateStyle = {
+		opacity: 1,
+		initial: ANNOTATIONS_INITIAL_STYLE
+	};
 
 	onInit() {
 		this.getOrCreateDataSource((Cesium as any).createGuid()).then(newDataSource => {
@@ -202,6 +210,34 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	addInteraction(type: VisualizerInteractionTypes, interactionInstance: any): void {
 	}
 	removeInteraction(type: VisualizerInteractionTypes, interactionInstance: any): void {
+	}
+	annotationsLayerToEntities(annotationsLayer: FeatureCollection<any>): IVisualizerEntity[] {
+		return annotationsLayer.features.map(
+			(feature: Feature<any>): IVisualizerEntity => {
+				const featureJson: Feature<any> = {
+					...feature,
+					properties: {
+						...feature.properties,
+						featureJson: undefined,
+					},
+				};
+				return {
+					featureJson,
+					id: feature.properties.id,
+					style: feature.properties.style || this.visualizerStyle,
+					showMeasures: feature.properties.showMeasures || false,
+					showArea: feature.properties.showArea || false,
+					label: feature.properties.label || {
+						text: "",
+						geometry: null,
+					},
+					icon: feature.properties.icon || "",
+					undeletable: feature.properties.undeletable || false,
+					labelSize: feature.properties.labelSize || 28,
+					labelTranslateOn: feature.properties.labelTranslateOn || false,
+				};
+			}
+		);
 	}
 
 	private updateBillboard(entity: Entity, coordinates: Position, imgUrl: string): void {

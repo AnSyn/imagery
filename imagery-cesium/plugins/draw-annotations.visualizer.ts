@@ -62,35 +62,6 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		this.leftDoubleClickEvent$ = this.cesiumMap.events.leftDoubleClickEvent.asObservable(); 
 	}
 
-	annotationsLayerToEntities(annotationsLayer: FeatureCollection<any>): IVisualizerEntity[] {
-		return annotationsLayer.features.map(
-			(feature: Feature<any>): IVisualizerEntity => {
-				const featureJson: Feature<any> = {
-					...feature,
-					properties: {
-						...feature.properties,
-						featureJson: undefined,
-					},
-				};
-				return {
-					featureJson,
-					id: feature.properties.id,
-					style: feature.properties.style || this.visualizerStyle,
-					showMeasures: feature.properties.showMeasures || false,
-					showArea: feature.properties.showArea || false,
-					label: feature.properties.label || {
-						text: "",
-						geometry: null,
-					},
-					icon: feature.properties.icon || "",
-					undeletable: feature.properties.undeletable || false,
-					labelSize: feature.properties.labelSize || 28,
-					labelTranslateOn: feature.properties.labelTranslateOn || false,
-				};
-			}
-		);
-	}
-
 	startDrawing(mode: AnnotationMode): boolean {
 		if (!this.isDrawingModeSupported(mode)) {
 			return false;

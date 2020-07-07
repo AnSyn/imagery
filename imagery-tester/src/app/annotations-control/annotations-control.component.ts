@@ -10,7 +10,7 @@ import {
   IDrawEndEvent,
   OpenlayersMapName
 } from '@ansyn/imagery-ol';
-import { fromEvent, Observable, of } from 'rxjs';
+import { fromEvent, of } from 'rxjs';
 import { filter, mergeMap, take, tap } from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
 import { CesiumMapName, CesiumDrawAnnotationsVisualizer } from '@ansyn/imagery-cesium';
@@ -104,9 +104,8 @@ export class AnnotationsControlComponent implements OnInit {
       const a = this.cesiumDrawer.startDrawing(mode);
       console.log('start drawing: ', a);
       this.cesiumDrawer.events.onDrawEnd.pipe(take(1)).subscribe(geoJson => {
-        const newEntities = this.cesiumDrawer.annotationsLayerToEntities(geoJson);
-
         const plugin = this.communicator.getPlugin(MouseMarkerPlugin);
+        const newEntities = plugin.annotationsLayerToEntities(geoJson);
         plugin.addOrUpdateEntities(newEntities).pipe(take(1)).subscribe();
       });
     }
