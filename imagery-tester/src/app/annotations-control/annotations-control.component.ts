@@ -10,10 +10,10 @@ import {
   IDrawEndEvent,
   OpenlayersMapName
 } from '@ansyn/imagery-ol';
-import { fromEvent, Observable, of } from 'rxjs';
+import { fromEvent, of } from 'rxjs';
 import { filter, mergeMap, take, tap } from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
-import { CesiumMapName } from '@ansyn/imagery-cesium';
+import { CesiumMapName, CesiumDrawAnnotationsVisualizer } from '@ansyn/imagery-cesium';
 import { MouseMarkerPlugin } from '../plugins/cesium/mouse-marker-plugin';
 import { GeoJsonObject } from 'geojson';
 
@@ -25,6 +25,7 @@ import { GeoJsonObject } from 'geojson';
 export class AnnotationsControlComponent implements OnInit {
   ANNOTATION_MODE_LIST = ANNOTATION_MODE_LIST;
   annotations: AnnotationsVisualizer;
+  cesiumDrawer: CesiumDrawAnnotationsVisualizer;
   reader = new FileReader();
   currentEntities: IVisualizerEntity[];
   communicator: CommunicatorEntity;
@@ -59,6 +60,8 @@ export class AnnotationsControlComponent implements OnInit {
         }
       } else if (communicator.activeMapName === CesiumMapName) {
         const plugin = communicator.getPlugin(MouseMarkerPlugin);
+        this.cesiumDrawer = communicator.getPlugin(CesiumDrawAnnotationsVisualizer);
+
         if (plugin.isReady) {
           plugin.isEnabled = false;
           plugin.setEntities(this.currentEntities).pipe(take(1)).subscribe();
@@ -91,13 +94,22 @@ export class AnnotationsControlComponent implements OnInit {
   }
 
   draw(mode) {
-    this.annotations.setMode(this.annotations.mode === mode ? null : mode, true);
-    this.annotations.events.onDrawEnd.pipe(take(1)).subscribe((drawEndEvent: IDrawEndEvent) => {
-      const newEntities = this.annotations.annotationsLayerToEntities(drawEndEvent.GeoJSON);
-      // const [geoJsonFeature] = drawEndEvent.GeoJSON.features;
-      // const newEntity: IVisualizerEntity = {id: <string>geoJsonFeature.id, featureJson: geoJsonFeature};
-      this.annotations.addOrUpdateEntities(newEntities).subscribe();
-    });
+    if (this.communicator.activeMapName === OpenlayersMapName) {
+      this.annotations.setMode(this.annotations.mode === mode ? null : mode, true);
+      this.annotations.events.onDrawEnd.pipe(take(1)).subscribe((drawEndEvent: IDrawEndEvent) => {
+        const newEntities = this.annotations.annotationsLayerToEntities(drawEndEvent.GeoJSON);
+        this.annotations.addOrUpdateEntities(newEntities).subscribe();
+      });
+    } else if (this.communicator.activeMapName === CesiumMapName) {
+      const isDrawingStarted = this.cesiumDrawer.startDrawing(mode);
+      if (isDrawingStarted) {
+        this.cesiumDrawer.events.onDrawEnd.pipe(take(1)).subscribe(geoJson => {
+          const plugin = this.communicator.getPlugin(MouseMarkerPlugin);
+          const newEntities = plugin.annotationsLayerToEntities(geoJson);
+          plugin.addOrUpdateEntities(newEntities).pipe(take(1)).subscribe();
+        });
+      }
+    }
   }
 
   /*

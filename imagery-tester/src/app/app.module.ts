@@ -29,7 +29,8 @@ import {
   CesiumGEESourceProvider,
   CesiumBINGSourceProvider,
   CesiumGridLinesVisualizer,
-  CesiumSentinelSourceProvider
+  CesiumSentinelSourceProvider,
+  CesiumDrawAnnotationsVisualizer
 } from '@ansyn/imagery-cesium';
 import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-map.component';
 import { MeasureRulerComponent } from './measure-ruler/measure-ruler.component';
@@ -68,7 +69,8 @@ import { ImageProcessingControlComponent } from './image-processing-control/imag
     TranslateModule.forRoot(),
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
-      plugins: [AnnotationsVisualizer, ImageProcessingPlugin, GridLinesVisualizer, CesiumGridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
+      // tslint:disable-next-line:max-line-length
+      plugins: [AnnotationsVisualizer, ImageProcessingPlugin, GridLinesVisualizer, CesiumGridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin, CesiumDrawAnnotationsVisualizer],
       mapSourceProviders: [
         OpenLayerGEESourceProvider,
         OpenLayerBingSourceProvider,

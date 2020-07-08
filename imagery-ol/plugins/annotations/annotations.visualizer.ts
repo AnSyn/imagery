@@ -4,7 +4,8 @@ import {
 	IVisualizerEntity,
 	MarkerSize,
 	VisualizerInteractions,
-	VisualizerStates
+	VisualizerStates,
+	ANNOTATIONS_INITIAL_STYLE
 } from '@ansyn/imagery';
 import { UUID } from 'angular2-uuid';
 import { AutoSubscription } from 'auto-subscriptions';
@@ -135,13 +136,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 
 		super(null, {
 			initial: {
-				stroke: '#27b2cfe6',
-				'stroke-width': 1,
-				fill: `white`,
-				'fill-opacity': AnnotationsVisualizer.fillAlpha,
-				'stroke-opacity': 1,
-				'marker-size': MarkerSize.medium,
-				'marker-color': `#ffffff`,
+				... ANNOTATIONS_INITIAL_STYLE,
 				label: {
 					overflow: true,
 					fontSize: (feature) => {
