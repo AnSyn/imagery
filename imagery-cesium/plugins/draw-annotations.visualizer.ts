@@ -241,4 +241,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		const supportedModes = Object.values(AnnotationMode);
 		return supportedModes.includes(mode);
 	}
+
+	onDispose() {
+		super.onDispose();
+		this.reset();
+	}
 }
