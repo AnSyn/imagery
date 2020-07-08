@@ -101,13 +101,14 @@ export class AnnotationsControlComponent implements OnInit {
         this.annotations.addOrUpdateEntities(newEntities).subscribe();
       });
     } else if (this.communicator.activeMapName === CesiumMapName) {
-      const a = this.cesiumDrawer.startDrawing(mode);
-      console.log('start drawing: ', a);
-      this.cesiumDrawer.events.onDrawEnd.pipe(take(1)).subscribe(geoJson => {
-        const plugin = this.communicator.getPlugin(MouseMarkerPlugin);
-        const newEntities = plugin.annotationsLayerToEntities(geoJson);
-        plugin.addOrUpdateEntities(newEntities).pipe(take(1)).subscribe();
-      });
+      const isDrawingStarted = this.cesiumDrawer.startDrawing(mode);
+      if (isDrawingStarted) {
+        this.cesiumDrawer.events.onDrawEnd.pipe(take(1)).subscribe(geoJson => {
+          const plugin = this.communicator.getPlugin(MouseMarkerPlugin);
+          const newEntities = plugin.annotationsLayerToEntities(geoJson);
+          plugin.addOrUpdateEntities(newEntities).pipe(take(1)).subscribe();
+        });
+      }
     }
   }
 

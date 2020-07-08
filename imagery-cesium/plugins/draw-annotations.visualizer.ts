@@ -75,8 +75,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		});
 		this.mapEventsSubscription.add(mouseMoveEventSubscription)
 
+		let leftClickEventSubscription: Subscription;
 		if (this.drawingMode === AnnotationMode.Point) {
-			const leftClickEventSubscription = this.leftClickEvent$.pipe(take(1), tap((screenPixels: IPixelPosition) => {
+			leftClickEventSubscription = this.leftClickEvent$.pipe(take(1), tap((screenPixels: IPixelPosition) => {
 				const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
 
 				if (defined(earthPosition)) {
@@ -89,7 +90,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			return true;
 		}
 
-		const leftClickEventSubscription = this.leftClickEvent$.subscribe((screenPixels: IPixelPosition) => {
+		leftClickEventSubscription = this.leftClickEvent$.subscribe((screenPixels: IPixelPosition) => {
 			const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
 			if (defined(earthPosition)) {
 				if (!this.activeShapePoints) {
@@ -167,7 +168,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				});
 				break;
 			}
-			case AnnotationType.Point : {
+			case AnnotationType.Point: {
 				shape = this.viewer.entities.add({
 					position: positionData as Cartesian3,
 					point: {
