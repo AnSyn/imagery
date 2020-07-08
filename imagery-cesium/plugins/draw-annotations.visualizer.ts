@@ -243,7 +243,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	}
 
 	onDispose() {
-		super.onDispose();
 		this.reset();
+		super.onDispose();
 	}
 }
