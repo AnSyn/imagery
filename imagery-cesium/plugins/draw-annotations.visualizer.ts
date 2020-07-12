@@ -1,5 +1,5 @@
 import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from '@ansyn/imagery';
-import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle } from 'cesium';
+import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle, Ellipsoid } from 'cesium';
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FeatureCollection, GeometryObject, Feature } from 'geojson';
@@ -9,7 +9,6 @@ import { feature as turfFeature, featureCollection as turfFeatureCollection, Geo
 import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
-import { Ellipsoid } from 'cesium';
 
 @ImageryPlugin({
 	supported: [CesiumMap],
@@ -54,7 +53,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			cartographicToPosition(Rectangle.northwest(this.rectangle)),
 			cartographicToPosition(Rectangle.northeast(this.rectangle)),
 			cartographicToPosition(Rectangle.southeast(this.rectangle)),
-			cartographicToPosition(Rectangle.southwest(this.rectangle)),
+			cartographicToPosition(Rectangle.southwest(this.rectangle))
 		];
 	}
 
@@ -198,7 +197,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					rectangle: {						
 						coordinates: positionData as Property,
-						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)),
+						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)), // todo: material color should come from drawing config / argument
 					},
 				});
 			}
@@ -259,6 +258,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 					type: AnnotationMode.Polygon,
 					coordinates: [this.rectangleCornersPositions]
 				}
+				break;
 			}
 		} 
 
