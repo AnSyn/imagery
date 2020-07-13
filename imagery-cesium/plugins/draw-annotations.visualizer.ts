@@ -11,7 +11,6 @@ import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
 import { UUID } from 'angular2-uuid';
 
-
 @ImageryPlugin({
 	supported: [CesiumMap],
 	deps: [],
