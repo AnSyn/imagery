@@ -193,6 +193,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 						heightReference: HeightReference.CLAMP_TO_GROUND ,
 					},
 				});
+				break;
 			}
 			case AnnotationType.Rectangle: {
 				shape = this.viewer.entities.add({
@@ -201,6 +202,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)), // todo: material color should come from drawing config / argument
 					},
 				});
+				break;
 			}
 		}
 		this.temporaryShapes.push(shape);
