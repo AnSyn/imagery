@@ -1,11 +1,11 @@
 import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from '@ansyn/imagery';
-import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry } from 'cesium';
+import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle, Ellipsoid } from 'cesium';
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FeatureCollection, GeometryObject, Feature } from 'geojson';
 import { take, tap } from 'rxjs/operators';
-import { cartesianToCoordinates } from './utils/cesiumToGeo';
-import { feature as turfFeature, featureCollection as turfFeatureCollection, Geometry } from '@turf/turf';
+import { cartesianToCoordinates, cartographicToPosition } from './utils/cesiumToGeo';
+import { feature as turfFeature, featureCollection as turfFeatureCollection, Geometry, Position } from '@turf/turf';
 import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
@@ -44,6 +44,18 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 
 	events = {
 		onDrawEnd: new Subject<FeatureCollection<GeometryObject>>()
+	}
+
+	// if the user draws a rectangle, we need to keep track of it in order to build
+	// the Array<Position> passed to the Geometry object at the end of the drawing
+	private rectangle = new Rectangle();
+	private get rectangleCornersPositions(): Position[] {
+		return [
+			cartographicToPosition(Rectangle.northwest(this.rectangle)),
+			cartographicToPosition(Rectangle.northeast(this.rectangle)),
+			cartographicToPosition(Rectangle.southeast(this.rectangle)),
+			cartographicToPosition(Rectangle.southwest(this.rectangle))
+		];
 	}
 
 	constructor() {
@@ -101,6 +113,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 					const dynamicPositions = new CallbackProperty(() => {
 						if (this.drawingMode === AnnotationMode.Polygon) {
 							return new PolygonHierarchy(this.activeShapePoints);
+						}
+						if (this.drawingMode === AnnotationMode.Rectangle) {
+							return Rectangle.fromCartesianArray(this.activeShapePoints, Ellipsoid.WGS84, this.rectangle);
 						}
 						return this.activeShapePoints;
 					}, false);
@@ -179,6 +194,14 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 					},
 				});
 			}
+			case AnnotationType.Rectangle: {
+				shape = this.viewer.entities.add({
+					rectangle: {						
+						coordinates: positionData as Property,
+						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)), // todo: material color should come from drawing config / argument
+					},
+				});
+			}
 		}
 		this.temporaryShapes.push(shape);
 		return shape;
@@ -229,6 +252,13 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 					type: AnnotationMode.LineString,
 					coordinates: coordinates
 				};
+				break;
+			}
+			case AnnotationMode.Rectangle: {
+				geometry = {
+					type: AnnotationMode.Polygon,
+					coordinates: [this.rectangleCornersPositions]
+				}
 				break;
 			}
 		} 
