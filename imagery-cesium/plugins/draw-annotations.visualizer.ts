@@ -57,6 +57,11 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		];
 	}
 
+	// keep track of start/last drawing positions in pixels in order to
+	// be able to break a drawn circle into polygon geojson format
+	startDrawingScreenPixels: Cartesian2;
+	lastDrawingScreenPixels: Cartesian2;
+
 	constructor() {
 		super();
 	}
@@ -106,6 +111,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			const earthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(screenPixels.position);
 			if (defined(earthPosition)) {
 				if (!this.activeShapePoints) {
+					this.startDrawingScreenPixels = {...screenPixels.position} as Cartesian2;
 					this.activeShapePoints = [];
 
 					this.activeShapePoints.push(earthPosition);
@@ -122,7 +128,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				}
 				this.activeShapePoints.push(earthPosition);
 			}
-		})
+		});
 
 		const leftDoubleClickEventSubscription = this.leftDoubleClickEvent$.pipe(take(1), tap(() => this.events.onDrawEnd.next(this.onDrawEnd()))).subscribe();
 
@@ -132,6 +138,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	}
 
 	private onMouseMoveEvent(pixelPoint: Cartesian2) {
+		this.lastDrawingScreenPixels = {...pixelPoint} as Cartesian2;
 		const newEarthPosition = this.cesiumMap.getEarthPositionFromScreenPixels(pixelPoint);
 
 		if (!defined(this.floatingPoint)) {
@@ -192,6 +199,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 						heightReference: HeightReference.CLAMP_TO_GROUND ,
 					},
 				});
+				break;
 			}
 			case AnnotationType.Rectangle: {
 				shape = this.viewer.entities.add({
@@ -200,6 +208,20 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)), // todo: material color should come from drawing config / argument
 					},
 				});
+				break;
+			}
+			case AnnotationType.Circle: {
+				shape = this.viewer.entities.add({
+					position: this.activeShapePoints[0],
+					ellipse: {
+						semiMajorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
+						semiMinorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
+						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)),
+						outline: true,
+						// granularity: (Math.PI/180.0)/32 /* this prop fixes artifacts on drawn circle if radius is greater than about 8000km but introduces performance issue */
+					}
+				});				
+				break;
 			}
 		}
 		this.temporaryShapes.push(shape);
@@ -260,6 +282,12 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				}
 				break;
 			}
+			case AnnotationMode.Circle: {
+				const center = this.startDrawingScreenPixels;
+				const radius = Math.sqrt(Math.pow(center.x - this.lastDrawingScreenPixels.x, 2) + Math.pow(center.y - this.lastDrawingScreenPixels.y, 2));
+				geometry = this.createCircleGeometry(radius, center);
+				break;
+			}
 		} 
 
 		const feature = turfFeature(geometry);
@@ -275,5 +303,45 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	onDispose() {
 		this.reset();
 		super.onDispose();
+	}
+
+	private activeShapePointsDistance = () => {
+		const [ center ] = this.activeShapePoints;
+		const end: Cartesian3 = this.activeShapePoints.length === 2 ? this.activeShapePoints[1] : center;
+		return Cartesian3.distance(center, end);
+	}
+
+	/**
+	 * 
+	 * @param radius in pixels
+	 * @param center in pixels
+	 * @param rotation in degrees - optional - default 0
+	 */
+	private createCircleGeometry(radius: number, center: Cartesian2, rotation = 0): Geometry {
+		rotation = rotation / 180 * Math.PI;
+		let n = 36 // n sampling angles
+		let coords = [];
+		const cartesia3 = [];
+
+		for (let i = 0; i <= n; i++) {
+		  // get the current angle
+		  const θ = Math.PI * 2 / n * i + rotation;
+
+		  // get the radius at that angle
+		  const r = Math.pow(radius, 2) / Math.sqrt(Math.pow(radius, 2) * Math.sin(θ) * Math.sin(θ) + Math.pow(radius, 2) * Math.cos(θ) *  Math.cos(θ));
+
+		  // get the x,y coordinate that marks the ellipse at this angle
+		  const x1 = center.x + Math.cos(θ - rotation) * r;
+		  const y1 = center.y + Math.sin(θ - rotation) * r;
+
+		  const coordinate = this.cesiumMap.getEarthPositionFromScreenPixels(new Cartesian2(x1, y1));
+		  if(!coordinate) continue;
+		  cartesia3.push(coordinate);
+		}
+
+		coords = cartesianToCoordinates(cartesia3);
+
+		// return a geojson object:
+		return { type: AnnotationType.Polygon, coordinates: [coords] };
 	}
 }
