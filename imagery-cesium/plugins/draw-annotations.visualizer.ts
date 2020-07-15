@@ -9,6 +9,7 @@ import { feature as turfFeature, featureCollection as turfFeatureCollection, Geo
 import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
+import { UUID } from 'angular2-uuid';
 
 @ImageryPlugin({
 	supported: [CesiumMap],
@@ -252,7 +253,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	private generateGeometry(mode: AnnotationMode, cartesianPoints: Cartesian3[]): FeatureCollection<GeometryObject> {
 		const coordinates = cartesianToCoordinates(cartesianPoints);
 		let geometry: Geometry;
-	
+
 		switch (mode) {
 			case AnnotationMode.Point: {
 				geometry = {
@@ -291,6 +292,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		} 
 
 		const feature = turfFeature(geometry);
+		feature.properties.id =  UUID.UUID();
 		const featureCollection = turfFeatureCollection([feature]) as FeatureCollection<GeometryObject>;
 		return featureCollection;
 	}

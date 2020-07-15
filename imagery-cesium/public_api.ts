@@ -18,3 +18,4 @@ export { CesiumSentinelSourceProvider } from './mapSourceProviders/cesium-sentin
 export { CesiumMap, CesiumMapName } from './maps/cesium-map/cesium-map';
 export { CesiumGridLinesVisualizer } from './plugins/grid-lines.visualizer';
 export { CesiumDrawAnnotationsVisualizer } from './plugins/draw-annotations.visualizer';
+export { AnnotationMode } from './models/annotation-mode.enum';
