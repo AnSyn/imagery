@@ -4,7 +4,7 @@ import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FeatureCollection, GeometryObject, Feature } from 'geojson';
 import { take, tap } from 'rxjs/operators';
-import { cartesianToCoordinates, cartographicToPosition } from './utils/cesiumToGeo';
+import { cartesianToCoordinates, cartographicToPosition, circleToPolygonGeometry } from './utils/cesiumToGeo';
 import { feature as turfFeature, featureCollection as turfFeatureCollection, Geometry, Position } from '@turf/turf';
 import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
@@ -123,7 +123,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				}
 				this.activeShapePoints.push(earthPosition);
 			}
-		})
+		});
 
 		const leftDoubleClickEventSubscription = this.leftDoubleClickEvent$.pipe(take(1), tap(() => this.events.onDrawEnd.next(this.onDrawEnd()))).subscribe();
 
@@ -204,6 +204,19 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				});
 				break;
 			}
+			case AnnotationType.Circle: {
+				shape = this.viewer.entities.add({
+					position: this.activeShapePoints[0],
+					ellipse: {
+						semiMajorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
+						semiMinorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
+						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)),
+						outline: true,
+						// granularity: (Math.PI/180.0)/32 /* this prop fixes artifacts on drawn circle if radius is greater than about 8000km but introduces performance issue */
+					}
+				});				
+				break;
+			}
 		}
 		this.temporaryShapes.push(shape);
 		return shape;
@@ -263,6 +276,11 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				}
 				break;
 			}
+			case AnnotationMode.Circle: {
+				const [ center, end ] = cartesianPoints;
+				geometry = circleToPolygonGeometry(center, Cartesian3.distance(center, end));
+				break;
+			}
 		} 
 
 		const feature = turfFeature(geometry);
@@ -279,5 +297,11 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	onDispose() {
 		this.reset();
 		super.onDispose();
+	}
+
+	private activeShapePointsDistance = () => {
+		const [ center ] = this.activeShapePoints;
+		const end: Cartesian3 = this.activeShapePoints.length === 2 ? this.activeShapePoints[1] : center;
+		return Cartesian3.distance(center, end);
 	}
 }
