@@ -2,5 +2,6 @@ export enum AnnotationMode {
 	Point = 'Point',
 	LineString = 'LineString',
 	Polygon = 'Polygon',
-	Circle= 'Circle'
+	Rectangle = 'Rectangle',
+	Circle= 'Circle',
 }
