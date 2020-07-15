@@ -7,7 +7,7 @@ import { bbox, feature } from '@turf/turf';
 import { cloneDeep } from 'lodash';
 
 declare const Cesium: any;
-export const CesiumSentinelSourceProviderSourceType = 'CESIUM_SENTINEL';
+export const CesiumSentinelSourceProviderSourceType = 'SENTINEL';
 
 @ImageryMapSource({
 	supported: [CesiumMap],
