@@ -1,8 +1,8 @@
-import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from '@ansyn/imagery';
+import { BaseImageryPlugin, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE, ANNOTATIONS_FEATURE_INITIAL_PROPERTIES } from '@ansyn/imagery';
 import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle, Ellipsoid } from 'cesium';
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
-import { FeatureCollection, GeometryObject, Feature } from 'geojson';
+import { FeatureCollection, GeometryObject } from 'geojson';
 import { take, tap } from 'rxjs/operators';
 import { cartesianToCoordinates, cartographicToPosition, circleToPolygonGeometry } from './utils/cesiumToGeo';
 import { feature as turfFeature, featureCollection as turfFeatureCollection, Geometry, Position } from '@turf/turf';
@@ -10,7 +10,10 @@ import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
 import { UUID } from 'angular2-uuid';
+import { merge } from 'lodash';
 
+
+// TODO - drawing visualization style
 @ImageryPlugin({
 	supported: [CesiumMap],
 	deps: [],
@@ -283,15 +286,35 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			}
 		} 
 
-		const feature = turfFeature(geometry);
-		feature.properties.id =  UUID.UUID();
+		const feature = this.createAnnotationFeature(geometry, mode);
+
 		const featureCollection = turfFeatureCollection([feature]) as FeatureCollection<GeometryObject>;
 		return featureCollection;
+	}
+
+	private createAnnotationFeature(geometry: Geometry, mode: AnnotationMode) {
+		let feature = turfFeature(geometry);
+		feature = {
+			...feature,
+			properties: {
+				...ANNOTATIONS_FEATURE_INITIAL_PROPERTIES,
+				id: UUID.UUID(),
+				style: {
+					...this.visualizerStyle,
+				}
+			}
+		}
+		feature.properties.mode = mode;
+		return feature;
 	}
 
 	private isDrawingModeSupported(mode: AnnotationMode) {
 		const supportedModes = Object.values(AnnotationMode);
 		return supportedModes.includes(mode);
+	}
+
+	updateStyle(style: Partial<IVisualizerStateStyle>) {
+		merge(this.visualizerStyle, style);
 	}
 
 	onDispose() {

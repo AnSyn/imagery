@@ -39,6 +39,7 @@ export interface IEntityIdentifier {
 	entities: Entity[];
 }
 
+// TODO - support width stroke style
 export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	protected dataSource: CustomDataSource;
 	public idToEntity: Map<string, IEntityIdentifier> = new Map<string, { originalEntity: null, entities: null }>();
