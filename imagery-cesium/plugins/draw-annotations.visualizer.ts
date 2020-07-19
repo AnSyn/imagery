@@ -1,5 +1,5 @@
 import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from '@ansyn/imagery';
-import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle, Ellipsoid } from 'cesium';
+import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle, Ellipsoid, PolylineArrowMaterialProperty } from 'cesium';
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FeatureCollection, GeometryObject, Feature } from 'geojson';
@@ -10,6 +10,7 @@ import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
 import { UUID } from 'angular2-uuid';
+import { ArcType } from 'cesium';
 
 @ImageryPlugin({
 	supported: [CesiumMap],
@@ -217,6 +218,17 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				});				
 				break;
 			}
+			case AnnotationType.Arrow: {
+				shape = this.viewer.entities.add({
+					polyline: {
+						positions: positionData as Property,
+						width: 10,
+						arcType: ArcType.NONE,
+						material: new PolylineArrowMaterialProperty(Color.WHITE.withAlpha(0.7))
+					}
+				});
+				break;
+			}
 		}
 		this.temporaryShapes.push(shape);
 		return shape;
@@ -281,9 +293,25 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				geometry = circleToPolygonGeometry(center, Cartesian3.distance(center, end));
 				break;
 			}
+			case AnnotationMode.Arrow: {
+				geometry = {
+					type: AnnotationMode.LineString,
+					coordinates
+				};
+				break;
+			}
 		} 
 
 		const feature = turfFeature(geometry);
+
+		// Temporary => will be refactored with "Cesium Annotations Features Styling"
+		if (mode === AnnotationMode.Arrow) {
+			feature.properties['mode'] = AnnotationMode.Arrow;
+			feature.properties['style'] = {
+				initial: { ...ANNOTATIONS_INITIAL_STYLE, 'stroke-width': 10 }
+			};
+		}
+		
 		feature.properties.id =  UUID.UUID();
 		const featureCollection = turfFeatureCollection([feature]) as FeatureCollection<GeometryObject>;
 		return featureCollection;
