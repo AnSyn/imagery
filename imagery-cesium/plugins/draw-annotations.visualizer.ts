@@ -1,5 +1,5 @@
 import { BaseImageryPlugin, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE, ANNOTATIONS_FEATURE_INITIAL_PROPERTIES } from '@ansyn/imagery';
-import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle, Ellipsoid } from 'cesium';
+import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, Rectangle, Ellipsoid, PolylineDashMaterialProperty, ArcType, PolylineArrowMaterialProperty, PolylineGraphics, PolygonGraphics, RectangleGraphics, EllipseGraphics } from 'cesium';
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FeatureCollection, GeometryObject } from 'geojson';
@@ -10,8 +10,7 @@ import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
 import { UUID } from 'angular2-uuid';
-import { merge } from 'lodash';
-
+import { getFillColor, getLineMaterial, getShowOutline, getStrokeColor, getStrokeWidth } from './helpers/visualizer-style-helper';
 
 // TODO - drawing visualization style
 @ImageryPlugin({
@@ -44,6 +43,30 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		opacity: 1,
 		initial: ANNOTATIONS_INITIAL_STYLE
 	};
+
+	// ANNOTATIONS STYLES GETTERS
+	private get strokeWidth(): number { return getStrokeWidth(this.visualizerStyle); }
+	private get fillColor(): Color { return getFillColor(this.visualizerStyle);	}
+	private get strokeColor(): Color { return getStrokeColor(this.visualizerStyle);	}
+	private get showOutline(): boolean { return getShowOutline(this.visualizerStyle); }
+	private get lineMaterial(): PolylineDashMaterialProperty | ColorMaterialProperty { return getLineMaterial(this.visualizerStyle); }
+
+	private get lineAlikeEntityCtorOptions(): PolylineGraphics.ConstructorOptions {
+		return {
+			width: this.strokeWidth,
+			material: this.lineMaterial						
+		};
+	}
+	private get polygonAlikeEntityCtorOptions():
+		PolygonGraphics.ConstructorOptions | RectangleGraphics.ConstructorOptions | EllipseGraphics.ConstructorOptions {
+		return {
+			material: new ColorMaterialProperty(this.fillColor),
+			height: 0,
+			outline: this.showOutline,
+			outlineColor: this.strokeColor,
+			outlineWidth: this.strokeWidth
+		}
+	}
 
 	events = {
 		onDrawEnd: new Subject<FeatureCollection<GeometryObject>>()
@@ -158,11 +181,12 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		let shape: Entity;
 		switch (type) {
 			case AnnotationType.LineString: {
+				this.viewer.entities.add({})
 				shape = this.viewer.entities.add({
 					polyline: {
+						...this.lineAlikeEntityCtorOptions,
 						positions: positionData as Property,
-						clampToGround: true,
-						width: 3,
+						clampToGround: true
 					},
 				});
 				break;
@@ -170,19 +194,17 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			case AnnotationType.Polygon: {
 				const tempPloyline = this.viewer.entities.add({
 					polyline: {
-						positions: new CallbackProperty(() => {
-							return this.activeShapePoints;
-						}, false),
-						clampToGround: true,
-						width: 3,
+						...this.lineAlikeEntityCtorOptions,
+						positions: new CallbackProperty(() => this.activeShapePoints, false),
+						clampToGround: true
 					},
 				});
 
 				this.temporaryShapes.push(tempPloyline);
 				shape = this.viewer.entities.add({
 					polygon: {
-						hierarchy: positionData as Property,
-						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)),
+						...this.polygonAlikeEntityCtorOptions as PolygonGraphics.ConstructorOptions,
+						hierarchy: positionData as Property
 					},
 				});
 				break;
@@ -191,7 +213,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					position: positionData as Cartesian3,
 					point: {
-						color: Color.WHITE,
+						color: this.fillColor,
 						pixelSize: 5,
 						heightReference: HeightReference.CLAMP_TO_GROUND ,
 					},
@@ -200,9 +222,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			}
 			case AnnotationType.Rectangle: {
 				shape = this.viewer.entities.add({
-					rectangle: {						
-						coordinates: positionData as Property,
-						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)), // todo: material color should come from drawing config / argument
+					rectangle: {
+						...this.polygonAlikeEntityCtorOptions as RectangleGraphics.ConstructorOptions,
+						coordinates: positionData as Property
 					},
 				});
 				break;
@@ -211,13 +233,22 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					position: this.activeShapePoints[0],
 					ellipse: {
+						...this.polygonAlikeEntityCtorOptions as EllipseGraphics.ConstructorOptions,
 						semiMajorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
-						semiMinorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
-						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)),
-						outline: true,
-						// granularity: (Math.PI/180.0)/32 /* this prop fixes artifacts on drawn circle if radius is greater than about 8000km but introduces performance issue */
+						semiMinorAxis: new CallbackProperty(this.activeShapePointsDistance, false)
 					}
 				});				
+				break;
+			}
+			case AnnotationType.Arrow: {
+				shape = this.viewer.entities.add({
+					polyline: {
+						positions: positionData as Property,
+						width: this.strokeWidth < 10 ? 10 : this.strokeWidth,
+						arcType: ArcType.NONE,
+						material: new PolylineArrowMaterialProperty(this.strokeColor)
+					}
+				});
 				break;
 			}
 		}
@@ -284,6 +315,13 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				geometry = circleToPolygonGeometry(center, Cartesian3.distance(center, end));
 				break;
 			}
+			case AnnotationMode.Arrow: {
+				geometry = {
+					type: AnnotationMode.LineString,
+					coordinates
+				};
+				break;
+			}
 		} 
 
 		const feature = this.createAnnotationFeature(geometry, mode);
@@ -301,10 +339,10 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				id: UUID.UUID(),
 				style: {
 					...this.visualizerStyle,
-				}
+				},
+				mode
 			}
 		}
-		feature.properties.mode = mode;
 		return feature;
 	}
 
@@ -314,7 +352,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	}
 
 	updateStyle(style: Partial<IVisualizerStateStyle>) {
-		merge(this.visualizerStyle, style);
+		this.visualizerStyle.initial = { ...this.visualizerStyle.initial, ...style.initial };
 	}
 
 	onDispose() {

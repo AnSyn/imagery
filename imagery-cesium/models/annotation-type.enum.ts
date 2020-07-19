@@ -3,5 +3,6 @@ export enum AnnotationType {
 	LineString = 'LineString',
 	Polygon = 'Polygon',
 	Rectangle = 'Rectangle',
-	Circle = 'Circle'
+	Circle = 'Circle',
+	Arrow = 'Arrow'
 }
