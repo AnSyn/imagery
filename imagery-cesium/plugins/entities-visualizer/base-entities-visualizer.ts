@@ -32,7 +32,7 @@ import * as geoToCesium from '../utils/geoToCesium';
 
 import { merge } from 'lodash';
 import { PolylineArrowMaterialProperty } from 'cesium';
-import { AnnotationType } from '../../models/annotation-type.enum';
+import { AnnotationMode } from '../../models/annotation-mode.enum';
 
 declare const Cesium: any;
 
@@ -94,7 +94,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 				case 'LineString': {
 					const entity: Entity = this.dataSource.entities.getOrCreateEntity(visEntity.id);
 					newEntities.push(entity);
-					const mode: string = featureJson?.properties?.mode;
+					const mode: AnnotationMode = featureJson?.properties?.mode;
 
 					this.updateLineString(entity, (<LineString>featureJson.geometry).coordinates, style, mode);
 					break;
@@ -263,7 +263,7 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		});
 	}
 
-	private updateLineString(entity: Entity, coordinates: Position[], stylesState?: Partial<IVisualizerStateStyle>, mode?: string): void {
+	private updateLineString(entity: Entity, coordinates: Position[], stylesState?: Partial<IVisualizerStateStyle>, mode?: AnnotationMode): void {
 		// TODO: Support all polyline styles
 		const styles = merge({}, stylesState);
 		const s: IVisualizerStyle = merge({}, styles.initial);
@@ -356,10 +356,10 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 		}
 	}
 
-	private getLineMaterial(s, mode?: string) {
+	private getLineMaterial(s, mode?: AnnotationMode) {
 		const color = this.getColor(s["stroke"], s["stroke-opacity"]);
 		let material;
-		if (!!mode && mode === AnnotationType.Arrow) {
+		if (!!mode && mode === AnnotationMode.Arrow) {
 			material = new PolylineArrowMaterialProperty(color);
 		} else if (s["stroke-dasharray"] > 0) {
 			material = new Cesium.PolylineDashMaterialProperty({

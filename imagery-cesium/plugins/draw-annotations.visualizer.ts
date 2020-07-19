@@ -304,6 +304,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 
 		const feature = turfFeature(geometry);
 
+		// Temporary => will be refactored with "Cesium Annotations Features Styling"
 		if (mode === AnnotationMode.Arrow) {
 			feature.properties['mode'] = AnnotationMode.Arrow;
 			feature.properties['style'] = {
