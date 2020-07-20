@@ -41,6 +41,7 @@ export interface IEntityIdentifier {
 	entities: Entity[];
 }
 
+// TODO - support width stroke style
 export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	protected dataSource: CustomDataSource;
 	public idToEntity: Map<string, IEntityIdentifier> = new Map<string, { originalEntity: null, entities: null }>();
@@ -270,7 +271,11 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 		const material = this.getLineMaterial(s, mode);
 
-		const lineWidth = s['stroke-width'];
+		let lineWidth = s['stroke-width'];
+
+		if (mode === AnnotationMode.Arrow && lineWidth < 10) {
+			lineWidth = 10;
+		}
 
 		entity.polyline = new PolylineGraphics({
 			positions: geoToCesium.multiLineToCartesian(coordinates),

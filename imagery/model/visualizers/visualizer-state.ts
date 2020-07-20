@@ -31,4 +31,27 @@ export const ANNOTATIONS_INITIAL_STYLE: IVisualizerStyle = {
 	'stroke-opacity': 1,
 	'marker-size': MarkerSize.medium,
 	'marker-color': `#ffffff`,
+	label: {
+		overflow: true,
+		stroke: '#000',
+		fill: 'white',
+		offsetY: 30,
+		fontSize: 28,
+		text: ''
+	}
+}
+
+export const ANNOTATIONS_FEATURE_INITIAL_PROPERTIES = {
+	id: '',
+	style: ANNOTATIONS_INITIAL_STYLE,
+	label: {
+		text: '',
+		geometry: null
+	},
+	labelSize: 28,
+	icon: '',
+	showMeasures: false,
+	showArea: false,
+	undeletable: false,
+	mode: ''
 }

@@ -138,15 +138,12 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 			initial: {
 				... ANNOTATIONS_INITIAL_STYLE,
 				label: {
-					overflow: true,
+					...ANNOTATIONS_INITIAL_STYLE.label,
 					fontSize: (feature) => {
 						const entity = this.idToEntity.get(feature.getId());
 						const labelSize = entity && entity.originalEntity && entity.originalEntity.labelSize;
 						return labelSize || 28;
 					},
-					stroke: '#000',
-					fill: 'white',
-					offsetY: 30,
 					text: (feature: olFeature) => {
 						const entity = this.idToEntity.get(feature.getId());
 						if (entity) {

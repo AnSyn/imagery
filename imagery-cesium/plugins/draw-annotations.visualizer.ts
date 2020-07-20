@@ -1,8 +1,8 @@
-import { BaseImageryPlugin, IVisualizerEntity, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE } from '@ansyn/imagery';
-import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, PolylineGeometry, Rectangle, Ellipsoid, PolylineArrowMaterialProperty } from 'cesium';
+import { BaseImageryPlugin, ImageryPlugin, IVisualizerStateStyle, ANNOTATIONS_INITIAL_STYLE, ANNOTATIONS_FEATURE_INITIAL_PROPERTIES } from '@ansyn/imagery';
+import { Viewer, Cartesian3, Entity, Property, CallbackProperty, PolygonHierarchy, defined, ColorMaterialProperty, HeightReference, Color, Cartesian2, Rectangle, Ellipsoid, PolylineDashMaterialProperty, ArcType, PolylineArrowMaterialProperty, PolylineGraphics, PolygonGraphics, RectangleGraphics, EllipseGraphics } from 'cesium';
 import { CesiumMap } from '../maps/cesium-map/cesium-map';
 import { Observable, Subscription, Subject } from 'rxjs';
-import { FeatureCollection, GeometryObject, Feature } from 'geojson';
+import { FeatureCollection, GeometryObject } from 'geojson';
 import { take, tap } from 'rxjs/operators';
 import { cartesianToCoordinates, cartographicToPosition, circleToPolygonGeometry } from './utils/cesiumToGeo';
 import { feature as turfFeature, featureCollection as turfFeatureCollection, Geometry, Position } from '@turf/turf';
@@ -10,6 +10,7 @@ import { AnnotationMode } from '../models/annotation-mode.enum';
 import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
 import { UUID } from 'angular2-uuid';
+import { getFillColor, getLineMaterial, getShowOutline, getStrokeColor, getStrokeWidth } from './helpers/visualizer-style-helper';
 import { ArcType } from 'cesium';
 
 @ImageryPlugin({
@@ -42,6 +43,30 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		opacity: 1,
 		initial: ANNOTATIONS_INITIAL_STYLE
 	};
+
+	// ANNOTATIONS STYLES GETTERS
+	private get strokeWidth(): number { return getStrokeWidth(this.visualizerStyle); }
+	private get fillColor(): Color { return getFillColor(this.visualizerStyle);	}
+	private get strokeColor(): Color { return getStrokeColor(this.visualizerStyle);	}
+	private get showOutline(): boolean { return getShowOutline(this.visualizerStyle); }
+	private get lineMaterial(): PolylineDashMaterialProperty | ColorMaterialProperty { return getLineMaterial(this.visualizerStyle); }
+
+	private get lineAlikeGraphicsOptions(): PolylineGraphics.ConstructorOptions {
+		return {
+			width: this.strokeWidth,
+			material: this.lineMaterial						
+		};
+	}
+	private get polygonAlikeGraphicsOptions():
+		PolygonGraphics.ConstructorOptions | RectangleGraphics.ConstructorOptions | EllipseGraphics.ConstructorOptions {
+		return {
+			material: new ColorMaterialProperty(this.fillColor),
+			height: 0,
+			outline: this.showOutline,
+			outlineColor: this.strokeColor,
+			outlineWidth: this.strokeWidth
+		}
+	}
 
 	events = {
 		onDrawEnd: new Subject<FeatureCollection<GeometryObject>>()
@@ -158,9 +183,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			case AnnotationType.LineString: {
 				shape = this.viewer.entities.add({
 					polyline: {
+						...this.lineAlikeGraphicsOptions,
 						positions: positionData as Property,
-						clampToGround: true,
-						width: 3,
+						clampToGround: true
 					},
 				});
 				break;
@@ -168,19 +193,17 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			case AnnotationType.Polygon: {
 				const tempPloyline = this.viewer.entities.add({
 					polyline: {
-						positions: new CallbackProperty(() => {
-							return this.activeShapePoints;
-						}, false),
-						clampToGround: true,
-						width: 3,
+						...this.lineAlikeGraphicsOptions,
+						positions: new CallbackProperty(() => this.activeShapePoints, false),
+						clampToGround: true
 					},
 				});
 
 				this.temporaryShapes.push(tempPloyline);
 				shape = this.viewer.entities.add({
 					polygon: {
-						hierarchy: positionData as Property,
-						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)),
+						...this.polygonAlikeGraphicsOptions as PolygonGraphics.ConstructorOptions,
+						hierarchy: positionData as Property
 					},
 				});
 				break;
@@ -189,7 +212,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					position: positionData as Cartesian3,
 					point: {
-						color: Color.WHITE,
+						color: this.fillColor,
 						pixelSize: 5,
 						heightReference: HeightReference.CLAMP_TO_GROUND ,
 					},
@@ -198,9 +221,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			}
 			case AnnotationType.Rectangle: {
 				shape = this.viewer.entities.add({
-					rectangle: {						
-						coordinates: positionData as Property,
-						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)), // todo: material color should come from drawing config / argument
+					rectangle: {
+						...this.polygonAlikeGraphicsOptions as RectangleGraphics.ConstructorOptions,
+						coordinates: positionData as Property
 					},
 				});
 				break;
@@ -209,11 +232,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					position: this.activeShapePoints[0],
 					ellipse: {
+						...this.polygonAlikeGraphicsOptions as EllipseGraphics.ConstructorOptions,
 						semiMajorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
-						semiMinorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
-						material: new ColorMaterialProperty(Color.WHITE.withAlpha(0.7)),
-						outline: true,
-						// granularity: (Math.PI/180.0)/32 /* this prop fixes artifacts on drawn circle if radius is greater than about 8000km but introduces performance issue */
+						semiMinorAxis: new CallbackProperty(this.activeShapePointsDistance, false)
 					}
 				});				
 				break;
@@ -222,9 +243,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					polyline: {
 						positions: positionData as Property,
-						width: 10,
+						width: this.strokeWidth < 10 ? 10 : this.strokeWidth, // TODO - Shall be changed in the future; the min value of 10 is for cesium rendering the arrow properly
 						arcType: ArcType.NONE,
-						material: new PolylineArrowMaterialProperty(Color.WHITE.withAlpha(0.7))
+						material: new PolylineArrowMaterialProperty(this.strokeColor)
 					}
 				});
 				break;
@@ -301,25 +322,35 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				break;
 			}
 		} 
+		const feature = this.createAnnotationFeature(geometry, mode);
 
-		const feature = turfFeature(geometry);
-
-		// Temporary => will be refactored with "Cesium Annotations Features Styling"
-		if (mode === AnnotationMode.Arrow) {
-			feature.properties['mode'] = AnnotationMode.Arrow;
-			feature.properties['style'] = {
-				initial: { ...ANNOTATIONS_INITIAL_STYLE, 'stroke-width': 10 }
-			};
-		}
-		
-		feature.properties.id =  UUID.UUID();
 		const featureCollection = turfFeatureCollection([feature]) as FeatureCollection<GeometryObject>;
 		return featureCollection;
+	}
+
+	private createAnnotationFeature(geometry: Geometry, mode: AnnotationMode) {
+		let feature = turfFeature(geometry);
+		feature = {
+			...feature,
+			properties: {
+				...ANNOTATIONS_FEATURE_INITIAL_PROPERTIES,
+				id: UUID.UUID(),
+				style: {
+					...this.visualizerStyle,
+				},
+				mode
+			}
+		}
+		return feature;
 	}
 
 	private isDrawingModeSupported(mode: AnnotationMode) {
 		const supportedModes = Object.values(AnnotationMode);
 		return supportedModes.includes(mode);
+	}
+
+	updateStyle(style: Partial<IVisualizerStateStyle>) {
+		this.visualizerStyle.initial = { ...this.visualizerStyle.initial, ...style.initial };
 	}
 
 	onDispose() {
