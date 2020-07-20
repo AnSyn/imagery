@@ -1,4 +1,4 @@
-import { Color, PolylineDashMaterialProperty, ColorMaterialProperty } from "cesium";
+import { Color, PolylineDashMaterialProperty, ColorMaterialProperty } from 'cesium';
 import { IVisualizerStateStyle } from '@ansyn/imagery';
 
 export function getStrokeWidth(style: IVisualizerStateStyle) {
@@ -31,16 +31,11 @@ export function getLineMaterial(style: IVisualizerStateStyle): PolylineDashMater
     }
 }
 
-// TODO => take care of all kinds of color inputs (for ex: '#fff', '#fa34b2', 'rgba(124, 52, 201, 0.85)')
-function getColor(rgbaColor: string, opacity?: number): Color {
-    const rrggbbaaMatcher = /^#([0-9a-f]{8})$/i;
-    const matches = rrggbbaaMatcher.exec(rgbaColor);
-
-    const alpha = parseInt(rgbaColor.substring(7), 16) / 255;
-    const rootColor = matches === null ? rgbaColor : rgbaColor.substring(0, 7);
-
-    const color = Color.fromCssColorString(rootColor);
-    color.alpha = opacity ?? (alpha !== NaN ? alpha : 1);
-
+function getColor(colorStr: HexaColor | RgbaColor, opacity?: number): Color {
+    const color = Color.fromCssColorString(colorStr);
+    color.alpha = opacity ?? color.alpha;
     return color;
 }
+
+type HexaColor = string;
+type RgbaColor = string;

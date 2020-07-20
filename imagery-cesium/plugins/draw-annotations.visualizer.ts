@@ -12,7 +12,6 @@ import { AnnotationType } from '../models/annotation-type.enum';
 import { UUID } from 'angular2-uuid';
 import { getFillColor, getLineMaterial, getShowOutline, getStrokeColor, getStrokeWidth } from './helpers/visualizer-style-helper';
 
-// TODO - drawing visualization style
 @ImageryPlugin({
 	supported: [CesiumMap],
 	deps: [],
@@ -51,13 +50,13 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 	private get showOutline(): boolean { return getShowOutline(this.visualizerStyle); }
 	private get lineMaterial(): PolylineDashMaterialProperty | ColorMaterialProperty { return getLineMaterial(this.visualizerStyle); }
 
-	private get lineAlikeEntityCtorOptions(): PolylineGraphics.ConstructorOptions {
+	private get lineAlikeGraphicsOptions(): PolylineGraphics.ConstructorOptions {
 		return {
 			width: this.strokeWidth,
 			material: this.lineMaterial						
 		};
 	}
-	private get polygonAlikeEntityCtorOptions():
+	private get polygonAlikeGraphicsOptions():
 		PolygonGraphics.ConstructorOptions | RectangleGraphics.ConstructorOptions | EllipseGraphics.ConstructorOptions {
 		return {
 			material: new ColorMaterialProperty(this.fillColor),
@@ -181,10 +180,9 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 		let shape: Entity;
 		switch (type) {
 			case AnnotationType.LineString: {
-				this.viewer.entities.add({})
 				shape = this.viewer.entities.add({
 					polyline: {
-						...this.lineAlikeEntityCtorOptions,
+						...this.lineAlikeGraphicsOptions,
 						positions: positionData as Property,
 						clampToGround: true
 					},
@@ -194,7 +192,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			case AnnotationType.Polygon: {
 				const tempPloyline = this.viewer.entities.add({
 					polyline: {
-						...this.lineAlikeEntityCtorOptions,
+						...this.lineAlikeGraphicsOptions,
 						positions: new CallbackProperty(() => this.activeShapePoints, false),
 						clampToGround: true
 					},
@@ -203,7 +201,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				this.temporaryShapes.push(tempPloyline);
 				shape = this.viewer.entities.add({
 					polygon: {
-						...this.polygonAlikeEntityCtorOptions as PolygonGraphics.ConstructorOptions,
+						...this.polygonAlikeGraphicsOptions as PolygonGraphics.ConstructorOptions,
 						hierarchy: positionData as Property
 					},
 				});
@@ -223,7 +221,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 			case AnnotationType.Rectangle: {
 				shape = this.viewer.entities.add({
 					rectangle: {
-						...this.polygonAlikeEntityCtorOptions as RectangleGraphics.ConstructorOptions,
+						...this.polygonAlikeGraphicsOptions as RectangleGraphics.ConstructorOptions,
 						coordinates: positionData as Property
 					},
 				});
@@ -233,7 +231,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					position: this.activeShapePoints[0],
 					ellipse: {
-						...this.polygonAlikeEntityCtorOptions as EllipseGraphics.ConstructorOptions,
+						...this.polygonAlikeGraphicsOptions as EllipseGraphics.ConstructorOptions,
 						semiMajorAxis: new CallbackProperty(this.activeShapePointsDistance, false),
 						semiMinorAxis: new CallbackProperty(this.activeShapePointsDistance, false)
 					}
@@ -244,7 +242,7 @@ export class CesiumDrawAnnotationsVisualizer extends BaseImageryPlugin {
 				shape = this.viewer.entities.add({
 					polyline: {
 						positions: positionData as Property,
-						width: this.strokeWidth < 10 ? 10 : this.strokeWidth,
+						width: this.strokeWidth < 10 ? 10 : this.strokeWidth, // TODO - Shall be changed in the future; the min value of 10 is for cesium rendering the arrow properly
 						arcType: ArcType.NONE,
 						material: new PolylineArrowMaterialProperty(this.strokeColor)
 					}
