@@ -1,6 +1,9 @@
 import { Color, PolylineDashMaterialProperty, ColorMaterialProperty } from 'cesium';
 import { IVisualizerStateStyle } from '@ansyn/imagery';
 
+type HexaColor = string;
+type RgbaColor = string;
+
 export function getStrokeWidth(style: IVisualizerStateStyle) {
     return style.initial['stroke-width'] || 3;
 }
@@ -36,6 +39,3 @@ function getColor(colorStr: HexaColor | RgbaColor, opacity?: number): Color {
     color.alpha = opacity ?? color.alpha;
     return color;
 }
-
-type HexaColor = string;
-type RgbaColor = string;
