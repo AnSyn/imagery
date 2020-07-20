@@ -11,7 +11,6 @@ import { IPixelPositionMovement, IPixelPosition } from '../models/map-events';
 import { AnnotationType } from '../models/annotation-type.enum';
 import { UUID } from 'angular2-uuid';
 import { getFillColor, getLineMaterial, getShowOutline, getStrokeColor, getStrokeWidth } from './helpers/visualizer-style-helper';
-import { ArcType } from 'cesium';
 
 @ImageryPlugin({
 	supported: [CesiumMap],
