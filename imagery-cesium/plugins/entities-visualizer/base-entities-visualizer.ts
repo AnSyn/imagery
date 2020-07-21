@@ -50,7 +50,7 @@ import {
 } from '../helpers/visualizer-style-helper';
 
 // TODO => remove using of declare const Cesium after having solved the issue
-// of new Cesium.CustomDataSource(dataSourceGuid) in getOrCreateDataSource mehod
+// of "CustomDataSource(dataSourceGuid)" instead of  "new Cesium.CustomDataSource(dataSourceGuid)" in getOrCreateDataSource mehod
 declare const Cesium: any;
 
 export interface IEntityIdentifier {
@@ -330,10 +330,10 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 
 	private updateLabel(entity: Entity, visEntity: IVisualizerEntity) {
 		const styles = merge({}, visEntity.style);
-		const s: IVisualizerStyle = merge({}, styles.initial);
+		const visualizerStyle: IVisualizerStyle = merge({}, styles.initial);
 
-		const fillColor = s?.label.fill ? getColor(s.label.fill) : undefined;
-		const outlineColor = s?.label.stroke ? getColor(s.label.stroke) : undefined;
+		const fillColor = visualizerStyle?.label.fill ? getColor(visualizerStyle.label.fill) : undefined;
+		const outlineColor = visualizerStyle?.label.stroke ? getColor(visualizerStyle.label.stroke) : undefined;
 
 		entity.label = new LabelGraphics({
 			text: visEntity.label.text,

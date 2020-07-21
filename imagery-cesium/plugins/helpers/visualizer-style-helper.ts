@@ -63,6 +63,8 @@ export function getMarkerSize(style: Partial<IVisualizerStateStyle>): number {
 
 export function getColor(colorStr: HexaColor | RgbaColor, opacity?: number): Color {
     const color = Color.fromCssColorString(colorStr);
-    if (color) color.alpha = opacity ?? color.alpha;
+    if (color) {
+        color.alpha = opacity ?? color.alpha;
+    }
     return color;
 }
