@@ -1,6 +1,5 @@
 import {
 	BaseImageryVisualizer,
-	MarkerSize,
 	IVisualizerEntity,
 	VisualizerInteractionTypes,
 	IVisualizerStyle,
@@ -19,21 +18,39 @@ import {
 	FeatureCollection
 } from 'geojson';
 import {
-	Color,
 	CustomDataSource,
 	Entity,
 	BillboardGraphics,
 	PointGraphics,
 	PolylineGraphics,
 	PolygonGraphics,
-	ConstantProperty
+	ConstantProperty,
+	BoundingSphere,
+	PolygonHierarchy,
+	ColorMaterialProperty,
+	LabelGraphics,
+	HorizontalOrigin,
+	VerticalOrigin,
+	LabelStyle
 } from 'cesium'
 import * as geoToCesium from '../utils/geoToCesium';
 
 import { merge } from 'lodash';
-import { PolylineArrowMaterialProperty } from 'cesium';
 import { AnnotationMode } from '../../models/annotation-mode.enum';
+import {
+	getMarkerColor,
+	getMarkerSize,
+	getLineMaterial,
+	getStrokeWidth,
+	getShowOutline,
+	getStrokeColor,
+	getShowFill,
+	getFillColor,
+	getColor
+} from '../helpers/visualizer-style-helper';
 
+// TODO => remove using of declare const Cesium after having solved the issue
+// of "CustomDataSource(dataSourceGuid)" instead of  "new Cesium.CustomDataSource(dataSourceGuid)" in getOrCreateDataSource mehod
 declare const Cesium: any;
 
 export interface IEntityIdentifier {
@@ -247,154 +264,87 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 	private updateBillboard(entity: Entity, coordinates: Position, imgUrl: string): void {
 		entity.position = geoToCesium.coordinatesToCartesian(coordinates);
 		entity.billboard = new BillboardGraphics({
-			image: new Cesium.ConstantProperty(imgUrl)
+			image: new ConstantProperty(imgUrl)
 		});
 	}
 
 	private updatePoint(entity: Entity, coordinates: Position, stylesState?: Partial<IVisualizerStateStyle>): void {
-		const styles = merge({}, stylesState);
-		const s: IVisualizerStyle = merge({}, styles.initial);
-		const ptColor = this.getColor(s["marker-color"]);
-		const pixelSize = this.getPixelSize(s["marker-size"]);
+		const color = getMarkerColor(stylesState);
+		const pixelSize = getMarkerSize(stylesState);
 
 		entity.position = geoToCesium.coordinatesToCartesian(coordinates);
-		entity.point = new PointGraphics({
-			color: ptColor,
-			pixelSize : pixelSize
-		});
+		entity.point = new PointGraphics({ color, pixelSize });
 	}
 
 	private updateLineString(entity: Entity, coordinates: Position[], stylesState?: Partial<IVisualizerStateStyle>, mode?: AnnotationMode): void {
 		// TODO: Support all polyline styles
 		const styles = merge({}, stylesState);
-		const s: IVisualizerStyle = merge({}, styles.initial);
 
-		const material = this.getLineMaterial(s, mode);
+		const material = getLineMaterial(styles, mode);
+		let width = getStrokeWidth(styles);
 
-		let lineWidth = s['stroke-width'];
-
-		if (mode === AnnotationMode.Arrow && lineWidth < 10) {
-			lineWidth = 10;
+		if (mode === AnnotationMode.Arrow && width < 10) {
+			width = 10;
 		}
 
 		entity.polyline = new PolylineGraphics({
 			positions: geoToCesium.multiLineToCartesian(coordinates),
-			width: lineWidth,
-			material: material
+			width,
+			material
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<ConstantProperty> entity.polyline.positions).getValue()).center as any;
+		entity.position = BoundingSphere.fromPoints((<ConstantProperty> entity.polyline.positions).getValue()).center as any;
 	}
 
 	private updatePolygon(entity: Entity, coordinates: Position[][], stylesState?: Partial<IVisualizerStateStyle>): void {
 		// TODO: Support all polygon styles
 		const styles = merge({}, stylesState);
-		const s: IVisualizerStyle = merge({}, styles.initial);
 
-		const showOutline = s["stroke-opacity"] !== 0;
-		const lineColor = this.getColor(s["stroke"], s["stroke-opacity"]);
-		const showFill = s["fill-opacity"] !== 0;
-		const fillColor = this.getColor(s["fill"], s["fill-opacity"]);
+		const outline = getShowOutline(styles);
+		const outlineColor = getStrokeColor(styles);
+		const fill = getShowFill(styles);
+		const fillColor = getFillColor(styles);
+		const outlineWidth = getStrokeWidth(styles);
 
-		const lineWidth = s['stroke-width'];
-
-		const poly = new Cesium.PolygonHierarchy(geoToCesium.polygonCoordinatesToCartesian(coordinates[0]));
-
+		const hierarchy = new PolygonHierarchy(geoToCesium.polygonCoordinatesToCartesian(coordinates[0]));
 
 		// Adding holes
 		for (let i = 1; i < coordinates.length; i++) {
-			poly.holes.push(geoToCesium.polygonCoordinatesToCartesian(coordinates[i]) as any);
+			hierarchy.holes.push(geoToCesium.polygonCoordinatesToCartesian(coordinates[i]) as any);
 		}
 
 		entity.polygon = new PolygonGraphics({
-			fill:  new Cesium.ConstantProperty(showFill),
-			hierarchy: poly,
-			material: new Cesium.ColorMaterialProperty(fillColor as any),
-			outline: new Cesium.ConstantProperty(showOutline),
+			fill,
+			hierarchy,
+			material: new ColorMaterialProperty(fillColor as any),
+			outline,
 			height: 0,
-			outlineColor: lineColor,
-			outlineWidth: lineWidth
+			outlineColor,
+			outlineWidth
 		});
 
 		// Calculate the label position
-		entity.position = Cesium.BoundingSphere.fromPoints((<ConstantProperty> entity.polygon.hierarchy).getValue().positions).center as any;
+		entity.position = BoundingSphere.fromPoints((<ConstantProperty> entity.polygon.hierarchy).getValue().positions).center as any;
 	}
 
 	private updateLabel(entity: Entity, visEntity: IVisualizerEntity) {
-
 		const styles = merge({}, visEntity.style);
-		const s: IVisualizerStyle = merge({}, styles.initial);
+		const visualizerStyle: IVisualizerStyle = merge({}, styles.initial);
 
-		const fillColor = s.label && s.label.fill ? this.getColor(s.label.fill) : undefined;
-		const outlineColor = s.label && s.label.stroke ? this.getColor(s.label.stroke) : undefined;
+		const fillColor = visualizerStyle?.label.fill ? getColor(visualizerStyle.label.fill) : undefined;
+		const outlineColor = visualizerStyle?.label.stroke ? getColor(visualizerStyle.label.stroke) : undefined;
 
-		entity.label = new Cesium.LabelGraphics({
-				text: visEntity.label.text,
-				font: (new Cesium.ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined)) as any,
-				horizontalOrigin: Cesium.HorizontalOrigin.CENTER as any,
-				verticalOrigin: Cesium.VerticalOrigin.TOP as any,
-				fillColor : fillColor,
-				outlineColor: outlineColor,
-				outlineWidth: 2,
-				style: Cesium.LabelStyle.FILL_AND_OUTLINE as any,
-			}
-		);
-	}
-
-	private getColor(color: string = "RED", opacity?: number): Color {
-		// Cesium Color Can't handle rrggbbaa so ...
-		const rrggbbaaMatcher = /^#([0-9a-f]{8})$/i;
-
-		const matches = rrggbbaaMatcher.exec(color);
-		if (matches !== null) {
-			const c = Cesium.Color.fromCssColorString(color.substring(0, 7));
-			c.alpha = parseInt(color.substring(7), 16) / 255;
-			return c;
-		} else {
-			const c = Cesium.Color.fromCssColorString(color);
-
-			if (opacity !== undefined) {
-				c.alpha = opacity;
-			}
-			return c;
-		}
-	}
-
-	private getLineMaterial(s, mode?: AnnotationMode) {
-		const color = this.getColor(s["stroke"], s["stroke-opacity"]);
-		let material;
-		if (!!mode && mode === AnnotationMode.Arrow) {
-			material = new PolylineArrowMaterialProperty(color);
-		} else if (s["stroke-dasharray"] > 0) {
-			material = new Cesium.PolylineDashMaterialProperty({
-				color: color as any,
-				dashLength: s["stroke-dasharray"]
-			});
-		} else {
-			material = new Cesium.ColorMaterialProperty(color as any);
-		}
-		return material;
-	}
-
-	private getPixelSize(markerSize: MarkerSize) {
-		let pixelSize = 1;
-
-		switch (markerSize) {
-			case MarkerSize.small: {
-				pixelSize = 8;
-				break;
-			}
-			case MarkerSize.medium : {
-				pixelSize = 12;
-				break;
-			}
-			case MarkerSize.large: {
-				pixelSize = 20;
-				break;
-			}
-		}
-		return pixelSize;
+		entity.label = new LabelGraphics({
+			text: visEntity.label.text,
+			font: (new ConstantProperty(visEntity.labelSize ? `${visEntity.labelSize}px Calibri,sans-serif` : undefined)) as any,
+			horizontalOrigin: HorizontalOrigin.CENTER as any,
+			verticalOrigin: VerticalOrigin.TOP as any,
+			fillColor,
+			outlineColor,
+			outlineWidth: 2,
+			style: LabelStyle.FILL_AND_OUTLINE as any,
+		});
 	}
 
 	private getOrCreateDataSource(dataSourceGuid): Promise<CustomDataSource> {
@@ -406,7 +356,5 @@ export abstract class BaseEntitiesVisualizer extends BaseImageryVisualizer {
 				return resolve(ds[0]);
 			}
 		});
-
 	}
-
 }
