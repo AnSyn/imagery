@@ -10,8 +10,9 @@
 
   </span>
 
-  <button
-    *ngFor="let mode of ANNOTATION_MODE_LIST"
+  <ng-container *ngFor="let mode of ANNOTATION_MODE_LIST">
+    <button
+    *ngIf="mode !== annotationMode.ContinuousDrawing"
     mat-button
     [disabled]="!annotations"
     color="primary"
@@ -19,6 +20,7 @@
     (click)="draw(mode)">
     {{ mode }}
   </button>
+  </ng-container>
 
   <button mat-icon-button (click)="clear()" [disabled]="!annotations">
     <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>

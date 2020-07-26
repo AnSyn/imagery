@@ -8,14 +8,16 @@ import {
   ANNOTATION_MODE_LIST,
   AnnotationsVisualizer,
   IDrawEndEvent,
-  OpenlayersMapName
+  OpenlayersMapName,
+  AnnotationMode as olAnnotationMode
 } from '@ansyn/imagery-ol';
 import { fromEvent, of } from 'rxjs';
-import { filter, mergeMap, take, tap } from 'rxjs/operators';
+import { filter, mergeMap, take, tap, concatMap, skip, map, switchMapTo } from 'rxjs/operators';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
 import { CesiumMapName, CesiumDrawAnnotationsVisualizer } from '@ansyn/imagery-cesium';
 import { MouseMarkerPlugin } from '../plugins/cesium/mouse-marker-plugin';
 import { GeoJsonObject } from 'geojson';
+
 
 @Component({
   selector: 'app-annotations-control',
@@ -23,6 +25,7 @@ import { GeoJsonObject } from 'geojson';
   styleUrls: ['./annotations-control.component.less']
 })
 export class AnnotationsControlComponent implements OnInit {
+  annotationMode = olAnnotationMode;
   ANNOTATION_MODE_LIST = ANNOTATION_MODE_LIST;
   annotations: AnnotationsVisualizer;
   cesiumDrawer: CesiumDrawAnnotationsVisualizer;
@@ -96,18 +99,33 @@ export class AnnotationsControlComponent implements OnInit {
   draw(mode) {
     if (this.communicator.activeMapName === OpenlayersMapName) {
       this.annotations.setMode(this.annotations.mode === mode ? null : mode, true);
-      this.annotations.events.onDrawEnd.pipe(take(1)).subscribe((drawEndEvent: IDrawEndEvent) => {
-        const newEntities = this.annotations.annotationsLayerToEntities(drawEndEvent.GeoJSON);
-        this.annotations.addOrUpdateEntities(newEntities).subscribe();
-      });
+
+      this.annotations.events.onDrawEnd.pipe(
+        concatMap((drawEndEvent: IDrawEndEvent) => {
+          const newEntities = this.annotations.annotationsLayerToEntities(drawEndEvent.GeoJSON);
+          const id = drawEndEvent.GeoJSON.features[0]?.id;
+          return this.annotations.addOrUpdateEntities(newEntities).pipe(map(_ => id));
+        }),
+        tap((id) => {
+          this.annotations.events.onSelect.next([`${id}`]);
+        }),
+        switchMapTo(this.communicator.ActiveMap.mouseSingleClick.pipe(skip(1),take(1))),
+        tap(_ => {
+          this.annotations.events.onSelect.next([]);
+          this.annotations.setMode(mode, true);
+        })
+      ).subscribe();
     } else if (this.communicator.activeMapName === CesiumMapName) {
       const isDrawingStarted = this.cesiumDrawer.startDrawing(mode);
+      
       if (isDrawingStarted) {
-        this.cesiumDrawer.events.onDrawEnd.pipe(take(1)).subscribe(geoJson => {
-          const plugin = this.communicator.getPlugin(MouseMarkerPlugin);
-          const newEntities = plugin.annotationsLayerToEntities(geoJson);
-          plugin.addOrUpdateEntities(newEntities).pipe(take(1)).subscribe();
-        });
+        this.cesiumDrawer.events.onDrawEnd.pipe(
+          concatMap((geoJson) => {
+            const plugin = this.communicator.getPlugin(MouseMarkerPlugin);
+            const newEntities = plugin.annotationsLayerToEntities(geoJson);
+            return plugin.addOrUpdateEntities(newEntities).pipe(take(1));
+          })
+        ).subscribe();
       }
     }
   }

@@ -20,7 +20,8 @@ export enum AnnotationMode {
 	Circle = 'Circle',
 	Rectangle = 'Rectangle',
 	Arrow = 'Arrow',
-	Translate = 'Translate'
+	Translate = 'Translate',
+	ContinuousDrawing = 'ContinuousDrawing'
 }
 
 export const ANNOTATION_MODE_LIST: AnnotationMode[] = Object.values(AnnotationMode);

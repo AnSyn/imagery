@@ -217,7 +217,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 					})
 				);
 				this.addInteraction(VisualizerInteractions.translateInteractionHandler, traslationInteractionHandler);
-			} else if (this.mode) {
+			} else if (this.mode && this.mode !== AnnotationMode.ContinuousDrawing) {
 				const drawInteractionHandler = new Draw({
 					type: this.modeDictionary[mode] ? this.modeDictionary[mode].type : mode,
 					geometryFunction: this.modeDictionary[mode] ? this.modeDictionary[mode].geometryFunction : undefined,
@@ -273,7 +273,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 
 	onDrawEndEvent({ feature }) {
 		const { mode } = this;
-		this.setMode(undefined, true);
+		this.setMode(AnnotationMode.ContinuousDrawing, true);
 		const id = UUID.UUID();
 		const geometry = feature.getGeometry();
 		let cloneGeometry = <any>geometry.clone();
