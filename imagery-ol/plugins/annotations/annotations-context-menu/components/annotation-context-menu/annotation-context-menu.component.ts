@@ -7,7 +7,8 @@ import { IFeatureIdentifier } from '../../../../entities-visualizer';
 export enum AnnotationsContextmenuTabs {
 	Colors,
 	Weight,
-	Label
+	Label,
+	Metadata
 }
 
 @Component({
