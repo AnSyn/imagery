@@ -8,8 +8,7 @@ import {
   ANNOTATION_MODE_LIST,
   AnnotationsVisualizer,
   IDrawEndEvent,
-  OpenlayersMapName,
-  AnnotationMode as olAnnotationMode
+  OpenlayersMapName
 } from '@ansyn/imagery-ol';
 import { fromEvent, of } from 'rxjs';
 import { filter, mergeMap, take, tap, concatMap, skip, map, switchMapTo } from 'rxjs/operators';
@@ -25,7 +24,6 @@ import { GeoJsonObject } from 'geojson';
   styleUrls: ['./annotations-control.component.less']
 })
 export class AnnotationsControlComponent implements OnInit {
-  annotationMode = olAnnotationMode;
   ANNOTATION_MODE_LIST = ANNOTATION_MODE_LIST;
   annotations: AnnotationsVisualizer;
   cesiumDrawer: CesiumDrawAnnotationsVisualizer;
@@ -98,7 +96,7 @@ export class AnnotationsControlComponent implements OnInit {
 
   draw(mode) {
     if (this.communicator.activeMapName === OpenlayersMapName) {
-      this.annotations.setMode(this.annotations.mode === mode ? null : mode, true);
+      this.annotations.setMode(this.annotations.mode === mode ? undefined : mode, true);
 
       this.annotations.events.onDrawEnd.pipe(
         concatMap((drawEndEvent: IDrawEndEvent) => {

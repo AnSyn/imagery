@@ -62,6 +62,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	disableCache = true;
 	public mode: AnnotationMode;
 	mapSearchIsActive = false;
+	continuousDrawingActive = false;
 	selected: string[] = [];
 	geoJsonFormat: OLGeoJSON;
 	dragBox = new DragBox({ condition: platformModifierKeyOnly });
@@ -196,6 +197,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	setMode(mode, forceBroadcast: boolean) {
 		if (this.mode !== mode) {
 			this.mode = mode;
+			this.continuousDrawingActive = this.mode !== undefined;
 			this.removeInteractions();
 
 			if (this.mode === AnnotationMode.Translate) {
@@ -217,7 +219,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 					})
 				);
 				this.addInteraction(VisualizerInteractions.translateInteractionHandler, traslationInteractionHandler);
-			} else if (this.mode && this.mode !== AnnotationMode.ContinuousDrawing) {
+			} else if (this.mode) {
 				const drawInteractionHandler = new Draw({
 					type: this.modeDictionary[mode] ? this.modeDictionary[mode].type : mode,
 					geometryFunction: this.modeDictionary[mode] ? this.modeDictionary[mode].geometryFunction : undefined,
@@ -273,7 +275,8 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 
 	onDrawEndEvent({ feature }) {
 		const { mode } = this;
-		this.setMode(AnnotationMode.ContinuousDrawing, true);
+		// this.setMode(AnnotationMode.ContinuousDrawing, true);
+		this.setMode(null, true);
 		const id = UUID.UUID();
 		const geometry = feature.getGeometry();
 		let cloneGeometry = <any>geometry.clone();
@@ -774,7 +777,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	}
 
 	protected mapClick = (event) => {
-		if (this.mapSearchIsActive || this.mode || this.isHidden) {
+		if (this.mapSearchIsActive || this.mode || this.isHidden || this.continuousDrawingActive) {
 			return;
 		}
 		const { shiftKey: multi } = event.originalEvent;
