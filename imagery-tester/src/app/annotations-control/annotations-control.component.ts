@@ -95,8 +95,9 @@ export class AnnotationsControlComponent implements OnInit {
   }
 
   draw(mode) {
-    if (this.communicator.activeMapName === OpenlayersMapName) {
-      this.annotations.setMode(this.annotations.mode === mode ? undefined : mode, true);
+    if (this.communicator.activeMapName === OpenlayersMapName) {      
+      this.annotations.continuousDrawingActive = this.annotations.mode !== mode;
+      this.annotations.setMode(this.annotations.mode === mode ? null : mode, true);
 
       this.annotations.events.onDrawEnd.pipe(
         concatMap((drawEndEvent: IDrawEndEvent) => {
