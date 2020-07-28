@@ -33,9 +33,7 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 	async create(metaData: IMapSettings): Promise<any> {
 		const config = { ...this.config, ...metaData.data.config };
 
-		if (!this.layerData) {
-			this.layerData = await this.getLayersData(config.serverUrl);
-		}
+		this.layerData = await this.getLayersData(config.serverUrl);
 
 		const extent = this.createExtent(metaData);
 		const source = this.createSource(metaData);
