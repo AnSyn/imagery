@@ -36,13 +36,13 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 		this.layerData = await this.getLayersData(config.serverUrl);
 
 		const extent = this.createExtent(metaData);
-		const source = await this.createSource(metaData);
+		const source = this.createSource(metaData);
 		const tileLayer = this.createLayer(source, extent);
 		tileLayer.set(IMAGE_PROCESS_ATTRIBUTE, this.getImageLayer(source, extent));
 		return Promise.resolve(tileLayer);
 	}
 
-	createSource(metaData: IMapSettings): any{
+	createSource(metaData: IMapSettings): any {
 		const config = { ...this.config, ...metaData.data.config };
 		const geeDefs = JSON.parse(this.layerData.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
 		const source = new XYZ({
