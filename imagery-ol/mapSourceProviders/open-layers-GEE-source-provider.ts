@@ -1,4 +1,3 @@
-
 import XYZ from 'ol/source/XYZ';
 import {
 	CacheService,
@@ -39,7 +38,7 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 		}
 
 		const extent = this.createExtent(metaData);
-		const source = this.createSource(metaData);
+		const source = await this.createSource(metaData);
 		const tileLayer = this.createLayer(source, extent);
 		tileLayer.set(IMAGE_PROCESS_ATTRIBUTE, this.getImageLayer(source, extent));
 		return Promise.resolve(tileLayer);
@@ -54,7 +53,7 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 			crossOrigin: 'anonymous',
 			minZoom: 1
 		});
-		return source;
+		return Promise.resolve(source);;
 	}
 
 	getLayersData(serverURL: string): Promise<any> {
@@ -62,4 +61,3 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 		return this.httpClient.get(fileUrl, { responseType: 'text' }).toPromise();
 	}
 }
-
