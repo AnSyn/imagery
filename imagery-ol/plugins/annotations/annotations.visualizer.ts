@@ -58,11 +58,11 @@ export interface IEditAnnotationMode {
 })
 @Injectable()
 export class AnnotationsVisualizer extends EntitiesVisualizer {
+	private skipNextMapClickHandler = false;
 	static fillAlpha = 0.4;
 	disableCache = true;
 	public mode: AnnotationMode;
 	mapSearchIsActive = false;
-	continuousDrawingActive = false;
 	selected: string[] = [];
 	geoJsonFormat: OLGeoJSON;
 	dragBox = new DragBox({ condition: platformModifierKeyOnly });
@@ -275,6 +275,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	onDrawEndEvent({ feature }) {
 		const { mode } = this;
 		this.setMode(undefined, true);
+		this.skipNextMapClickHandler = true;
 		const id = UUID.UUID();
 		const geometry = feature.getGeometry();
 		let cloneGeometry = <any>geometry.clone();
@@ -775,7 +776,11 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	}
 
 	protected mapClick = (event) => {
-		if (this.mapSearchIsActive || this.mode || this.isHidden || this.continuousDrawingActive) {
+		if (this.skipNextMapClickHandler) {
+			this.skipNextMapClickHandler = false;
+			return;
+		}
+		if (this.mapSearchIsActive || this.mode || this.isHidden) {
 			return;
 		}
 		const { shiftKey: multi } = event.originalEvent;
