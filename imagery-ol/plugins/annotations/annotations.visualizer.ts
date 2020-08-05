@@ -776,6 +776,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	}
 
 	protected mapClick = (event) => {
+		this.events.onClick.next();
 		if (this.skipNextMapClickHandler) {
 			this.skipNextMapClickHandler = false;
 			return;

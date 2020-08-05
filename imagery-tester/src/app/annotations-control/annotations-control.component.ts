@@ -31,6 +31,9 @@ export class AnnotationsControlComponent implements OnInit {
   currentEntities: IVisualizerEntity[];
   communicator: CommunicatorEntity;
 
+  continusousDrawingEnabled = false;
+  openContextMenuOnDrawEnd = false;
+
   onFileLoad$ = fromEvent(this.reader, 'load').pipe(
     mergeMap(() => {
       const readerResult: string = <string>this.reader.result;
@@ -104,14 +107,24 @@ export class AnnotationsControlComponent implements OnInit {
           const id = drawEndEvent.GeoJSON.features[0]?.id;
           return this.annotations.addOrUpdateEntities(newEntities).pipe(map(_ => id));
         }),
+        filter(featureId => this.continusousDrawingEnabled || (this.openContextMenuOnDrawEnd && !!featureId)),
         tap((id) => {
-          this.annotations.events.onSelect.next([`${id}`]);
+          if (this.openContextMenuOnDrawEnd) {
+            this.annotations.events.onSelect.next([`${id}`]);
+          }
         }),
-        switchMapTo(this.communicator.ActiveMap.mouseSingleClick.pipe(skip(1),take(1))),
-        tap(_ => {
-          this.annotations.events.onSelect.next([]);
-          this.annotations.setMode(mode, true);
-        })
+        switchMapTo(this.annotations.events.onClick.pipe(
+          skip(this.continusousDrawingEnabled && !this.openContextMenuOnDrawEnd ? 0 : 1),
+          take(1),
+          tap(_ => {
+            if (this.openContextMenuOnDrawEnd) {
+              this.annotations.events.onSelect.next([]);
+            }
+            if (this.continusousDrawingEnabled) {
+              this.annotations.setMode(mode, true);
+            }
+          }))
+        )
       ).subscribe();
     } else if (this.communicator.activeMapName === CesiumMapName) {
       const isDrawingStarted = this.cesiumDrawer.startDrawing(mode);
