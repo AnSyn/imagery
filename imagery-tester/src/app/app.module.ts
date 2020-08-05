@@ -44,6 +44,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { ImageProcessingControlComponent } from './image-processing-control/image-processing-control.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { ImageProcessingControlComponent } from './image-processing-control/imag
         CesiumSentinelSourceProvider
       ]
     }),
-    AnnotationsContextMenuModule
+    AnnotationsContextMenuModule,
+    MatCheckboxModule
   ],
   providers: [
     {

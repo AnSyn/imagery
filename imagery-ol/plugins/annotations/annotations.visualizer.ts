@@ -58,6 +58,7 @@ export interface IEditAnnotationMode {
 })
 @Injectable()
 export class AnnotationsVisualizer extends EntitiesVisualizer {
+	private skipNextMapClickHandler = false;
 	static fillAlpha = 0.4;
 	disableCache = true;
 	public mode: AnnotationMode;
@@ -274,6 +275,7 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	onDrawEndEvent({ feature }) {
 		const { mode } = this;
 		this.setMode(undefined, true);
+		this.skipNextMapClickHandler = true;
 		const id = UUID.UUID();
 		const geometry = feature.getGeometry();
 		let cloneGeometry = <any>geometry.clone();
@@ -774,6 +776,11 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 	}
 
 	protected mapClick = (event) => {
+		this.events.onClick.next();
+		if (this.skipNextMapClickHandler) {
+			this.skipNextMapClickHandler = false;
+			return;
+		}
 		if (this.mapSearchIsActive || this.mode || this.isHidden) {
 			return;
 		}
