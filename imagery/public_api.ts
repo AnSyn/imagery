@@ -79,3 +79,4 @@ export { IBaseImageryLayer, ImageryLayerProperties, IMAGERY_MAIN_LAYER_NAME, IMA
 export { IMapSettings, IMapSettingsData, IWorldViewMapState } from './model/map-settings';
 export { toDegrees, toRadians, getAngleDegreeBetweenPoints, getAngleDegreeBetweenCoordinates } from './utils/math';
 export { ExtentCalculator } from './utils/extent-calculator';
+export { getOpacityFromColor } from './utils/color-opacity-extractor';
