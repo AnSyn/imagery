@@ -119,6 +119,15 @@ import { ImageProcessingControlComponent } from './image-processing-control/imag
               config: {}
             },
             {
+              key: 'GEE 2',
+              displayName: 'GE Map 2',
+              thumbnail: '',
+              sourceType: 'GEE',
+              config: {
+                serverUrl: "http://10.0.0.144/flat"
+              }
+            },
+            {
               key: 'TileWMS',
               displayName: 'GE TileWMS',
               thumbnail: 'https://a.tile.openstreetmap.org/0/0/0.png',

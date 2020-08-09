@@ -33,9 +33,7 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 	async create(metaData: IMapSettings): Promise<any> {
 		const config = { ...this.config, ...metaData.data.config };
 
-		if (!this.layerData) {
-			this.layerData = await this.getLayersData(config.serverUrl);
-		}
+		this.layerData = await this.getLayersData(config.serverUrl);
 
 		const extent = this.createExtent(metaData);
 		const source = this.createSource(metaData);
@@ -45,9 +43,10 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 	}
 
 	createSource(metaData: IMapSettings): any {
+		const config = { ...this.config, ...metaData.data.config };
 		const geeDefs = JSON.parse(this.layerData.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
 		const source = new XYZ({
-			url: this.config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
+			url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
 			crossOrigin: 'anonymous',
 			minZoom: 1
 		});
