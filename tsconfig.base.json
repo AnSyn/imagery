@@ -1,5 +1,4 @@
 {
-  "extends": "../tsconfig.base.json",
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
@@ -19,13 +18,10 @@
     ],
     "paths": {
       "@ansyn/imagery": [
-        "../imagery/public_api"
+        "./imagery/public_api"
       ],
       "@ansyn/imagery-ol": [
-        "../imagery-ol/public_api"
-      ],
-      "@ansyn/imagery-cesium": [
-        "../imagery-cesium/public_api"
+        "./imagery-ol/public_api"
       ]
     }
   },
