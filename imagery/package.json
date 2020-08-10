@@ -5,12 +5,13 @@
 	"author": "ansyn",
 	"license": "MIT",
 	"peerDependencies": {
-    "@angular/common": "~9.1.6",
+    	"@angular/common": "~9.1.6",
 		"@angular/core": "~9.1.6",
 		"@types/geojson": "7946.0.7"
 	},
 	"dependencies": {
 		"auto-subscriptions": "^2.0.5",
-		"@turf/turf": "^5.1.6"
+		"@turf/turf": "^5.1.6",
+		"tslib": "^2.0.0"
 	}
 }
