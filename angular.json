@@ -13,6 +13,7 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "aot": true,
             "customWebpackConfig": {
               "path": "./custom-webpack.config.js"
             },

@@ -3,7 +3,7 @@ import { AppComponent } from './app.component';
 import { MockComponent } from '../../../test/mock-component';
 
 describe('AppComponent', () => {
-  const imageryChangeMap = MockComponent({ selector: 'imagery-change-map', inputs: [] });
+  const imageryChangeMap = MockComponent({ selector: 'app-imagery-change-map', inputs: [] });
   const imageryView = MockComponent({ selector: 'ansyn-imagery-view', inputs: ['settings'] });
   const appNavbar = MockComponent({ selector: 'app-navbar', inputs: [] });
   const annotationsContextMenu = MockComponent({ selector: 'ansyn-annotations-context-menu', inputs: ['mapId'] });

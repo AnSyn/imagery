@@ -3,27 +3,28 @@ import { filter, map, take, tap } from 'rxjs/operators';
 import {
   getDefaultImageProcParams,
   IImageProcParam,
-  ImageManualProcessArgs
+  IImageManualProcessArgs
 } from '@ansyn/imagery-ol';
 import IMAGERY_SETTINGS from '../IMAGERY_SETTINGS';
 import { ImageryCommunicatorService } from '@ansyn/imagery';
 import { ImageProcessingPlugin } from '@ansyn/imagery-ol';
 
 @Component({
-  selector: 'ansyn-image-processing-control',
+  selector: 'app-image-processing-control',
   templateUrl: './image-processing-control.component.html',
   styleUrls: ['./image-processing-control.component.less']
 })
 export class ImageProcessingControlComponent implements OnInit, OnDestroy {
 
   localParams: any;
-  imageManualProcessArgs: ImageManualProcessArgs;
+  imageManualProcessArgs: IImageManualProcessArgs;
+  imageProcessPluggin: ImageProcessingPlugin;
 
   get params(): Array<IImageProcParam> {
     return this.localParams;
   }
 
-  getDefaultImageManualProcessArgs(): ImageManualProcessArgs {
+  getDefaultImageManualProcessArgs(): IImageManualProcessArgs {
     return this.localParams.reduce((initialObject: any, imageProcParam) => {
       return { ...initialObject, [imageProcParam.name]: imageProcParam.defaultValue };
     }, {});
@@ -61,8 +62,6 @@ export class ImageProcessingControlComponent implements OnInit, OnDestroy {
       take(1)
     ).subscribe();
   }
-
-  imageProcessPluggin: ImageProcessingPlugin;
 
   onInitMap() {
     const communicator = this.communicators.provide(IMAGERY_SETTINGS.id);

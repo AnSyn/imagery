@@ -1,10 +1,11 @@
-import { Inject } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import {
 	ImageryVisualizer,
 	IVisualizerEntity,
 	MarkerSize,
 	VisualizerInteractions,
-	VisualizerStates
+	VisualizerStates,
+	ANNOTATIONS_INITIAL_STYLE
 } from '@ansyn/imagery';
 import { UUID } from 'angular2-uuid';
 import { AutoSubscription } from 'auto-subscriptions';
@@ -55,6 +56,7 @@ export interface IEditAnnotationMode {
 	deps: [OpenLayersProjectionService, OL_PLUGINS_CONFIG, TranslateService],
 	isHideable: true
 })
+@Injectable()
 export class AnnotationsVisualizer extends EntitiesVisualizer {
 	static fillAlpha = 0.4;
 	disableCache = true;
@@ -134,23 +136,14 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 
 		super(null, {
 			initial: {
-				stroke: '#27b2cfe6',
-				'stroke-width': 1,
-				fill: `white`,
-				'fill-opacity': AnnotationsVisualizer.fillAlpha,
-				'stroke-opacity': 1,
-				'marker-size': MarkerSize.medium,
-				'marker-color': `#ffffff`,
+				... ANNOTATIONS_INITIAL_STYLE,
 				label: {
-					overflow: true,
+					...ANNOTATIONS_INITIAL_STYLE.label,
 					fontSize: (feature) => {
 						const entity = this.idToEntity.get(feature.getId());
 						const labelSize = entity && entity.originalEntity && entity.originalEntity.labelSize;
 						return labelSize || 28;
 					},
-					stroke: '#000',
-					fill: 'white',
-					offsetY: 30,
 					text: (feature: olFeature) => {
 						const entity = this.idToEntity.get(feature.getId());
 						if (entity) {
@@ -181,8 +174,10 @@ export class AnnotationsVisualizer extends EntitiesVisualizer {
 
 	annotationsLayerToEntities(annotationsLayer: FeatureCollection<any>): IVisualizerEntity[] {
 		return annotationsLayer.features.map((feature: Feature<any>): IVisualizerEntity => {
-			const featureJson = { ...feature };
-			delete featureJson.properties.featureJson;
+			const featureJson: Feature<any> = {
+				...feature,
+				properties: { ...feature.properties, featureJson: undefined }
+			};
 			return {
 				featureJson,
 				id: feature.properties.id,

@@ -1,31 +1,21 @@
 <div class="popup scrolled">
-	<div *ngFor="let type of mapTypes"
-		 class="map"
-	[class.active]="currentMapType === type">
-		<button
-			(click)="changeMapType(type)"
-			[attr.tooltip-value]="type"
-			tooltip-class="wrap">
-			<p>{{type}}</p>
-		</button>
-	</div>
+  <div *ngFor="let type of mapTypes" class="map" [class.active]="currentMapType === type">
+    <button (click)="changeMapType(type)" [attr.tooltip-value]="type" tooltip-class="wrap">
+      <p>{{type}}</p>
+    </button>
+  </div>
 </div>
 
 <div class="popup scrolled">
-  <div *ngFor="let source of mapSources"
-       class="map"
-       [class.active]="currentSourceType === source.key">
-    <button
-      (click)="changeMap(source.key)"
-      [attr.tooltip-value]="source.displayName"
-      tooltip-class="wrap">
+  <div *ngFor="let source of mapSources" class="map" [class.active]="currentSourceType === source.key">
+    <button (click)="changeMap(source.key)" [attr.tooltip-value]="source.displayName" tooltip-class="wrap">
       <p>{{source.displayName}}</p>
       <img src="{{source.thumbnail}}" />
     </button>
   </div>
 </div>
-<ansyn-image-processing-control></ansyn-image-processing-control>
+<app-image-processing-control></app-image-processing-control>
 <button [disabled]="!isGridVisualizerExists" (click)="showGrid()">Show Map Grid</button>
-<measure-ruler></measure-ruler>
-<imagery-performance></imagery-performance>
-<map-events></map-events>
+<app-measure-ruler></app-measure-ruler>
+<app-imagery-performance></app-imagery-performance>
+<app-map-events></app-map-events>

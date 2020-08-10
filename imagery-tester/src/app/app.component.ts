@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { IMapSettings, ImageryCommunicatorService } from '@ansyn/imagery';
+import { IMapSettings } from '@ansyn/imagery';
 import IMAGERY_SETTINGS from './IMAGERY_SETTINGS';
-import { AnnotationsVisualizer } from '@ansyn/imagery-ol';
 
 @Component({
   selector: 'app-root',

@@ -11,7 +11,7 @@ import * as turf from '@turf/turf';
 import { bbox, bboxPolygon, circle } from '@turf/turf';
 
 @Component({
-  selector: 'measure-ruler',
+  selector: 'app-measure-ruler',
   templateUrl: './measure-ruler.component.html',
   styleUrls: ['./measure-ruler.component.less']
 })
@@ -53,7 +53,9 @@ export class MeasureRulerComponent implements OnInit, OnDestroy {
   }
 
   clearRulerEntities() {
-    this.measureRulerVisualizerPlugin && this.measureRulerVisualizerPlugin.clearRulerEntities();
+    if (!!this.measureRulerVisualizerPlugin) {
+      this.measureRulerVisualizerPlugin.clearRulerEntities();
+    }
   }
 
   deleteEntity() {
@@ -83,7 +85,9 @@ export class MeasureRulerComponent implements OnInit, OnDestroy {
   }
 
   drawTestOLPoint(radius) {
-    this.testOLVisualizer && this.testOLVisualizer.removeSingleClickEvent();
+    if (!!this.testOLVisualizer) {
+      this.testOLVisualizer.removeSingleClickEvent();
+    }
     this.needToDrawTestOLVisualizer = !this.needToDrawTestOLVisualizer;
 
     let position;
@@ -98,6 +102,8 @@ export class MeasureRulerComponent implements OnInit, OnDestroy {
   }
 
   createTestOLPoint() {
-    this.testOLVisualizer && this.testOLVisualizer.createSingleClickEvent();
+    if (!!this.testOLVisualizer) {
+      this.testOLVisualizer.createSingleClickEvent();
+    }
   }
 }

@@ -14,5 +14,8 @@ export {
 export {
 	CesiumBINGSourceProvider, CesiumBingSourceProviderSourceType
 }from './mapSourceProviders/cesium-BING-source-provider';
+export { CesiumSentinelSourceProvider } from './mapSourceProviders/cesium-sentinel-source-provider';
 export { CesiumMap, CesiumMapName } from './maps/cesium-map/cesium-map';
 export { CesiumGridLinesVisualizer } from './plugins/grid-lines.visualizer';
+export { CesiumDrawAnnotationsVisualizer } from './plugins/draw-annotations.visualizer';
+export { AnnotationMode } from './models/annotation-mode.enum';

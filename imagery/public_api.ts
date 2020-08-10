@@ -3,7 +3,7 @@ export { IMapSource } from './model/map-providers-config';
 export { IStroke, IIcon } from './model/visualizers/visualizer-style';
 export { ICanvasExportData } from './model/base-imagery-map';
 export {
-	ImageryMapExtent, ImageryMapExtentPolygon, ImageryMapProjectedState, IImageryMapPosition, IMousePointerMove, IMouseClick
+	ImageryMapExtent, ImageryMapExtentPolygon, IImageryMapProjectedState, IImageryMapPosition, IMousePointerMove, IMouseClick
 }from './model/case-map-position.model';
 
 export { MAP_SOURCE_PROVIDERS_CONFIG, IMapSourceProvidersConfig } from './model/base-map-source-provider';
@@ -12,14 +12,14 @@ export { IVisualizerEntity } from './model/visualizers/visualizers-entity';
 export { MarkerSize } from './model/visualizers/visualizer-style';
 export { IVisualizerStyle } from './model/visualizers/visualizer-style';
 export { IVisualizerStateStyle } from './model/visualizers/visualizer-state';
-export { VisualizerStates } from './model/visualizers/visualizer-state';
+export { VisualizerStates, ANNOTATIONS_INITIAL_STYLE, ANNOTATIONS_FEATURE_INITIAL_PROPERTIES } from './model/visualizers/visualizer-state';
 export { IMapProgress, IMapErrorMessage } from './model/map-progress.model';
 export {
 	IMapProviderConfig,
 	IMapProvidersConfig,
 	MAP_PROVIDERS_CONFIG
 } from './model/map-providers-config';
-export { ImageryMapSources } from './providers/map-source-providers';
+export { IImageryMapSources } from './providers/map-source-providers';
 export { IMapInstanceChanged } from './communicator-service/communicator.entity';
 export { IBaseMapSourceProviderConstructor } from './model/base-map-source-provider';
 export { VisualizerInteractions } from './model/base-imagery-visualizer';
@@ -79,3 +79,4 @@ export { IBaseImageryLayer, ImageryLayerProperties, IMAGERY_MAIN_LAYER_NAME, IMA
 export { IMapSettings, IMapSettingsData, IWorldViewMapState } from './model/map-settings';
 export { toDegrees, toRadians, getAngleDegreeBetweenPoints, getAngleDegreeBetweenCoordinates } from './utils/math';
 export { ExtentCalculator } from './utils/extent-calculator';
+export { getOpacityFromColor } from './utils/color-opacity-extractor';

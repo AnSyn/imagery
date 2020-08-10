@@ -1,13 +1,13 @@
 {
 	"name": "@ansyn/imagery",
-	"version": "1.6.33",
+	"version": "2.0.4",
 	"keywords": [],
 	"author": "ansyn",
 	"license": "MIT",
 	"peerDependencies": {
-		"@angular/common": "~8.2.14",
-		"@angular/core": "~8.2.14",
-		"@types/geojson": "7946.0.3"
+    "@angular/common": "~9.1.6",
+		"@angular/core": "~9.1.6",
+		"@types/geojson": "7946.0.7"
 	},
 	"dependencies": {
 		"auto-subscriptions": "^2.0.5",

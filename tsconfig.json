@@ -24,5 +24,8 @@
         "./imagery-ol/public_api"
       ]
     }
+  },
+  "angularCompilerOptions": {
+    "enableIvy": false
   }
 }

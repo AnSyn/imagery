@@ -13,11 +13,11 @@ import {
   OpenLayerTileWMSSourceProvider,
   OpenLayerGEESourceProvider,
   MeasureRulerVisualizer,
-  GridLinesVisualizer
+  GridLinesVisualizer,
+  ImageProcessingPlugin
 } from '@ansyn/imagery-ol';
 import { NavbarModule } from './navbar/navbar.module';
 import { AnnotationsControlComponent } from './annotations-control/annotations-control.component';
-import { MatButtonModule, MatIconModule, MatButtonToggleModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MccColorPickerModule } from 'material-community-components';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,7 +28,9 @@ import {
   CesiumGEE2dSourceProvider,
   CesiumGEESourceProvider,
   CesiumBINGSourceProvider,
-  CesiumGridLinesVisualizer
+  CesiumGridLinesVisualizer,
+  CesiumSentinelSourceProvider,
+  CesiumDrawAnnotationsVisualizer
 } from '@ansyn/imagery-cesium';
 import { ImageryChangeMapComponent } from './imagery-change-map/imagery-change-map.component';
 import { MeasureRulerComponent } from './measure-ruler/measure-ruler.component';
@@ -37,9 +39,11 @@ import { MouseMarkerPlugin } from './plugins/cesium/mouse-marker-plugin';
 import { TestOLPerformanceVisualizer } from './plugins/ol/test-ol-performance-visualizer';
 import { ImageryPerformanceComponent } from './imagery-performance/imagery-performance.component';
 import { MapEventsComponent } from './map-events/map-events.component';
-import { ImageProcessingControlComponent } from './image-processing-control/image-processing-control.component';
-import { ImageProcessingPlugin } from '@ansyn/imagery-ol';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
+import { ImageProcessingControlComponent } from './image-processing-control/image-processing-control.component';
 
 @NgModule({
   declarations: [
@@ -65,8 +69,20 @@ import { FormsModule } from '@angular/forms';
     TranslateModule.forRoot(),
     ImageryModule.provide({
       maps: [OpenLayersMap, CesiumMap],
-      plugins: [AnnotationsVisualizer, ImageProcessingPlugin, GridLinesVisualizer, CesiumGridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin],
-      mapSourceProviders: [OpenLayerGEESourceProvider, OpenLayerBingSourceProvider, OpenLayerOSMSourceProvider, OpenLayerTileWMSSourceProvider, CesiumOsmSourceProvider, CesiumBINGSourceProvider, CesiumGeoServerSourceProvider, CesiumGEE2dSourceProvider, CesiumGEESourceProvider]
+      // tslint:disable-next-line:max-line-length
+      plugins: [AnnotationsVisualizer, ImageProcessingPlugin, GridLinesVisualizer, CesiumGridLinesVisualizer, MeasureRulerVisualizer, TestOLVisualizer, TestOLPerformanceVisualizer, MouseMarkerPlugin, CesiumDrawAnnotationsVisualizer],
+      mapSourceProviders: [
+        OpenLayerGEESourceProvider,
+        OpenLayerBingSourceProvider,
+        OpenLayerOSMSourceProvider,
+        OpenLayerTileWMSSourceProvider,
+        CesiumOsmSourceProvider,
+        CesiumBINGSourceProvider,
+        CesiumGeoServerSourceProvider,
+        CesiumGEE2dSourceProvider,
+        CesiumGEESourceProvider,
+        CesiumSentinelSourceProvider
+      ]
     }),
     AnnotationsContextMenuModule
   ],
@@ -216,8 +232,10 @@ import { FormsModule } from '@angular/forms';
           tilesServerUrl: 'http://marco-polo.imisight.net/mp-gw/'
         },
         ESRI_4326: {},
-
-        CESIUM_GEO_SERVER: {}
+        CESIUM_GEO_SERVER: {},
+        CESIUM_SENTINEL: {
+          url: 'http://ansyn.webiks.com:89/api/wms'
+        }
       }
     }],
   bootstrap: [AppComponent]
