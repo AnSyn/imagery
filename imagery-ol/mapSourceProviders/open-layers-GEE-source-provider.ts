@@ -44,9 +44,14 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 
 	createSource(metaData: IMapSettings): any {
 		const config = { ...this.config, ...metaData.data.config };
-		const geeDefs = JSON.parse(this.layerData.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
+		const geeDefs = JSON.parse(this.layerData.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));	
+		const urls = [];
+		geeDefs.layers.forEach(layer => {
+			urls.push(config.serverUrl + `/query?request=` + layer.requestType + `&channel=` + layer.id + `&version=` + layer.version + `&x={x}&y={y}&z={z}`)
+		});
+
 		const source = new XYZ({
-			url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
+			urls: urls,
 			crossOrigin: 'anonymous',
 			minZoom: 1
 		});
