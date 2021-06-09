@@ -210,5 +210,8 @@
       }
     }
   },
-  "defaultProject": "imagery-tester"
+  "defaultProject": "imagery-tester",
+  "cli": {
+    "analytics": false
+  }
 }

@@ -1,18 +1,15 @@
-import Graticule from 'ol/Graticule';
-import Stroke from 'ol/style/Stroke';
-import {
-	BaseImageryPlugin, ImageryPlugin
-} from '@ansyn/imagery';
-import { Observable } from 'rxjs';
-import { OpenLayersMap } from '../../maps/open-layers-map/openlayers-map/openlayers-map';
+import Graticule from "ol/Graticule";
+import Stroke from "ol/style/Stroke";
+import { BaseImageryPlugin, ImageryPlugin } from "@ansyn/imagery";
+import { Observable } from "rxjs";
+import { OpenLayersMap } from "../../maps/open-layers-map/openlayers-map/openlayers-map";
 
 @ImageryPlugin({
 	supported: [OpenLayersMap],
-	deps: []
+	deps: [],
 })
 export class GridLinesVisualizer extends BaseImageryPlugin {
-
-	gridColor = 'rgba(245,245,245,0.85)';
+	gridColor = "rgba(245,245,245,0.85)";
 	gridLineWidth = 3;
 	gridShowLabels = true;
 	protected graticule1: any;
@@ -35,16 +32,18 @@ export class GridLinesVisualizer extends BaseImageryPlugin {
 			minutes += 1;
 			seconds = 0;
 		}
-		return `${degrees + String.fromCharCode(176)} ${minutes.toFixed(0)} ${seconds.toFixed(0)}`;
+		return `${degrees + String.fromCharCode(176)} ${minutes.toFixed(
+			0
+		)} ${seconds.toFixed(0)}`;
 	}
 
 	onInit() {
-		if (this.isEnabled) {
+		if (this.isGridEnabled) {
 			this.showGridLines();
 		}
 	}
 
-	set isEnabled(isEnabled: boolean) {
+	set isGridEnabled(isEnabled: boolean) {
 		this._isEnabled = isEnabled;
 		if (isEnabled) {
 			this.showGridLines();
@@ -53,7 +52,7 @@ export class GridLinesVisualizer extends BaseImageryPlugin {
 		}
 	}
 
-	get isEnabled(): boolean {
+	get isGridEnabled(): boolean {
 		return this._isEnabled;
 	}
 
@@ -69,23 +68,23 @@ export class GridLinesVisualizer extends BaseImageryPlugin {
 			intervals: [90, 45, 30, 20, 10, 5, 2, 1],
 			strokeStyle: new Stroke({
 				color: this.gridColor,
-				width: this.gridLineWidth
+				width: this.gridLineWidth,
 			}),
 			// lonLabelStyle: lonLabelStyle,
-			showLabels: this.gridShowLabels
+			showLabels: this.gridShowLabels,
 		});
 
 		this.graticule2 = new Graticule({
 			// the style to use for the lines, optional.
 			intervals: [1 / 6],
 			strokeStyle: new Stroke({
-				color: 'rgba(245,245,245,0.45)',
+				color: "rgba(245,245,245,0.45)",
 				lineDash: [0.5, 4],
-				width: 2
+				width: 2,
 			}),
 			latLabelFormatter: this.formatAngle.bind(this),
 			lonLabelFormatter: this.formatAngle.bind(this),
-			showLabels: false
+			showLabels: false,
 		});
 
 		this.graticule2.setMap(this.iMap.mapObject);

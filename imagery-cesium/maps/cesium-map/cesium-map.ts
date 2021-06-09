@@ -26,7 +26,7 @@ import { IPixelPositionMovement, IPixelPosition } from '../../models/map-events'
 declare const Cesium: any;
 
 Cesium.buildModuleUrl.setBaseUrl('assets/Cesium/');
-Cesium.BingMapsApi.defaultKey = 'AnjT_wAj_juA_MsD8NhcEAVSjCYpV-e50lUypkWm1JPxVu0XyVqabsvD3r2DQpX-';
+// Cesium.BingMapsApi.defaultKey = 'AnjT_wAj_juA_MsD8NhcEAVSjCYpV-e50lUypkWm1JPxVu0XyVqabsvD3r2DQpX-';
 
 export const CesiumMapName = 'CesiumMap';
 
