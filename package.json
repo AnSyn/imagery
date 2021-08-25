@@ -38,7 +38,7 @@
     "@turf/turf": "^5.1.6",
     "angular2-uuid": "^1.1.1",
     "auto-subscriptions": "^2.0.5",
-    "cesium": "^1.70.0",
+    "cesium": "^1.84.0",
     "core-js": "^3.6.5",
     "material-community-components": "^7.1.0",
     "ngx-color-picker": "^9.1.0",
