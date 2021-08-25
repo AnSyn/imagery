@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "aot": true,
+            "aot": false,
             "customWebpackConfig": {
               "path": "./custom-webpack.config.js"
             },
@@ -32,17 +32,11 @@
                 "output": "/assets/Cesium"
               }
             ],
-            "styles": [
-              "imagery-tester/src/styles.css"
-            ],
+            "styles": ["imagery-tester/src/styles.css"],
             "stylePreprocessorOptions": {
-              "includePaths": [
-                "style"
-              ]
+              "includePaths": ["style"]
             },
-            "scripts": [
-              "node_modules/cesium/Build/Cesium/Cesium.js"
-            ]
+            "scripts": ["node_modules/cesium/Build/Cesium/Cesium.js"]
           },
           "configurations": {
             "production": {
@@ -91,17 +85,10 @@
             "polyfills": "imagery-tester/src/polyfills.ts",
             "tsConfig": "imagery-tester/src/tsconfig.spec.json",
             "karmaConfig": "imagery-tester/src/karma.conf.js",
-            "scripts": [
-              "node_modules/cesium/Build/Cesium/Cesium.js"
-            ],
-            "styles": [
-              "imagery-tester/src/styles.css"
-            ],
+            "scripts": ["node_modules/cesium/Build/Cesium/Cesium.js"],
+            "styles": ["imagery-tester/src/styles.css"],
             "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/@ansyn",
-                "style"
-              ]
+              "includePaths": ["src/app/@ansyn", "style"]
             },
             "assets": [
               {
@@ -122,9 +109,7 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         }
       }
