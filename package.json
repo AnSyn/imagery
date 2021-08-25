@@ -40,7 +40,7 @@
     "auto-subscriptions": "^2.0.5",
     "cesium": "^1.84.0",
     "core-js": "^3.6.5",
-    "material-community-components": "^7.1.0",
+    "material-community-components": "^11.0.0",
     "ngx-color-picker": "^9.1.0",
     "ol": "^5.3.3",
     "rxjs": "~6.5.5",
