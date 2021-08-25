@@ -1,16 +1,19 @@
-import { ImageryPlugin, IMousePointerMove, IVisualizerEntity } from '@ansyn/imagery';
-import { Observable, of } from 'rxjs';
-import { AutoSubscription } from 'auto-subscriptions';
-import { BaseEntitiesVisualizer, CesiumMap } from '@ansyn/imagery-cesium';
-import { point } from '@turf/turf';
+import {
+  ImageryPlugin,
+  IMousePointerMove,
+  IVisualizerEntity,
+} from "@ansyn/imagery";
+import { Observable, of } from "rxjs";
+import { AutoSubscription } from "auto-subscriptions";
+import { BaseEntitiesVisualizer, CesiumMap } from "@ansyn/imagery-cesium";
+import { point } from "@turf/turf";
 
 @ImageryPlugin({
   supported: [CesiumMap],
-  deps: []
+  deps: [],
 })
 export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
-
-  private _isEnabled: boolean;
+  protected _isEnabled: boolean;
   private first = false;
 
   public set isEnabled(value: boolean) {
@@ -18,8 +21,8 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
       this._isEnabled = value;
 
       if (!this.isEnabled) {
-        if (this.idToEntity.has('visEntity')) {
-          this.removeEntity('visEntity');
+        if (this.idToEntity.has("visEntity")) {
+          this.removeEntity("visEntity");
         }
       }
     }
@@ -30,11 +33,14 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
   }
 
   @AutoSubscription
-  mousePositionChanged$ = () => this.communicator.ActiveMap.mousePointerMoved.subscribe((position: IMousePointerMove) => {
-    if (this.isEnabled && !isNaN(position.lat) && !isNaN(position.long)) {
-      // this.tryDraw(position);
-    }
-  })
+  mousePositionChanged$ = () =>
+    this.communicator.ActiveMap.mousePointerMoved.subscribe(
+      (position: IMousePointerMove) => {
+        if (this.isEnabled && !isNaN(position.lat) && !isNaN(position.long)) {
+          // this.tryDraw(position);
+        }
+      }
+    );
 
   constructor() {
     super();
@@ -62,164 +68,147 @@ export class MouseMarkerPlugin extends BaseEntitiesVisualizer {
     }
 
     const entity: IVisualizerEntity = {
-      id: 'visEntity',
-      icon: 'assets//logo.svg',
-      featureJson: point([position.long, position.lat, position.height])
+      id: "visEntity",
+      icon: "assets//logo.svg",
+      featureJson: point([position.long, position.lat, position.height]),
     };
 
     const polygon: IVisualizerEntity = {
-      id: 'Polygon',
+      id: "Polygon",
       featureJson: {
-        type: 'Feature',
+        type: "Feature",
         geometry: {
-          'type': 'Polygon',
-          'coordinates': [
+          type: "Polygon",
+          coordinates: [
             [
-              [
-                -79.9441543655779,
-                6.128701260566601
-              ],
-              [
-                -13.612496074120623,
-                47.529128645116856
-              ],
-              [
-                74.60638151695977,
-                -18.541194853701725
-              ],
-              [
-                -79.9441543655779,
-                6.128701260566601
-              ]
-            ]
-          ]
+              [-79.9441543655779, 6.128701260566601],
+              [-13.612496074120623, 47.529128645116856],
+              [74.60638151695977, -18.541194853701725],
+              [-79.9441543655779, 6.128701260566601],
+            ],
+          ],
         },
         properties: {
           label: {
-            text: 'BLa'
+            text: "BLa",
           },
-          labelSize : 28
-
-        }
+          labelSize: 28,
+        },
       },
       style: {
         initial: {
-          'fill': 'white',
-          'stroke': '#27b2cfe6',
-          'stroke-width': 1,
-          'stroke-dasharray': 0,
-          'fill-opacity': 0.4,
-          'stroke-opacity': 1,
-        }
-      }
+          fill: "white",
+          stroke: "#27b2cfe6",
+          "stroke-width": 1,
+          "stroke-dasharray": 0,
+          "fill-opacity": 0.4,
+          "stroke-opacity": 1,
+        },
+      },
     };
 
     const polyline: IVisualizerEntity = {
-      id: 'Polyline',
+      id: "Polyline",
       featureJson: {
-        type: 'Feature',
+        type: "Feature",
         geometry: {
-          type : 'LineString',
+          type: "LineString",
           coordinates: [
-            [
-              37.08545167242462,
-              29.723747917711435
-            ],
-            [
-              34.40537649183417,
-              35.36759607584702
-            ],
-            [
-              31.05530091865578,
-              31.834237068921382
-            ]
-          ]
+            [37.08545167242462, 29.723747917711435],
+            [34.40537649183417, 35.36759607584702],
+            [31.05530091865578, 31.834237068921382],
+          ],
         },
-        properties: {}
+        properties: {},
       },
       style: {
         initial: {
-          stroke: '#27b2cfe6',
-          'stroke-width': 1,
-          'stroke-dasharray': 0,
-        }
-      }
+          stroke: "#27b2cfe6",
+          "stroke-width": 1,
+          "stroke-dasharray": 0,
+        },
+      },
     };
 
     const billboardEntity: IVisualizerEntity = {
-      id: 'billboard',
-      icon: 'assets//logo.svg',
+      id: "billboard",
+      icon: "assets//logo.svg",
       featureJson: {
-        type: 'Feature',
+        type: "Feature",
         geometry: {
-          type : 'Point',
-          coordinates: [
-            -6.018961997487438,
-            31.26325432597315
-          ]
+          type: "Point",
+          coordinates: [-6.018961997487438, 31.26325432597315],
         },
-        properties: {}
+        properties: {},
       },
       style: {
         initial: {
-          'marker-color': '#ffffff',
-        }
-      }
+          "marker-color": "#ffffff",
+        },
+      },
     };
 
     const pointEntity: IVisualizerEntity = {
-      id: 'Point',
+      id: "Point",
       label: {
-        text: 'BLa'
+        text: "BLa",
       },
-      labelSize : 28,
+      labelSize: 28,
       featureJson: {
-        type: 'Feature',
+        type: "Feature",
         geometry: {
-          type : 'Point',
-          coordinates: [
-            32.018961997487438,
-            34.26325432597315
-          ]
+          type: "Point",
+          coordinates: [32.018961997487438, 34.26325432597315],
         },
         properties: {
           label: {
-            text: 'BLa'
+            text: "BLa",
           },
-          labelSize : 28
-        }
+          labelSize: 28,
+        },
       },
       style: {
         initial: {
-          'marker-color': '#ffffff',
-        }
-      }
+          "marker-color": "#ffffff",
+        },
+      },
     };
 
     const multiLineString: IVisualizerEntity = {
-      id: 'multiLineString',
+      id: "multiLineString",
       featureJson: {
-        type: 'Feature',
+        type: "Feature",
         geometry: {
-          'type': 'MultiLineString',
-          'coordinates': [
-            [[-34, 32], [-34, 32]],
-            [[34, -32], [34, 32]],
-            [[-32, -34], [32, -34]],
-            [[-32, 34], [32, 34]]
-          ]
+          type: "MultiLineString",
+          coordinates: [
+            [
+              [-34, 32],
+              [-34, 32],
+            ],
+            [
+              [34, -32],
+              [34, 32],
+            ],
+            [
+              [-32, -34],
+              [32, -34],
+            ],
+            [
+              [-32, 34],
+              [32, 34],
+            ],
+          ],
         },
-        properties: {}
+        properties: {},
       },
       style: {
         initial: {
-          stroke: '#27b2cfe6',
-          'stroke-width': 1,
-          'stroke-dasharray': 0,
-        }
-      }
+          stroke: "#27b2cfe6",
+          "stroke-width": 1,
+          "stroke-dasharray": 0,
+        },
+      },
     };
-
 
     // this.setEntities([polygon, polyline, pointEntity,multiLineString]);
     this.setEntities([pointEntity]);
