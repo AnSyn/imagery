@@ -3,12 +3,11 @@
   "dest": "../dist/ansyn/imagery",
   "whitelistedNonPeerDependencies": [
     "auto-subscriptions",
-    "@turf/turf"
+    "@turf/turf",
+    "ngx-color-picker"
   ],
   "lib": {
     "entryFile": "./public_api.ts",
-    "styleIncludePaths": [
-      "../"
-    ]
+    "styleIncludePaths": ["../"]
   }
 }

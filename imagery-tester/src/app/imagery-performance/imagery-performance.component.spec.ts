@@ -1,4 +1,4 @@
-import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -11,7 +11,7 @@ describe('MeasureRulerComponent', () => {
 	let component: ImageryPerformanceComponent;
 	let fixture: ComponentFixture<ImageryPerformanceComponent>;
 
-	beforeEach(async(() => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [ImageryPerformanceComponent],
 			providers: [

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ImageryChangeMapComponent } from './imagery-change-map.component';
 import { ImageryCommunicatorService, MAP_PROVIDERS_CONFIG } from '@ansyn/imagery';
@@ -14,7 +14,7 @@ describe('ImageryChangeMapComponent', () => {
   const mockMapEvents = MockComponent({ selector: 'app-map-events', inputs: [] });
   const mockImageProcessingControl = MockComponent({ selector: 'app-image-processing-control', inputs: [] });
 
-	beforeEach(async(() => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [ImageryChangeMapComponent, mockMeasureRuler, mockImageryPerformance, mockMapEvents, mockImageProcessingControl],
 			providers: [

@@ -4,40 +4,44 @@ import {
 	ImageryLayerProperties,
 	ImageryMap,
 	IImageryMapPosition,
-	EPSG_4326
-} from '@ansyn/imagery';
-import { GeoJsonObject, Point } from 'geojson';
-import ol_Layer from 'ol/layer/Layer';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import { Observable, of } from 'rxjs';
-import * as olShared from '../open-layers-map/shared/openlayers-shared';
+	EPSG_4326,
+} from "@ansyn/imagery";
+import { GeoJsonObject, Point } from "geojson";
+import ol_Layer from "ol/layer/Layer";
+import Map from "ol/Map";
+import View from "ol/View";
+import { Observable, of } from "rxjs";
+import * as olShared from "../open-layers-map/shared/openlayers-shared";
 
-export const DisabledOpenLayersMapName = 'disabledOpenLayersMap';
+export const DisabledOpenLayersMapName = "disabledOpenLayersMap";
 
 @ImageryMap({
-	mapType: DisabledOpenLayersMapName
+	mapType: DisabledOpenLayersMapName,
 })
 export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 	mainLayer: ol_Layer;
 	element: HTMLElement;
 
-	initMap(element: HTMLElement, shadowNorthElement: HTMLElement, shadowDoubleBufferElement: HTMLElement, mainLayer: ol_Layer, position?: IImageryMapPosition): Observable<boolean> {
+	initMap(
+		element: HTMLElement,
+		shadowNorthElement: HTMLElement,
+		shadowDoubleBufferElement: HTMLElement,
+		mainLayer: ol_Layer,
+		position?: IImageryMapPosition
+	): Observable<boolean> {
 		this.element = element;
-		this.mapObject = new Map({
+		this._mapObject = new Map({
 			target: element,
-			renderer: 'canvas',
-			controls: []
+			renderer: "canvas",
+			controls: [],
 		});
 		this.setMainLayer(mainLayer, position);
 		return of(true);
 	}
 
-	addLayerIfNotExist(layer: ol_Layer) {
-	}
+	addLayerIfNotExist(layer: ol_Layer) {}
 
-	toggleGroup(groupName: string, newState: boolean) {
-	}
+	toggleGroup(groupName: string, newState: boolean) {}
 
 	getLayers(): ol_Layer[] {
 		return this.mapObject.getLayers().getArray();
@@ -51,8 +55,10 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		return of(true);
 	}
 
-
-	resetView(layer: ol_Layer, position?: IImageryMapPosition): Observable<boolean> {
+	resetView(
+		layer: ol_Layer,
+		position?: IImageryMapPosition
+	): Observable<boolean> {
 		this.setMainLayer(layer, position);
 		return of(true);
 	}
@@ -62,7 +68,10 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		const view = this.generateNewView(layer, position);
 		this.mapObject.setView(view);
 		this.mainLayer = layer;
-		this.mainLayer.set(ImageryLayerProperties.NAME, IMAGERY_MAIN_LAYER_NAME);
+		this.mainLayer.set(
+			ImageryLayerProperties.NAME,
+			IMAGERY_MAIN_LAYER_NAME
+		);
 		this.mapObject.addLayer(this.mainLayer);
 		const layerExtent = this.mainLayer.getExtent();
 		if (layerExtent) {
@@ -78,16 +87,20 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		const newProjection = layer.getSource().getProjection();
 
 		// for outside only
-		if (position && position.projectedState && position.projectedState.projection.code === newProjection.getCode()) {
+		if (
+			position &&
+			position.projectedState &&
+			position.projectedState.projection.code === newProjection.getCode()
+		) {
 			return new View({
 				projection: newProjection,
 				center: position.projectedState.center,
 				zoom: position.projectedState.zoom,
-				rotation: position.projectedState.rotation
+				rotation: position.projectedState.rotation,
 			});
 		}
 		return new View({
-			projection: newProjection
+			projection: newProjection,
 		});
 	}
 
@@ -95,7 +108,7 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		const view = this.mapObject.getView();
 		view.fit(extent, {
 			size: this.mapObject.getSize(),
-			constrainResolution: false
+			constrainResolution: false,
 		});
 	}
 
@@ -124,7 +137,10 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		return of(undefined);
 	}
 
-	public setRotation(rotation: number, view: View = this.mapObject.getView()) {
+	public setRotation(
+		rotation: number,
+		view: View = this.mapObject.getView()
+	) {
 		view.setRotation(rotation);
 	}
 
@@ -132,11 +148,9 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		this.mapObject.updateSize();
 	}
 
-	addGeojsonLayer(data: GeoJsonObject): void {
-	}
+	addGeojsonLayer(data: GeoJsonObject): void {}
 
-	setPointerMove(enable: boolean) {
-	}
+	setPointerMove(enable: boolean) {}
 
 	getPointerMove() {
 		return new Observable();
@@ -144,7 +158,7 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 
 	one2one(): void {
 		const view = this.mapObject.getView();
-		view.setResolution(1)
+		view.setResolution(1);
 	}
 
 	zoomOut(): void {
@@ -163,7 +177,10 @@ export class OpenLayersDisabledMap extends BaseImageryMap<Map> {
 		return this.mapObject.getView().getRotation();
 	}
 
-	getCoordinateFromScreenPixel(screenPixel: { x, y }): [number, number, number] {
+	getCoordinateFromScreenPixel(screenPixel: {
+		x;
+		y;
+	}): [number, number, number] {
 		return null;
 	}
 

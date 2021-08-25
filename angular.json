@@ -136,7 +136,7 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "imagery-ol/tsconfig.lib.json",
             "project": "imagery-ol/ng-package.json"
@@ -156,7 +156,7 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "imagery-cesium/tsconfig.lib.json",
             "project": "imagery-cesium/ng-package.json"
@@ -176,7 +176,7 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "imagery-video/tsconfig.lib.json",
             "project": "imagery-video/ng-package.json"
@@ -196,7 +196,7 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "imagery/tsconfig.lib.json",
             "project": "imagery/ng-package.json"

@@ -1,19 +1,19 @@
 {
-	"name": "@ansyn/imagery-cesium",
-	"version": "2.0.4",
-	"peerDependencies": {
-		"@angular/core": "~9.1.6",
-		"@angular/common": "~9.1.6",
-		"@ansyn/imagery": "1.6.33",
-		"rxjs": "~6.5.5",
-		"cesium": "^1.69.0",
-		"auto-subscriptions": "^2.0.5",
-		"@turf/turf": "^5.1.6",
-		"ngx-color-picker": "^9.1.0",
-		"angular2-uuid": "^1.1.1"
-	},
-	"dependencies": {
+  "name": "@ansyn/imagery-cesium",
+  "version": "3.0.0",
+  "peerDependencies": {
+    "@angular/core": "~10.0.8",
+    "@angular/common": "~10.0.8",
+    "@ansyn/imagery": "3.0.0",
+    "rxjs": "~6.5.5",
+    "cesium": "^1.84.0",
+    "auto-subscriptions": "^2.0.5",
+    "@turf/turf": "^5.1.6",
+    "ngx-color-picker": "^11.0.0",
+    "angular2-uuid": "^1.1.1"
+  },
+  "dependencies": {
     "tslib": "^2.0.0"
-},
-	"license": "MIT"
+  },
+  "license": "MIT"
 }
