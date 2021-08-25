@@ -1,17 +1,17 @@
 {
-	"name": "@ansyn/imagery",
-	"version": "2.0.4",
-	"keywords": [],
-	"author": "ansyn",
-	"license": "MIT",
-	"peerDependencies": {
-    	"@angular/common": "~9.1.6",
-		"@angular/core": "~9.1.6",
-		"@types/geojson": "7946.0.7"
-	},
-	"dependencies": {
-		"auto-subscriptions": "^2.0.5",
-		"@turf/turf": "^5.1.6",
-		"tslib": "^2.0.0"
-	}
+  "name": "@ansyn/imagery",
+  "version": "3.0.0",
+  "keywords": [],
+  "author": "ansyn",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/core": "~10.0.8",
+    "@angular/common": "~10.0.8",
+    "@types/geojson": "7946.0.7"
+  },
+  "dependencies": {
+    "auto-subscriptions": "^2.0.5",
+    "@turf/turf": "^5.1.6",
+    "tslib": "^2.0.0"
+  }
 }
