@@ -5,8 +5,8 @@
   "author": "ansyn",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/core": "~10.0.8",
-    "@angular/common": "~10.0.8",
+    "@angular/core": "~12.2.2",
+    "@angular/common": "~12.2.2",
     "@types/geojson": "7946.0.7"
   },
   "dependencies": {

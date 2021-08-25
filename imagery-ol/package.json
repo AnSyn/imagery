@@ -2,8 +2,8 @@
   "name": "@ansyn/imagery-ol",
   "version": "3.0.0",
   "peerDependencies": {
-    "@angular/core": "~10.0.8",
-    "@angular/common": "~10.0.8",
+    "@angular/core": "~12.2.2",
+    "@angular/common": "~12.2.2",
     "@ansyn/imagery": "3.0.0"
   },
   "dependencies": {
