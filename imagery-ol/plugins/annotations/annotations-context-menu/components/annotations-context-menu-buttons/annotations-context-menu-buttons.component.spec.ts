@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AnnotationsContextMenuButtonsComponent } from './annotations-context-menu-buttons.component';
 import { DebugElement } from '@angular/core';
@@ -26,7 +26,7 @@ describe('AnnotationsContextMenuButtonsComponent', () => {
 
 	const myComponent = AnnotationsContextMenuButtonsComponent;
 
-	beforeEach(async(() => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [
 				myComponent,

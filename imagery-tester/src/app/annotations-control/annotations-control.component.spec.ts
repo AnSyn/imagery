@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AnnotationsControlComponent } from './annotations-control.component';
 import { ImageryCommunicatorService } from '@ansyn/imagery';
@@ -12,7 +12,7 @@ describe('AnnotationsControlComponent', () => {
   let component: AnnotationsControlComponent;
   let fixture: ComponentFixture<AnnotationsControlComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AnnotationsControlComponent],
       providers: [ImageryCommunicatorService],

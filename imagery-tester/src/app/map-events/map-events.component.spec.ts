@@ -1,4 +1,4 @@
-import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed, waitForAsync } from '@angular/core/testing';
 import { ImageryCommunicatorService, MAP_PROVIDERS_CONFIG } from '@ansyn/imagery';
 import { MapEventsComponent } from './map-events.component';
 
@@ -6,7 +6,7 @@ describe('MeasureRulerComponent', () => {
 	let component: MapEventsComponent;
 	let fixture: ComponentFixture<MapEventsComponent>;
 
-	beforeEach(async(() => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [MapEventsComponent],
 			providers: [
