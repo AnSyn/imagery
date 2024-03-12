@@ -4,32 +4,56 @@ import {
 	EPSG_3857,
 	EPSG_4326,
 	ImageryLayerProperties,
-	IMapSettings
-} from '@ansyn/imagery';
-import ol_Layer from 'ol/layer/Layer';
-import ImageLayer from 'ol/layer/Image';
-import TileLayer from 'ol/layer/Tile';
-import * as proj from 'ol/proj';
-import XYZ from 'ol/source/XYZ';
-import { ProjectableRaster } from '../maps/open-layers-map/models/projectable-raster';
-export const IMAGE_PROCESS_ATTRIBUTE = 'imageLayer';
-export abstract class OpenLayersMapSourceProvider<CONF = any> extends BaseMapSourceProvider<CONF> {
+	IMapSettings,
+} from "@ansyn/imagery";
+import ol_Layer from "ol/layer/Layer";
+import ImageLayer from "ol/layer/Image";
+import TileLayer from "ol/layer/Tile";
+import * as proj from "ol/proj";
+import XYZ from "ol/source/XYZ";
+import { ProjectableRaster } from "../maps/open-layers-map/models/projectable-raster";
+export const IMAGE_PROCESS_ATTRIBUTE = "imageLayer";
+export abstract class OpenLayersMapSourceProvider<
+	CONF = any
+> extends BaseMapSourceProvider<CONF> {
 	create(metaData: IMapSettings): Promise<ol_Layer> {
+		debugger;
+		metaData.data["sourceUrl"] =
+			"http://c.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png";
+
 		const extent = this.createExtent(metaData);
 		const source = this.createSource(metaData);
 		const tileLayer = this.createLayer(source, extent);
-		// if (metaData.data.overlay) {
-			// for image process;
-		tileLayer.set(IMAGE_PROCESS_ATTRIBUTE, this.getImageLayer(source, extent));
+		if (metaData.data["sourceUrl"]) {
+			source.setUrl(metaData.data["sourceUrl"]);
+		}
+
+		// source.setUrl("https://wow.com");
+		// source.setUrl(
+		// 	"https://gps.tile.openstreetmap.org/lines/{x}/{y}/{z}.png"
+		// );
+		// source.setUrl(
+		// 	"https://a.tile.thunderforest.com/spinal-map/{x}/{y}/{z}.png?apikey=6a53e8b25d114a5e9216df5bf9b5e9c8"
+		// );
+
+		// source.setUrl(
+		// 	"https://libot.wwest.local/mapproxy-ww//wmts/bluemarble-Orthophoto/{x}/{y}/{z}/{x}.png"
+		// );
+		// if (metaData.data.overlay) {https://libot.wwest.local/mapproxy-ww//wmts/bluemarble-Orthophoto/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png
+		// for image process;
+		tileLayer.set(
+			IMAGE_PROCESS_ATTRIBUTE,
+			this.getImageLayer(source, extent)
+		);
 		// }
 		return Promise.resolve(tileLayer);
 	}
 
 	generateLayerId(metaData: IMapSettings) {
 		if (metaData.data.overlay) {
-			return `${ metaData.worldView.mapType }/${ metaData.data.overlay.sourceType }/${ metaData.data.overlay.id }`;
+			return `${metaData.worldView.mapType}/${metaData.data.overlay.sourceType}/${metaData.data.overlay.id}`;
 		}
-		return `${ metaData.worldView.mapType }/${ metaData.data.key }`;
+		return `${metaData.worldView.mapType}/${metaData.data.key}`;
 	}
 
 	removeExtraData(layer: ol_Layer) {
@@ -40,7 +64,10 @@ export abstract class OpenLayersMapSourceProvider<CONF = any> extends BaseMapSou
 	}
 
 	protected isRasterLayer(layer: ol_Layer) {
-		return layer instanceof ol_Layer && layer.getSource() instanceof ProjectableRaster;
+		return (
+			layer instanceof ol_Layer &&
+			layer.getSource() instanceof ProjectableRaster
+		);
 	}
 
 	createLayer(source, extent: [number, number, number, number]): ol_Layer {
@@ -48,7 +75,7 @@ export abstract class OpenLayersMapSourceProvider<CONF = any> extends BaseMapSou
 			visible: true,
 			preload: Infinity,
 			source,
-			extent
+			extent,
 		});
 		const imageLayer = this.getImageLayer(source, extent);
 		this.removeExtraData(imageLayer);
@@ -61,40 +88,61 @@ export abstract class OpenLayersMapSourceProvider<CONF = any> extends BaseMapSou
 			source: new ProjectableRaster({
 				sources: [source],
 				operation: (pixels) => pixels[0],
-				operationType: 'image'
+				operationType: "image",
 			}),
-			extent: extent
+			extent: extent,
 		});
 		return imageLayer;
 	}
 
 	createExtent(metaData: IMapSettings, destinationProjCode = EPSG_3857) {
-		const sourceProjection = metaData.data.config && metaData.data.config.projection ? metaData.data.config.projection : EPSG_4326;
-		let extent: [number, number, number, number] = metaData.data.overlay ? <[number, number, number, number]>bboxFromGeoJson(metaData.data.overlay.footprint) : [-180, -90, 180, 90];
-		[extent[0], extent[1]] = proj.transform([extent[0], extent[1]], sourceProjection, destinationProjCode);
-		[extent[2], extent[3]] = proj.transform([extent[2], extent[3]], sourceProjection, destinationProjCode);
+		const sourceProjection =
+			metaData.data.config && metaData.data.config.projection
+				? metaData.data.config.projection
+				: EPSG_4326;
+		let extent: [number, number, number, number] = metaData.data.overlay
+			? <[number, number, number, number]>(
+					bboxFromGeoJson(metaData.data.overlay.footprint)
+			  )
+			: [-180, -90, 180, 90];
+		[extent[0], extent[1]] = proj.transform(
+			[extent[0], extent[1]],
+			sourceProjection,
+			destinationProjCode
+		);
+		[extent[2], extent[3]] = proj.transform(
+			[extent[2], extent[3]],
+			sourceProjection,
+			destinationProjCode
+		);
 		return extent;
 	}
 
 	createSource(metaData: IMapSettings) {
+		debugger;
 		const source = new XYZ({
 			url: metaData.data.overlay.imageUrl,
-			crossOrigin: 'Anonymous',
-			projection: EPSG_3857
+			crossOrigin: "Anonymous",
+			projection: EPSG_3857,
 		});
+
+		debugger;
 		return source;
 	}
 
 	generateExtraData(metaData: IMapSettings) {
 		if (metaData.data.overlay) {
-			return { [ImageryLayerProperties.FOOTPRINT]: metaData.data.overlay.footprint }
+			return {
+				[ImageryLayerProperties.FOOTPRINT]:
+					metaData.data.overlay.footprint,
+			};
 		}
-		return {}
+		return {};
 	}
 
 	setExtraData(layer: ol_Layer, extraData: any): void {
 		Object.entries(extraData).forEach(([key, value]) => {
-			layer.set(key, value)
-		})
+			layer.set(key, value);
+		});
 	}
 }
