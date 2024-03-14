@@ -39,7 +39,7 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 	}
 
 	async create(metaData: IMapSettings): Promise<any> {
-		debugger;
+		// debugger;
 		const config = { ...this.config, ...metaData.data.config };
 
 		this.layerData = await this.getLayersData(config.serverUrl);
@@ -79,7 +79,7 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 			crossOrigin: "anonymous",
 			minZoom: 1,
 		});
-		debugger;
+		// debugger;
 		return source;
 	}
 

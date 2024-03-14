@@ -17,7 +17,7 @@ export abstract class OpenLayersMapSourceProvider<
 	CONF = any
 > extends BaseMapSourceProvider<CONF> {
 	create(metaData: IMapSettings): Promise<ol_Layer> {
-		debugger;
+		// debugger;
 		metaData.data["sourceUrl"] =
 			"http://c.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png";
 
@@ -119,14 +119,12 @@ export abstract class OpenLayersMapSourceProvider<
 	}
 
 	createSource(metaData: IMapSettings) {
-		debugger;
 		const source = new XYZ({
 			url: metaData.data.overlay.imageUrl,
 			crossOrigin: "Anonymous",
 			projection: EPSG_3857,
 		});
 
-		debugger;
 		return source;
 	}
 

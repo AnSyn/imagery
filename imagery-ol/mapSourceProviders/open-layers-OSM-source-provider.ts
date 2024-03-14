@@ -13,7 +13,7 @@ export const OpenLayerOSMSourceProviderSourceType = "OSM";
 })
 export class OpenLayerOSMSourceProvider extends OpenLayersMapSourceProvider {
 	createSource(metaData: IMapSettings): any {
-		debugger;
+		// debugger;
 		return new OSM({ wrapX: false });
 	}
 }
