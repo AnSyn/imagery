@@ -39,7 +39,6 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 	}
 
 	async create(metaData: IMapSettings): Promise<any> {
-		// debugger;
 		const config = { ...this.config, ...metaData.data.config };
 
 		this.layerData = await this.getLayersData(config.serverUrl);
@@ -53,10 +52,15 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 		);
 		return Promise.resolve(tileLayer);
 	}
-
+	/**
+	 * this function was modified to use multiple layers with a single source, currently working clunky layer
+	 * should be checked with the correct GEE server
+	 * supports Angular 12
+	 * @param metaData
+	 * @returns
+	 */
 	createSource(metaData: IMapSettings): any {
 		const config = { ...this.config, ...metaData.data.config };
-		// const geeDefs = JSON.parse(this.layerData.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":'));
 		const geeDefs = JSON.parse(
 			this.layerData.replace(/([\[\{,])\s*(\w+)\s*:/g, '$1 "$2":')
 		);
@@ -73,13 +77,12 @@ export class OpenLayerGEESourceProvider extends OpenLayersMapSourceProvider {
 					`&x={x}&y={y}&z={z}`
 			);
 		});
+
 		const source = new XYZ({
-			// url: config.serverUrl + `/query?request=` + geeDefs.layers[0].requestType + `&channel=` + geeDefs.layers[0].id + `&version=` + geeDefs.layers[0].version + `&x={x}&y={y}&z={z}`,
 			urls: urls,
 			crossOrigin: "anonymous",
 			minZoom: 1,
 		});
-		// debugger;
 		return source;
 	}
 
