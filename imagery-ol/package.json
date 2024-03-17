@@ -1,6 +1,6 @@
 {
   "name": "@ansyn/imagery-ol",
-  "version": "1.6.43",
+  "version": "1.6.46",
   "peerDependencies": {
     "@angular/core": "~9.1.6",
     "@angular/common": "~9.1.6",

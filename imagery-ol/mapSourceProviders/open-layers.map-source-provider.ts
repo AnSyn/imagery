@@ -18,6 +18,9 @@ export abstract class OpenLayersMapSourceProvider<CONF = any> extends BaseMapSou
 		const extent = this.createExtent(metaData);
 		const source = this.createSource(metaData);
 		const tileLayer = this.createLayer(source, extent);
+		if (metaData.data["sourceUrl"]) {
+			source.setUrl(metaData.data["sourceUrl"]);
+		}
 		// if (metaData.data.overlay) {
 			// for image process;
 		tileLayer.set(IMAGE_PROCESS_ATTRIBUTE, this.getImageLayer(source, extent));
